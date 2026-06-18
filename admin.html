@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPS — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--black:#0A0A09;--graphite:#161614;--gold:#B8955A;--off-white:#F5F4F1;--mist:#9B9B94;--error:#e07070;--ok:#5a9e6f;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--black);color:var(--off-white);font-family:'Jost',sans-serif;min-height:100vh;}
+
+/* ── Login ── */
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;}
+.login-card{width:min(400px,100%);border:1px solid rgba(184,149,90,.15);padding:3rem 2.5rem;}
+.login-logo{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:400;letter-spacing:.06em;margin-bottom:.2rem;}
+.login-sub{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);margin-bottom:2.5rem;}
+.a-label{display:block;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,244,241,.4);margin-bottom:.35rem;}
+.a-input{width:100%;background:rgba(245,244,241,.04);border:1px solid rgba(245,244,241,.12);color:var(--off-white);font-family:'Jost',sans-serif;font-size:.85rem;padding:.7rem .9rem;outline:none;margin-bottom:1rem;transition:border-color .2s;}
+.a-input:focus{border-color:rgba(184,149,90,.5);}
+.a-btn{width:100%;background:var(--gold);color:var(--black);border:none;font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;padding:.85rem;cursor:pointer;transition:opacity .2s;margin-top:.5rem;}
+.a-btn:hover{opacity:.85;}
+.a-btn:disabled{opacity:.4;cursor:default;}
+.login-error{font-size:.78rem;color:var(--error);margin-top:.75rem;min-height:1rem;}
+
+/* ── Dashboard ── */
+#dashboard{display:none;flex-direction:column;min-height:100vh;}
+#dashboard.visible{display:flex;}
+.admin-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid rgba(245,244,241,.08);}
+.admin-brand{font-family:'Cormorant Garamond',serif;font-size:1.1rem;letter-spacing:.06em;}
+.admin-header-right{display:flex;align-items:center;gap:1.5rem;}
+.admin-user-email{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--mist);}
+.logout-btn{background:none;border:1px solid rgba(245,244,241,.15);color:rgba(245,244,241,.5);font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .85rem;cursor:pointer;transition:border-color .2s,color .2s;}
+.logout-btn:hover{border-color:rgba(245,244,241,.4);color:var(--off-white);}
+
+/* Tabs */
+.admin-tabs{display:flex;border-bottom:1px solid rgba(245,244,241,.08);padding:0 2rem;}
+.tab-btn{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,244,241,.35);padding:.85rem 1.25rem;cursor:pointer;border:none;border-bottom:2px solid transparent;background:none;transition:color .2s,border-color .2s;}
+.tab-btn:hover{color:rgba(245,244,241,.7);}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+.admin-content{padding:2rem;flex:1;max-width:1100px;width:100%;}
+.admin-section{display:none;}
+.admin-section.active{display:block;}
+.section-heading{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;margin-bottom:1.5rem;}
+
+/* Table */
+.a-table{width:100%;border-collapse:collapse;}
+.a-table th{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,244,241,.35);text-align:left;padding:.6rem .75rem;border-bottom:1px solid rgba(245,244,241,.08);}
+.a-table td{font-size:.82rem;padding:.75rem;border-bottom:1px solid rgba(245,244,241,.05);vertical-align:middle;}
+.a-table tr:hover td{background:rgba(245,244,241,.02);}
+
+/* Badges */
+.badge{display:inline-block;font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .5rem;}
+.badge-pending{background:rgba(184,149,90,.12);color:var(--gold);}
+.badge-confirmed{background:rgba(90,158,111,.12);color:var(--ok);}
+.badge-declined{background:rgba(224,112,112,.12);color:var(--error);}
+
+/* Action buttons */
+.act-btn{background:none;border:1px solid rgba(245,244,241,.12);color:rgba(245,244,241,.5);font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;padding:.3rem .65rem;cursor:pointer;transition:border-color .2s,color .2s;}
+.act-btn.confirm:hover{border-color:var(--ok);color:var(--ok);}
+.act-btn.decline:hover{border-color:var(--error);color:var(--error);}
+.act-btn.delete:hover{border-color:var(--error);color:var(--error);}
+.act-group{display:flex;gap:.4rem;}
+
+/* Add form */
+.add-form{border:1px solid rgba(245,244,241,.08);padding:1.5rem;margin-bottom:2rem;}
+.add-form-title{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin-bottom:1.25rem;}
+.form-row{display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;}
+.form-grp{display:flex;flex-direction:column;gap:.35rem;flex:1;min-width:140px;}
+.form-grp label{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,244,241,.35);}
+.form-grp input,.form-grp select{background:rgba(245,244,241,.04);border:1px solid rgba(245,244,241,.12);color:var(--off-white);font-family:'Jost',sans-serif;font-size:.82rem;padding:.6rem .85rem;outline:none;transition:border-color .2s;}
+.form-grp input:focus{border-color:rgba(184,149,90,.45);}
+.form-grp input[type="date"]{color-scheme:dark;}
+.form-submit{background:var(--gold);color:var(--black);border:none;font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:.65rem 1.25rem;cursor:pointer;white-space:nowrap;transition:opacity .2s;align-self:flex-end;}
+.form-submit:hover{opacity:.85;}
+
+/* Toggle */
+.toggle{display:inline-flex;align-items:center;gap:.5rem;cursor:pointer;}
+.toggle-track{width:32px;height:18px;background:rgba(245,244,241,.15);border-radius:9px;position:relative;transition:background .2s;}
+.toggle-track.on{background:var(--gold);}
+.toggle-thumb{position:absolute;width:12px;height:12px;background:var(--black);border-radius:50%;top:3px;left:3px;transition:left .2s;}
+.toggle-track.on .toggle-thumb{left:17px;}
+.toggle-label{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--mist);}
+
+/* Misc */
+.empty-state{padding:2.5rem;text-align:center;color:rgba(245,244,241,.3);font-size:.82rem;border:1px solid rgba(245,244,241,.06);}
+.loading-msg{color:rgba(245,244,241,.3);font-size:.82rem;padding:1.5rem 0;}
+.mono-sm{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--mist);}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--graphite);border:1px solid rgba(184,149,90,.2);color:var(--off-white);font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.06em;padding:.75rem 1.25rem;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- ── Login ── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">Oak &amp; Pixel Studio</div>
+    <div class="login-sub">Admin Portal</div>
+    <label class="a-label">Email</label>
+    <input type="email" class="a-input" id="login-email" placeholder="admin@oakandpixel.co.za" autocomplete="email">
+    <label class="a-label">Password</label>
+    <input type="password" class="a-input" id="login-password" placeholder="••••••••" autocomplete="current-password">
+    <button class="a-btn" id="login-btn">Sign In</button>
+    <p class="login-error" id="login-error"></p>
+  </div>
+</div>
+
+<!-- ── Dashboard ── -->
+<div id="dashboard">
+  <header class="admin-header">
+    <span class="admin-brand">Oak &amp; Pixel Studio</span>
+    <div class="admin-header-right">
+      <span class="admin-user-email" id="admin-email"></span>
+      <button class="logout-btn" id="logout-btn">Sign Out</button>
+    </div>
+  </header>
+
+  <nav class="admin-tabs">
+    <button class="tab-btn active" data-tab="bookings">Bookings</button>
+    <button class="tab-btn" data-tab="availability">Availability</button>
+    <button class="tab-btn" data-tab="services">Services</button>
+  </nav>
+
+  <div class="admin-content">
+
+    <!-- Bookings -->
+    <div class="admin-section active" id="tab-bookings">
+      <h2 class="section-heading">Discovery Sessions</h2>
+      <div id="bookings-list"><p class="loading-msg">Loading…</p></div>
+    </div>
+
+    <!-- Availability -->
+    <div class="admin-section" id="tab-availability">
+      <h2 class="section-heading">Manage Availability</h2>
+      <div class="add-form">
+        <div class="add-form-title">Add Time Slots</div>
+        <div class="form-row">
+          <div class="form-grp" style="flex:0 0 auto;min-width:160px">
+            <label>Date</label>
+            <input type="date" id="slot-date">
+          </div>
+          <div class="form-grp">
+            <label>Times — comma-separated (e.g. 09:00, 10:00, 14:30)</label>
+            <input type="text" id="slot-times" placeholder="09:00, 10:00, 14:30">
+          </div>
+          <button class="form-submit" id="add-slots-btn">Add Slots</button>
+        </div>
+      </div>
+      <div id="slots-list"><p class="loading-msg">Loading…</p></div>
+    </div>
+
+    <!-- Services -->
+    <div class="admin-section" id="tab-services">
+      <h2 class="section-heading">Booking Services</h2>
+      <div class="add-form">
+        <div class="add-form-title">Add New Service</div>
+        <div class="form-row">
+          <div class="form-grp">
+            <label>Service Name</label>
+            <input type="text" id="svc-name" placeholder="e.g. Brand Strategy Session">
+          </div>
+          <div class="form-grp">
+            <label>Description (optional)</label>
+            <input type="text" id="svc-desc" placeholder="Brief description">
+          </div>
+          <button class="form-submit" id="add-svc-btn">Add Service</button>
+        </div>
+      </div>
+      <div id="services-list"><p class="loading-msg">Loading…</p></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SB_URL = 'https://wdbsmcxzhmdkfjoftulm.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkYnNtY3h6aG1ka2Zqb2Z0dWxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDEwMTQsImV4cCI6MjA5NzM3NzAxNH0.xo9x29q_QVmDl81soUI3OMDzJBKmqEme-I6v5IZmeN0';
+const sb = supabase.createClient(SB_URL, SB_KEY);
+const $ = id => document.getElementById(id);
+
+/* ── Auth ── */
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) showDashboard(session.user);
+
+  sb.auth.onAuthStateChange((_e, session) => {
+    if (session) showDashboard(session.user);
+    else showLogin();
+  });
+}
+
+function showLogin() {
+  $('login-screen').style.display = 'flex';
+  $('dashboard').classList.remove('visible');
+}
+
+function showDashboard(user) {
+  $('login-screen').style.display = 'none';
+  $('dashboard').classList.add('visible');
+  $('admin-email').textContent = user?.email || '';
+  loadBookings(); loadSlots(); loadServices();
+}
+
+$('login-btn').addEventListener('click', async () => {
+  const email = $('login-email').value.trim();
+  const pw    = $('login-password').value;
+  const errEl = $('login-error');
+  const btn   = $('login-btn');
+  errEl.textContent = '';
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+  if (error) { errEl.textContent = error.message; btn.disabled = false; btn.textContent = 'Sign In'; }
+});
+$('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') $('login-btn').click(); });
+$('logout-btn').addEventListener('click', () => sb.auth.signOut());
+
+/* ── Tabs ── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    $('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ── Toast ── */
+function toast(msg) {
+  const el = $('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+/* ── Bookings ── */
+async function loadBookings() {
+  const c = $('bookings-list');
+  c.innerHTML = '<p class="loading-msg">Loading…</p>';
+  const { data, error } = await sb.from('bookings')
+    .select('id,full_name,company,email,phone,status,created_at,service:service_id(name),slot:slot_id(date,start_time)')
+    .order('created_at', { ascending: false });
+  if (error || !data?.length) { c.innerHTML = '<div class="empty-state">No bookings yet.</div>'; return; }
+
+  c.innerHTML = `<table class="a-table">
+    <thead><tr>
+      <th>Date &amp; Time</th><th>Service</th><th>Name</th>
+      <th>Company</th><th>Contact</th><th>Status</th><th>Actions</th>
+    </tr></thead>
+    <tbody>${data.map(b => {
+      const date = b.slot?.date
+        ? new Date(b.slot.date + 'T00:00:00').toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'})
+        : '—';
+      const time = b.slot?.start_time ? b.slot.start_time.slice(0,5) : '—';
+      const actions = b.status === 'pending'
+        ? `<div class="act-group">
+             <button class="act-btn confirm" data-id="${b.id}" data-action="confirmed">Confirm</button>
+             <button class="act-btn decline" data-id="${b.id}" data-action="declined">Decline</button>
+           </div>`
+        : `<span class="mono-sm">—</span>`;
+      return `<tr>
+        <td><span style="white-space:nowrap">${date}<br><span class="mono-sm">${time}</span></span></td>
+        <td>${b.service?.name || '—'}</td>
+        <td>${b.full_name}</td>
+        <td>${b.company}</td>
+        <td style="font-size:.78rem">${b.email}<br>${b.phone}</td>
+        <td><span class="badge badge-${b.status}">${b.status}</span></td>
+        <td>${actions}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+
+  c.querySelectorAll('.act-btn[data-action]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      await sb.from('bookings').update({ status: btn.dataset.action }).eq('id', btn.dataset.id);
+      toast('Booking ' + btn.dataset.action + '.');
+      loadBookings();
+    });
+  });
+}
+
+/* ── Availability ── */
+async function loadSlots() {
+  const c = $('slots-list');
+  const today = new Date().toISOString().split('T')[0];
+  const { data, error } = await sb.from('available_slots')
+    .select('id,date,start_time,is_booked')
+    .gte('date', today).order('date').order('start_time');
+  if (error || !data?.length) { c.innerHTML = '<div class="empty-state">No upcoming slots. Add some above.</div>'; return; }
+
+  const byDate = {};
+  data.forEach(s => { (byDate[s.date] = byDate[s.date] || []).push(s); });
+
+  c.innerHTML = Object.entries(byDate).map(([date, slots]) => {
+    const label = new Date(date + 'T00:00:00').toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    return `<div style="margin-bottom:1.25rem">
+      <div class="mono-sm" style="margin-bottom:.6rem;text-transform:uppercase;letter-spacing:.08em">${label}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.5rem">
+        ${slots.map(s => `
+          <div style="display:flex;align-items:center;gap:.4rem;border:1px solid rgba(245,244,241,.1);padding:.35rem .65rem">
+            <span class="mono-sm" style="color:${s.is_booked?'rgba(245,244,241,.3)':'var(--off-white)'}">${s.start_time.slice(0,5)}${s.is_booked?' · booked':''}</span>
+            ${!s.is_booked ? `<button class="act-btn delete" data-id="${s.id}" style="padding:.15rem .4rem;border:none">✕</button>` : ''}
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  c.querySelectorAll('.act-btn.delete').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      await sb.from('available_slots').delete().eq('id', btn.dataset.id);
+      toast('Slot removed.');
+      loadSlots();
+    });
+  });
+}
+
+$('add-slots-btn').addEventListener('click', async () => {
+  const date     = $('slot-date').value;
+  const timesRaw = $('slot-times').value;
+  if (!date || !timesRaw.trim()) { toast('Enter a date and at least one time.'); return; }
+  const times = timesRaw.split(',').map(t => t.trim()).filter(t => /^\d{2}:\d{2}$/.test(t));
+  if (!times.length) { toast('Use HH:MM format — e.g. 09:00, 14:30'); return; }
+  const { error } = await sb.from('available_slots').insert(times.map(t => ({ date, start_time: t, is_booked: false })));
+  if (error) { toast('Error adding slots.'); return; }
+  $('slot-date').value = ''; $('slot-times').value = '';
+  toast(`${times.length} slot${times.length > 1 ? 's' : ''} added.`);
+  loadSlots();
+});
+
+/* ── Services ── */
+async function loadServices() {
+  const c = $('services-list');
+  const { data, error } = await sb.from('services')
+    .select('id,name,description,active,sort_order').order('sort_order');
+  if (error || !data?.length) { c.innerHTML = '<div class="empty-state">No services found.</div>'; return; }
+
+  c.innerHTML = `<table class="a-table">
+    <thead><tr><th>Name</th><th>Description</th><th>Visible in Booking</th><th>Actions</th></tr></thead>
+    <tbody>${data.map(s => `<tr>
+      <td style="font-weight:500">${s.name}</td>
+      <td style="color:rgba(245,244,241,.45);font-size:.78rem">${s.description || '—'}</td>
+      <td>
+        <div class="toggle" data-id="${s.id}" data-active="${s.active}">
+          <div class="toggle-track ${s.active ? 'on' : ''}"><div class="toggle-thumb"></div></div>
+          <span class="toggle-label">${s.active ? 'Active' : 'Hidden'}</span>
+        </div>
+      </td>
+      <td><button class="act-btn delete" data-id="${s.id}">Delete</button></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+
+  c.querySelectorAll('.toggle').forEach(t => {
+    t.addEventListener('click', async () => {
+      const nowActive = t.dataset.active === 'true';
+      await sb.from('services').update({ active: !nowActive }).eq('id', t.dataset.id);
+      toast(nowActive ? 'Service hidden from booking modal.' : 'Service activated.');
+      loadServices();
+    });
+  });
+  c.querySelectorAll('.act-btn.delete').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Delete this service? This cannot be undone.')) return;
+      await sb.from('services').delete().eq('id', btn.dataset.id);
+      toast('Service deleted.');
+      loadServices();
+    });
+  });
+}
+
+$('add-svc-btn').addEventListener('click', async () => {
+  const name = $('svc-name').value.trim();
+  const desc = $('svc-desc').value.trim();
+  if (!name) { toast('Service name is required.'); return; }
+  const { error } = await sb.from('services').insert({ name, description: desc || null, active: true, sort_order: 99 });
+  if (error) { toast('Error adding service.'); return; }
+  $('svc-name').value = ''; $('svc-desc').value = '';
+  toast('Service added.');
+  loadServices();
+});
+
+init();
+</script>
+</body>
+</html>
