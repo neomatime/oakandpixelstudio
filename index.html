@@ -21,7 +21,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <link rel="icon" href="images/favicons/favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="images/favicons/favicon_32.png">
-<link rel="apple-touch-icon" href="images/favicons/favicon_512_apple.png"> 
+<link rel="apple-touch-icon" href="images/favicons/favicon_512_apple.png">
+<!-- Calendly widget — replace YOUR_CALENDLY_LINK with e.g. calendly.com/oakandpixel/discovery-session -->
+<link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
+<script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
 
 <style>
 /* ─── TOKENS ─────────────────────────────────────────── */
@@ -1446,12 +1449,12 @@ footer{
       </p>
       <div class="hero-actions">
         <a href="#contact" class="btn-primary">
-          Begin a Conversation
+          Start Your Project
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
             <path d="M2 7h10M8 3l4 4-4 4"/>
           </svg>
         </a>
-        <a href="#work" class="btn-ghost">View Selected Work</a>
+        <a href="" onclick="Calendly.initPopupWidget({url:'https://calendly.com/YOUR_CALENDLY_LINK'});return false;" class="btn-ghost">Book a Discovery Call</a>
       </div>
     </div>
     <!-- 3D HERO VISUAL -->
@@ -1907,12 +1910,24 @@ footer{
           <div class="contact-item">+27 (75) 089 0614</div>
           <div class="contact-item">Randburg · Gauteng · South Africa</div>
         </div>
+        <a href="" onclick="Calendly.initPopupWidget({url:'https://calendly.com/YOUR_CALENDLY_LINK'});return false;" class="btn-primary" style="display:inline-flex;margin-top:2rem;">
+          Book a Discovery Call
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-left:.5rem">
+            <path d="M2 7h10M8 3l4 4-4 4"/>
+          </svg>
+        </a>
+        <p style="margin-top:.85rem;font-family:var(--font-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.25);">30-min session · No obligation</p>
       </div>
       <div class="contact-right reveal reveal-delay-2">
         <div class="form-group">
           <label class="form-label">Full Name</label>
-          <input type="text" class="form-input" id="contact-name" placeholder="Your name" autocomplete="name">
+          <input type="text" class="form-input" id="contact-name" placeholder="Your full name" autocomplete="name">
           <span class="form-error" id="error-name"></span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Company Name</label>
+          <input type="text" class="form-input" id="contact-company" placeholder="Your business or organisation" autocomplete="organization">
+          <span class="form-error" id="error-company"></span>
         </div>
         <div class="form-group">
           <label class="form-label">Email Address</label>
@@ -1925,22 +1940,44 @@ footer{
           <span class="form-error" id="error-phone"></span>
         </div>
         <div class="form-group">
-          <label class="form-label">Project Type</label>
+          <label class="form-label">Business Website <span style="opacity:.4;font-size:.75em;">(optional)</span></label>
+          <input type="url" class="form-input" id="contact-website" placeholder="https://yourbusiness.co.za" autocomplete="url">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Service Interested In</label>
           <select class="form-select" id="project-type-select">
-            <option value="" disabled selected>Select an engagement type</option>
-            <option>Signature Plan</option>
-            <option>Growth Plan</option>
-            <option>Premium Plan</option>
-            <option>Digital Experience Scope</option>
+            <option value="" disabled selected>Select a service</option>
+            <option>Signature Plan — Premium Website &amp; Presence</option>
+            <option>Growth Plan — Full Customer Journey</option>
+            <option>Premium Plan — Bespoke Digital Ecosystem</option>
+            <option>Premium Website</option>
+            <option>Online Booking Experience</option>
+            <option>Lead Capture Experience</option>
+            <option>Client Onboarding Experience</option>
+            <option>CRM &amp; Payment Integration</option>
+            <option>Digital Presence Management</option>
+            <option>Not sure yet — let's talk</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Brief</label>
-          <textarea class="form-textarea" id="contact-brief" placeholder="Describe your project, goals, and timeline..." maxlength="500"></textarea>
+          <label class="form-label">Estimated Budget</label>
+          <select class="form-select" id="contact-budget">
+            <option value="" disabled selected>Select a budget range</option>
+            <option>Under R25,000</option>
+            <option>R25,000 – R40,000</option>
+            <option>R40,000 – R65,000</option>
+            <option>R65,000 – R100,000</option>
+            <option>R100,000+</option>
+            <option>To be discussed</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Project Description</label>
+          <textarea class="form-textarea" id="contact-brief" placeholder="Tell us about your business, what you need, and your goals..." maxlength="500"></textarea>
           <span class="form-char-count" id="brief-count">0 / 500</span>
           <span class="form-error" id="error-brief"></span>
         </div>
-        <button class="form-submit" id="contact-submit-btn">Request a Consultation</button>
+        <button class="form-submit" id="contact-submit-btn">Start Your Project</button>
         <p class="form-status" id="contact-form-status"></p>
         <p class="form-note">All enquiries are reviewed within 48 hours. Confidentiality assured.</p>
       </div>
@@ -2458,6 +2495,15 @@ document.addEventListener('mousemove',e=>{
         return '';
       },
     },
+    company: {
+      el: () => document.getElementById('contact-company'),
+      err: () => document.getElementById('error-company'),
+      validate(v) {
+        if (!v) return 'Company name is required.';
+        if (v.length < 2) return 'Please enter your business or organisation name.';
+        return '';
+      },
+    },
     email: {
       el: () => document.getElementById('contact-email'),
       err: () => document.getElementById('error-email'),
@@ -2481,7 +2527,7 @@ document.addEventListener('mousemove',e=>{
       el: () => document.getElementById('contact-brief'),
       err: () => document.getElementById('error-brief'),
       validate(v) {
-        if (v.length > BRIEF_MAX) return `Brief must not exceed ${BRIEF_MAX} characters.`;
+        if (v.length > BRIEF_MAX) return `Description must not exceed ${BRIEF_MAX} characters.`;
         return '';
       },
     },
@@ -2579,9 +2625,12 @@ document.addEventListener('mousemove',e=>{
     if (!valid) return;
 
     const fullName = document.getElementById('contact-name').value.trim();
+    const company  = document.getElementById('contact-company').value.trim();
     const email    = document.getElementById('contact-email').value.trim();
     const phone    = document.getElementById('contact-phone').value.trim();
+    const website  = document.getElementById('contact-website').value.trim();
     const project  = document.getElementById('project-type-select').value;
+    const budget   = document.getElementById('contact-budget').value;
     const brief    = document.getElementById('contact-brief').value.trim();
 
     // Split full name into first / last for HubSpot standard properties
@@ -2593,13 +2642,14 @@ document.addEventListener('mousemove',e=>{
       { objectTypeId: '0-1', name: 'firstname', value: firstname },
       { objectTypeId: '0-1', name: 'email',     value: email     },
     ];
-    if (lastname) fields.push({ objectTypeId: '0-1', name: 'lastname',     value: lastname });
-    if (phone && phone !== '+27-') {
-      const cleanPhone = phone; // send as +27-XX-XXX-XXXX
-      fields.push({ objectTypeId: '0-1', name: 'phone', value: cleanPhone });
-    }
-    if (project)  fields.push({ objectTypeId: '0-1', name: 'project_type', value: project  });
-    if (brief)    fields.push({ objectTypeId: '0-1', name: 'brief',        value: brief    });
+    if (lastname)  fields.push({ objectTypeId: '0-1', name: 'lastname',     value: lastname  });
+    if (company)   fields.push({ objectTypeId: '0-1', name: 'company',      value: company   });
+    if (phone && phone !== '+27-')
+                   fields.push({ objectTypeId: '0-1', name: 'phone',        value: phone     });
+    if (website)   fields.push({ objectTypeId: '0-1', name: 'website',      value: website   });
+    if (project)   fields.push({ objectTypeId: '0-1', name: 'project_type', value: project   });
+    if (budget)    fields.push({ objectTypeId: '0-1', name: 'budget',       value: budget    });
+    if (brief)     fields.push({ objectTypeId: '0-1', name: 'brief',        value: brief     });
 
     btn.disabled = true;
     btn.textContent = 'Sending…';
@@ -2624,13 +2674,16 @@ document.addEventListener('mousemove',e=>{
         status.className = 'form-status success';
         // Reset form and counters
         document.getElementById('contact-name').value        = '';
+        document.getElementById('contact-company').value     = '';
         document.getElementById('contact-email').value       = '';
         document.getElementById('contact-phone').value       = '+27-';
+        document.getElementById('contact-website').value     = '';
         document.getElementById('project-type-select').value = '';
+        document.getElementById('contact-budget').value      = '';
         document.getElementById('contact-brief').value       = '';
         briefCount.textContent = `0 / ${BRIEF_MAX}`;
         briefCount.className = 'form-char-count';
-        btn.textContent = 'Request a Consultation';
+        btn.textContent = 'Start Your Project';
         btn.disabled = false;
       } else {
         const err = await res.json().catch(() => ({}));
@@ -2639,7 +2692,7 @@ document.addEventListener('mousemove',e=>{
     } catch (e) {
       status.textContent = 'Something went wrong. Please email us directly at info@oakandpixel.co.za';
       status.className = 'form-status error';
-      btn.textContent = 'Request a Consultation';
+      btn.textContent = 'Start Your Project';
       btn.disabled = false;
     }
   });
