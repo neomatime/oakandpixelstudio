@@ -22,9 +22,6 @@
 <link rel="icon" href="images/favicons/favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="images/favicons/favicon_32.png">
 <link rel="apple-touch-icon" href="images/favicons/favicon_512_apple.png">
-<!-- Calendly widget — replace YOUR_CALENDLY_LINK with e.g. calendly.com/oakandpixel/discovery-session -->
-<link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
-<script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
 
 <style>
 /* ─── TOKENS ─────────────────────────────────────────── */
@@ -1454,7 +1451,7 @@ footer{
             <path d="M2 7h10M8 3l4 4-4 4"/>
           </svg>
         </a>
-        <a href="" onclick="Calendly.initPopupWidget({url:'https://calendly.com/YOUR_CALENDLY_LINK'});return false;" class="btn-ghost">Book a Discovery Call</a>
+        <a href="" onclick="openDiscoveryCall();return false;" class="btn-ghost">Book a Discovery Call</a>
       </div>
     </div>
     <!-- 3D HERO VISUAL -->
@@ -1910,7 +1907,7 @@ footer{
           <div class="contact-item">+27 (75) 089 0614</div>
           <div class="contact-item">Randburg · Gauteng · South Africa</div>
         </div>
-        <a href="" onclick="Calendly.initPopupWidget({url:'https://calendly.com/YOUR_CALENDLY_LINK'});return false;" class="btn-primary" style="display:inline-flex;margin-top:2rem;">
+        <a href="" onclick="openDiscoveryCall();return false;" class="btn-primary" style="display:inline-flex;margin-top:2rem;">
           Book a Discovery Call
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-left:.5rem">
             <path d="M2 7h10M8 3l4 4-4 4"/>
@@ -2996,6 +2993,15 @@ document.querySelectorAll('.service-card').forEach(card => {
       });
       return calReady;
     }
+
+    window.openDiscoveryCall = async function () {
+      try {
+        await loadCal();
+        trigger.click();
+      } catch (e) {
+        window.location.href = 'https://cal.com/oakandpixel/digital-advisory';
+      }
+    };
 
     select.addEventListener('change', async function () {
       if (this.value === 'Digital Experience Scope') {
