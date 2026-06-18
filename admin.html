@@ -996,7 +996,10 @@ function renderContacts() {
   });
 
   c.querySelectorAll('.act-btn.make-client').forEach(btn => {
-    btn.addEventListener('click', () => convertToClient(btn.dataset.id));
+    btn.addEventListener('click', () => {
+      btn.disabled = true;
+      convertToClient(btn.dataset.id);
+    });
   });
 }
 
@@ -1015,10 +1018,17 @@ async function convertToClient(id) {
     source_contact_id: contact.id,
   });
   if (error) { toast('Error converting contact. Please try again.'); return; }
-  await sb.from('contacts').update({ converted_at: new Date().toISOString() }).eq('id', id);
+  const { error: updateError } = await sb.from('contacts')
+    .update({ converted_at: new Date().toISOString() })
+    .eq('id', id);
+  if (updateError) {
+    toast('Client saved but contact could not be marked as converted. Check the Clients page.');
+    if (typeof loadClients === 'function') loadClients();
+    return;
+  }
   toast('Lead converted to client.');
   loadContacts();
-  loadClients();
+  if (typeof loadClients === 'function') loadClients();
 }
 
 document.querySelectorAll('.f-tab[data-cfilter]').forEach(tab => {
