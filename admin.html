@@ -43,6 +43,7 @@ a{color:inherit;text-decoration:none;}
 .btn-login:hover{opacity:.85;}
 .btn-login:disabled{opacity:.4;cursor:default;}
 .login-err{font-size:.75rem;color:var(--err);min-height:1rem;margin-top:.75rem;}
+.login-logo-img{display:block;width:80px;height:80px;object-fit:contain;margin:0 auto 1.5rem;}
 
 /* ── APP SHELL ────────────────────────────── */
 .app{display:none;min-height:100vh;}
@@ -208,6 +209,13 @@ a{color:inherit;text-decoration:none;}
 .btn-rm{background:none;border:none;color:rgba(245,244,241,.25);font-size:.85rem;line-height:1;padding:.1rem;transition:color .18s;}
 .btn-rm:hover{color:var(--err);}
 
+/* ── TIME PILLS ───────────────────────────── */
+.time-pill-grid{display:flex;flex-wrap:wrap;gap:.35rem;}
+.time-pill{background:rgba(245,244,241,.04);border:1px solid var(--border);color:rgba(245,244,241,.42);font-family:var(--font-m);font-size:.6rem;padding:.32rem .65rem;cursor:pointer;transition:all .18s;user-select:none;}
+.time-pill:hover:not(.selected){border-color:var(--border-hi);color:var(--off-white);}
+.time-pill.selected{background:var(--emerald);border-color:var(--emerald);color:#fff;}
+.user-avatar-logo{width:28px;height:28px;object-fit:contain;flex-shrink:0;}
+
 /* ── SERVICE CARDS ────────────────────────── */
 .services-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;}
 .svc-card{background:var(--card);border:1px solid var(--border);padding:1.25rem 1.4rem;display:flex;flex-direction:column;transition:border-color .2s;}
@@ -238,8 +246,8 @@ a{color:inherit;text-decoration:none;}
 <!-- ── LOGIN ───────────────────────────────── -->
 <div id="login-screen">
   <div class="login-card">
-    <div class="login-logo">Oak &amp; Pixel Studio</div>
-    <div class="login-sub">Admin Portal</div>
+    <img src="images/oak-pixel-mark-hires-transparent.png" class="login-logo-img" alt="Oak &amp; Pixel Studio">
+    <div class="login-sub" style="justify-content:center;margin-bottom:2rem;">Admin Portal</div>
     <label class="f-label">Email Address</label>
     <input type="email" class="f-input" id="login-email" placeholder="admin@oakandpixel.co.za" autocomplete="email">
     <label class="f-label">Password</label>
@@ -256,7 +264,7 @@ a{color:inherit;text-decoration:none;}
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="brand-mark">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <img src="images/oak-pixel-mark-hires-transparent.png" style="width:22px;height:22px;object-fit:contain;" alt="OPS">
       </div>
       <div>
         <div class="brand-name">Oak &amp; Pixel</div>
@@ -291,7 +299,7 @@ a{color:inherit;text-decoration:none;}
 
     <div class="sidebar-footer">
       <div class="user-row">
-        <div class="user-initials" id="user-initials">—</div>
+        <img src="images/oak-pixel-mark-hires-transparent.png" class="user-avatar-logo" alt="OPS">
         <div style="overflow:hidden">
           <div class="user-email-sm" id="user-email-sm">—</div>
           <div class="user-role-sm">Administrator</div>
@@ -374,20 +382,18 @@ a{color:inherit;text-decoration:none;}
                   <label>Date</label>
                   <input type="date" id="slot-date">
                 </div>
-                <div class="f-grp">
-                  <label>Times — comma separated (e.g. 09:00, 10:00, 14:30)</label>
-                  <input type="text" id="slot-times" placeholder="09:00, 10:00, 14:30">
-                </div>
                 <div>
-                  <button class="btn-add" id="add-slots-btn">Add Slots</button>
+                  <p style="font-family:var(--font-m);font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,244,241,.32);margin-bottom:.55rem;">Select Time Slots</p>
+                  <div class="time-pill-grid" id="time-pills"></div>
                 </div>
-                <div style="border-top:1px solid var(--border);padding-top:1rem;">
-                  <p style="font-family:var(--font-m);font-size:.57rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(245,244,241,.28);margin-bottom:.65rem;">Quick add</p>
-                  <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
-                    <button class="f-tab" id="qa-morning">Morning (9–12)</button>
-                    <button class="f-tab" id="qa-afternoon">Afternoon (13–17)</button>
+                <div style="border-top:1px solid var(--border);padding-top:1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+                  <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+                    <button class="f-tab" id="qa-morning">Morning</button>
+                    <button class="f-tab" id="qa-afternoon">Afternoon</button>
                     <button class="f-tab" id="qa-full">Full Day</button>
+                    <button class="f-tab" id="qa-clear">Clear</button>
                   </div>
+                  <button class="btn-add" id="add-slots-btn">Add Slots</button>
                 </div>
               </div>
             </div>
@@ -468,8 +474,8 @@ function toast(msg) {
 
 /* ── Auth ── */
 async function init() {
-  // Set page date
   $('page-date').textContent = new Date().toLocaleDateString('en-ZA', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  buildTimePills();
 
   const { data: { session } } = await sb.auth.getSession();
   if (session) showApp(session.user);
@@ -488,9 +494,7 @@ function showLogin() {
 function showApp(user) {
   $('login-screen').style.display = 'none';
   $('app').classList.add('visible');
-  const email = user?.email || '';
-  $('user-email-sm').textContent = email;
-  $('user-initials').textContent = email.charAt(0).toUpperCase();
+  $('user-email-sm').textContent = user?.email || '';
   loadAll();
 }
 
@@ -654,28 +658,49 @@ async function loadSlots() {
   });
 }
 
+/* ── Time pill picker ── */
+function buildTimePills() {
+  const container = $('time-pills');
+  const slots = [];
+  for (let h = 7; h <= 19; h++) {
+    slots.push(`${String(h).padStart(2,'0')}:00`);
+    if (h < 19) slots.push(`${String(h).padStart(2,'0')}:30`);
+  }
+  container.innerHTML = slots.map(t =>
+    `<button class="time-pill" data-time="${t}">${fmtTime(t)}</button>`
+  ).join('');
+  container.querySelectorAll('.time-pill').forEach(pill => {
+    pill.addEventListener('click', () => pill.classList.toggle('selected'));
+  });
+}
+
+function getSelectedTimes() {
+  return [...$('time-pills').querySelectorAll('.time-pill.selected')].map(p => p.dataset.time);
+}
+
+function selectPills(times) {
+  $('time-pills').querySelectorAll('.time-pill').forEach(p => {
+    p.classList.toggle('selected', times.includes(p.dataset.time));
+  });
+}
+
 $('add-slots-btn').addEventListener('click', async () => {
-  const date = $('slot-date').value;
-  const raw  = $('slot-times').value;
-  if (!date || !raw.trim()) { toast('Enter a date and at least one time.'); return; }
-  const times = raw.split(',').map(t => t.trim()).filter(t => /^\d{2}:\d{2}$/.test(t));
-  if (!times.length) { toast('Use HH:MM format — e.g. 09:00, 14:30'); return; }
+  const date  = $('slot-date').value;
+  const times = getSelectedTimes();
+  if (!date)         { toast('Select a date first.'); return; }
+  if (!times.length) { toast('Select at least one time slot.'); return; }
   const { error } = await sb.from('available_slots').insert(times.map(t => ({ date, start_time: t, is_booked: false })));
   if (error) { toast('Error adding slots.'); return; }
-  $('slot-date').value = ''; $('slot-times').value = '';
+  $('slot-date').value = '';
+  $('time-pills').querySelectorAll('.time-pill').forEach(p => p.classList.remove('selected'));
   toast(`${times.length} slot${times.length > 1 ? 's' : ''} added.`);
   loadSlots(); loadStats();
 });
 
-/* Quick add buttons */
-function quickAdd(times) {
-  const date = $('slot-date').value;
-  if (!date) { toast('Select a date first.'); return; }
-  $('slot-times').value = times;
-}
-$('qa-morning').addEventListener('click',   () => quickAdd('09:00, 10:00, 11:00, 12:00'));
-$('qa-afternoon').addEventListener('click', () => quickAdd('13:00, 14:00, 15:00, 16:00, 17:00'));
-$('qa-full').addEventListener('click',      () => quickAdd('09:00, 10:00, 11:00, 12:00, 13:00, 14:00, 15:00, 16:00'));
+$('qa-morning').addEventListener('click',   () => selectPills(['07:00','07:30','08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00']));
+$('qa-afternoon').addEventListener('click', () => selectPills(['12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00']));
+$('qa-full').addEventListener('click',      () => selectPills(['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00']));
+$('qa-clear').addEventListener('click',     () => $('time-pills').querySelectorAll('.time-pill').forEach(p => p.classList.remove('selected')));
 
 /* ── Services ── */
 async function loadServices() {
