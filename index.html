@@ -473,93 +473,6 @@ section{position:relative}
   letter-spacing:.1em;color:var(--silk);
 }
 
-/* ─── CHATBOT UI ─────────────────────────────────────── */
-#chatbot-float{
-  position:fixed;bottom:2.5rem;right:2.5rem;z-index:200;
-}
-.chat-trigger{
-  width:56px;height:56px;
-  background:var(--black);border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 8px 32px rgba(0,0,0,.22);
-  transition:transform .3s var(--ease-expo),background .25s;
-  position:relative;
-}
-.chat-trigger:hover{transform:scale(1.08);background:var(--graphite)}
-.chat-trigger svg{width:22px;height:22px;stroke:var(--white)}
-.chat-badge{
-  position:absolute;top:-2px;right:-2px;
-  width:14px;height:14px;background:var(--emerald);
-  border-radius:50%;border:2px solid var(--white);
-  animation:pulse 2s infinite;
-}
-.chat-window{
-  position:absolute;bottom:70px;right:0;
-  width:360px;
-  background:var(--white);
-  border:1px solid rgba(10,10,9,.08);
-  border-radius:4px;
-  box-shadow:0 32px 80px rgba(0,0,0,.14);
-  opacity:0;transform:translateY(12px) scale(.97);
-  pointer-events:none;
-  transition:opacity .35s var(--ease-expo),transform .35s var(--ease-expo);
-  overflow:hidden;
-}
-.chat-window.open{opacity:1;transform:translateY(0) scale(1);pointer-events:all}
-.chat-header{
-  background:var(--black);padding:1.5rem 1.5rem 1.25rem;
-  display:flex;align-items:center;gap:1rem;
-}
-.chat-avatar{
-  width:36px;height:36px;border-radius:50%;
-  background:var(--graphite);border:1px solid rgba(255,255,255,.1);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-}
-.chat-avatar svg{width:16px;height:16px;stroke:var(--emerald-l)}
-.chat-header-text{}
-.chat-name{font-size:.85rem;font-weight:400;color:var(--white);letter-spacing:.02em}
-.chat-status{font-family:var(--font-mono);font-size:.62rem;color:var(--emerald-l);letter-spacing:.1em}
-.chat-close{margin-left:auto;color:rgba(255,255,255,.35);transition:color .2s;padding:.25rem;background:none;border:none;cursor:pointer}
-.chat-close:hover{color:var(--white)}
-.chat-body{padding:1.5rem;background:var(--off-white)}
-.chat-welcome{
-  background:var(--white);border-radius:3px;padding:1.25rem;
-  margin-bottom:1rem;
-  border-left:2px solid var(--emerald);
-}
-.chat-welcome p{font-size:.88rem;color:var(--slate);line-height:1.65}
-.chat-welcome strong{color:var(--black);font-weight:500}
-.chat-prompts{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.5rem}
-.prompt-btn{
-  background:var(--white);border:1px solid rgba(10,10,9,.08);
-  border-radius:3px;padding:.75rem 1rem;
-  font-size:.82rem;color:var(--slate);
-  text-align:left;display:flex;align-items:center;gap:.5rem;
-  transition:border-color .2s,color .2s,background .2s;
-}
-.prompt-btn::before{
-  content:'→';font-size:.75rem;color:var(--emerald);flex-shrink:0;
-}
-.prompt-btn:hover{background:var(--white);border-color:var(--emerald);color:var(--black)}
-.chat-input-row{
-  display:flex;gap:.5rem;
-}
-.chat-input{
-  flex:1;background:var(--white);border:1px solid rgba(10,10,9,.1);
-  border-radius:3px;padding:.65rem .9rem;
-  font-family:var(--font-body);font-size:.82rem;color:var(--black);
-  outline:none;transition:border-color .2s;
-}
-.chat-input::placeholder{color:var(--mist)}
-.chat-input:focus{border-color:var(--emerald)}
-.chat-send{
-  background:var(--black);border-radius:3px;
-  padding:.65rem .9rem;
-  display:flex;align-items:center;justify-content:center;
-  transition:background .2s;
-}
-.chat-send:hover{background:var(--graphite)}
-.chat-send svg{width:16px;height:16px;stroke:var(--white)}
 
 /* ─── CTA / CONTACT ──────────────────────────────────── */
 #contact{
@@ -678,7 +591,7 @@ footer{
 
 /* ─── WHATSAPP BUTTON ────────────────────────────────── */
 #whatsapp-btn{
-  position:fixed;bottom:9.5rem;right:2.5rem;z-index:200;
+  position:fixed;bottom:2.5rem;right:2.5rem;z-index:200;
   display:flex;flex-direction:column;align-items:center;gap:.4rem;
 }
 .wa-trigger{
@@ -1019,117 +932,6 @@ footer{
   margin: 0 auto;
 }
 
-/* ─── VOICE CHATBOT ──────────────────────────────────── */
-.chat-voice-toggle {
-  margin-left: auto;
-  width: 30px; height: 30px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.12);
-  color: rgba(255,255,255,.45);
-  cursor: pointer;
-  transition: background .25s, color .25s, border-color .25s;
-  flex-shrink: 0;
-}
-.chat-voice-toggle:hover {
-  background: rgba(26,92,58,.4);
-  border-color: var(--emerald-l);
-  color: var(--white);
-}
-.chat-voice-toggle.active {
-  background: var(--emerald);
-  border-color: var(--emerald);
-  color: var(--white);
-}
-.chat-voice-toggle svg { width: 16px; height: 16px; }
-
-.chat-voice-mode {
-  flex-direction: column;
-  align-items: center;
-  padding: 1.25rem 1.25rem 1.75rem;
-  background: var(--off-white);
-  gap: .85rem;
-}
-.voice-transcript {
-  width: 100%;
-  min-height: 52px;
-  background: var(--white);
-  border: 1px solid rgba(10,10,9,.08);
-  border-radius: 3px;
-  padding: .8rem 1rem;
-  font-size: .8rem;
-  color: var(--slate);
-  line-height: 1.65;
-}
-.voice-transcript .voice-hint  { color: var(--mist); font-style: italic; font-size: .76rem; }
-.voice-transcript .voice-spoken { color: var(--black); font-weight: 400; }
-
-.voice-response {
-  width: 100%;
-  min-height: 60px;
-  background: var(--black);
-  border-radius: 3px;
-  padding: .8rem 1rem;
-  font-size: .8rem;
-  color: rgba(255,255,255,.72);
-  line-height: 1.65;
-  display: none;
-}
-.voice-response.has-content { display: block; }
-.voice-speaking-dot {
-  display: inline-block;
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--emerald-l);
-  margin-right: .4rem; vertical-align: middle;
-  animation: voiceDot 1s ease-in-out infinite;
-}
-@keyframes voiceDot { 0%,100%{opacity:.3} 50%{opacity:1} }
-
-.voice-controls {
-  display: flex; flex-direction: column;
-  align-items: center; gap: .65rem;
-  margin-top: .25rem;
-}
-.voice-status-label {
-  font-family: var(--font-mono);
-  font-size: .56rem; letter-spacing: .14em;
-  text-transform: uppercase; color: var(--mist);
-  transition: color .3s;
-}
-.voice-status-label.listening { color: var(--emerald); }
-.voice-status-label.speaking  { color: #4A90E2; }
-
-.voice-mic-btn {
-  width: 68px; height: 68px; border-radius: 50%;
-  background: var(--black); border: none;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; position: relative;
-  transition: background .25s, transform .2s;
-  color: var(--white);
-  box-shadow: 0 8px 28px rgba(10,10,9,.22);
-}
-.voice-mic-btn svg { width: 28px; height: 28px; position: relative; z-index: 2; }
-.voice-mic-btn:hover { background: var(--graphite); transform: scale(1.05); }
-.voice-mic-btn.listening { background: var(--emerald); }
-.voice-mic-btn.listening:hover { background: var(--emerald-l); }
-
-.voice-ripple {
-  position: absolute; inset: 0; border-radius: 50%;
-  background: var(--emerald); opacity: 0; transform: scale(1);
-  pointer-events: none;
-}
-.voice-mic-btn.listening .voice-ripple {
-  animation: voiceRipple 1.6s ease-out infinite;
-}
-@keyframes voiceRipple {
-  0%   { transform: scale(1);   opacity: .5; }
-  100% { transform: scale(2.2); opacity: 0;  }
-}
-.voice-not-supported {
-  text-align: center; font-size: .76rem;
-  color: var(--mist); line-height: 1.6;
-}
 
 /* ═══════════════════════════════════════════════════════════
    RESPONSIVE — Mobile First
@@ -1344,10 +1146,8 @@ footer{
   footer { flex-direction: column; gap: 1.25rem; padding: 2.5rem 1.5rem; text-align: center; }
   .footer-links { flex-wrap: wrap; justify-content: center; gap: 1.25rem; }
 
-  /* WhatsApp & Chatbot */
-  #whatsapp-btn  { bottom: 7rem; right: 1.25rem; }
-  #chatbot-float { bottom: 1.25rem; right: 1.25rem; }
-  .chat-window   { width: calc(100vw - 2.5rem); right: 0; }
+  /* WhatsApp */
+  #whatsapp-btn  { bottom: 1.25rem; right: 1.25rem; }
 
   /* Cookie modal */
   #cookie-modal  { padding: 1.5rem; margin: 1rem; }
@@ -1612,11 +1412,11 @@ footer{
             <span class="stat-label">Client retention rate</span>
           </div>
           <div class="stat-card">
-            <span class="stat-num">12+</span>
-            <span class="stat-label">Years of craft</span>
+            <span class="stat-num">2026</span>
+            <span class="stat-label">Year founded</span>
           </div>
           <div class="stat-card">
-            <span class="stat-num">180+</span>
+            <span class="stat-num">7</span>
             <span class="stat-label">Engagements delivered</span>
           </div>
           <div class="stat-card">
@@ -1628,7 +1428,7 @@ footer{
           <p class="panel-quote">
             "The benchmark is not what competitors do — it's what exceptional looks like when no constraints are imposed."
           </p>
-          <p class="panel-attr">Oak & Pixel — Studio Doctrine, 2025</p>
+          <p class="panel-attr">Oak & Pixel — Studio Doctrine, 2026</p>
         </div>
       </div>
     </div>
@@ -2076,8 +1876,8 @@ footer{
   </div>
 </div>
 
-<!-- ══════════════ CHATBOT ══════════════ -->
-<div id="chatbot-float">
+<!-- chatbot removed -->
+<div id="chatbot-float" style="display:none">
   <div class="chat-window" id="chat-window">
     <div class="chat-header">
       <div class="chat-avatar">
@@ -2168,147 +1968,7 @@ const obs = new IntersectionObserver(entries=>{
 },{threshold:.12});
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 
-// ── CHATBOT TOGGLE ──────────────────────────────────────
-const trigger = document.getElementById("chat-trigger");
-const win = document.getElementById("chat-window");
-const closeBtn = document.getElementById("chat-close");
-
-const chatBody = win.querySelector(".chat-body");
-const input = win.querySelector(".chat-input");
-const sendBtn = win.querySelector(".chat-send");
-const inputRow = win.querySelector(".chat-input-row");
-const promptsWrap = win.querySelector(".chat-prompts");
-const promptButtons = [...win.querySelectorAll(".prompt-btn")];
-
-const STORAGE_KEY = "oak_pixel_chat_state";
-const chatState = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-
-function saveChatState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(chatState));
-}
-
-trigger.addEventListener("click", () => win.classList.toggle("open"));
-closeBtn.addEventListener("click", () => win.classList.remove("open"));
-
-// Create a messages area without changing your HTML
-const messagesEl = document.createElement("div");
-messagesEl.className = "chat-messages";
-messagesEl.style.display = "flex";
-messagesEl.style.flexDirection = "column";
-messagesEl.style.gap = "12px";
-messagesEl.style.margin = "16px 0";
-messagesEl.style.maxHeight = "260px";
-messagesEl.style.overflowY = "auto";
-messagesEl.style.paddingRight = "4px";
-
-chatBody.insertBefore(messagesEl, inputRow);
-
-function createMessageBubble(role, text, pending = false) {
-  const row = document.createElement("div");
-  row.className = `chat-message ${role}`;
-  row.style.display = "flex";
-  row.style.justifyContent = role === "user" ? "flex-end" : "flex-start";
-
-  const bubble = document.createElement("div");
-  bubble.className = `chat-bubble ${role}`;
-  bubble.textContent = text;
-  bubble.style.maxWidth = "85%";
-  bubble.style.padding = "12px 14px";
-  bubble.style.borderRadius = "16px";
-  bubble.style.lineHeight = "1.45";
-  bubble.style.whiteSpace = "pre-wrap";
-  bubble.style.background = role === "user" ? "rgba(0,0,0,0.08)" : "rgba(0,0,0,0.04)";
-  bubble.style.opacity = pending ? "0.7" : "1";
-
-  row.appendChild(bubble);
-  messagesEl.appendChild(row);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
-
-  return bubble;
-}
-
-function setLoading(isLoading) {
-  input.disabled = isLoading;
-  sendBtn.disabled = isLoading;
-  promptButtons.forEach((btn) => (btn.disabled = isLoading));
-}
-
-async function sendMessage(text) {
-  const message = text.trim();
-  if (!message) return;
-
-  createMessageBubble("user", message);
-  input.value = "";
-
-  if (promptsWrap) {
-    promptsWrap.style.display = "none";
-  }
-
-  setLoading(true);
-  const pendingBubble = createMessageBubble("assistant", "Thinking…", true);
-
-  const fallback = getConciergeFallback(message);
-
-  try {
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message,
-        previousResponseId: chatState.previousResponseId || null,
-      }),
-    });
-
-    if (!res.ok) {
-      throw new Error(`Request failed with status ${res.status}`);
-    }
-
-    const data = await res.json();
-
-    pendingBubble.textContent =
-      data.reply || "Sorry, I couldn’t generate a response right now.";
-
-    if (data.previousResponseId) {
-      chatState.previousResponseId = data.previousResponseId;
-      saveChatState();
-    }
-  } catch (error) {
-    console.error(error);
-    pendingBubble.textContent = fallback;
-  } finally {
-    setLoading(false);
-    input.focus();
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
-}
-
-sendBtn.addEventListener("click", () => sendMessage(input.value));
-
-input.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    event.preventDefault();
-    sendMessage(input.value);
-  }
-});
-
-promptButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    sendMessage(btn.textContent || "");
-  });
-});
-
 // ── HERO CANVAS (geometric ambient background) ──────────
-function getConciergeFallback(text) {
-  const t = text.toLowerCase();
-  if (t.match(/signature|basic|small/)) return "The Signature Plan is ideal for businesses that need a professional digital foundation. It includes a website, booking system, appointment reminders, basic invoicing, and essential digital presence.";
-  if (t.match(/growth|lead|generat/)) return "The Growth Plan is for businesses ready to automate operations and improve lead management. It includes online payments, CRM, KPI dashboards, automated communications, and LeadSense Core.";
-  if (t.match(/private|premium|automat|strateg|enterprise/)) return "The Private Plan is for businesses seeking a fully integrated growth ecosystem, including Atlas AI, WhatsApp automation, client portal, advanced reporting, API integrations, process automation, and monthly optimisation consulting.";
-  if (t.match(/plan|price|cost|package|how much/)) return "Oak & Pixel offers Signature at R10,000 setup plus R4,499/month, Growth at R18,000 setup plus R6,999/month, and Private at R30,000 setup plus R12,499/month.";
-  if (t.match(/contact|email|phone|reach|speak|talk|consult/)) return "You can reach Oak & Pixel at info@oakandpixel.co.za or +27 (75) 089 0614. We are based in Randburg, Gauteng.";
-  return "Thanks for asking. The live concierge is unavailable right now, but the team can help at info@oakandpixel.co.za or through the consultation form on this page.";
-}
 (function(){
   const canvas = document.getElementById('hero-canvas');
   const ctx    = canvas.getContext('2d');
@@ -2577,14 +2237,6 @@ document.addEventListener('mousemove',e=>{
 })();
 
 
-// ── SMOOTH PROMPT INTERACTIONS ──────────────────────────
-document.querySelectorAll('.prompt-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const input=document.querySelector('.chat-input');
-    if(input){input.value=btn.textContent;input.focus()}
-  });
-});
-
 // ── COOKIE MODAL ────────────────────────────────────────
 (function(){
   const overlay  = document.getElementById('cookie-overlay');
@@ -2845,8 +2497,8 @@ window.addEventListener('scroll',()=>{
     :'rgba(255,255,255,0.85)';
 });
 
-// ── VOICE CHATBOT ────────────────────────────────────────────────────────────
-(function(){
+// ── VOICE CHATBOT REMOVED ────────────────────────────────────────────────────
+if(false)(function(){
   const voiceToggle  = document.getElementById('chat-voice-toggle');
   const chatBody     = document.getElementById('chat-window').querySelector('.chat-body');
   const voiceMode    = document.getElementById('chat-voice-mode');
