@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Download or view the Oak & Pixel studio brochure for a concise overview of services, engagement plans, and contact details.">
+<link rel="canonical" href="https://www.oakandpixel.co.za/brochure.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Oak & Pixel">
+<meta property="og:title" content="Studio Brochure - Oak & Pixel">
+<meta property="og:description" content="Download or view the Oak & Pixel studio brochure for a concise overview of services, engagement plans, and contact details.">
+<meta property="og:url" content="https://www.oakandpixel.co.za/brochure.html">
+<meta property="og:image" content="https://www.oakandpixel.co.za/images/oak-pixel-whatsapp-banner-v2.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Studio Brochure - Oak & Pixel">
+<meta name="twitter:description" content="Download or view the Oak & Pixel studio brochure for a concise overview of services, engagement plans, and contact details.">
+<meta name="twitter:image" content="https://www.oakandpixel.co.za/images/oak-pixel-whatsapp-banner-v2.png">
+<title>Studio Brochure — Oak & Pixel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@200;300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+<!-- Favicons -->
+<link rel="icon" href="images/favicons/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="images/favicons/favicon_32.png">
+<link rel="apple-touch-icon" href="images/favicons/favicon_512_apple.png"> 
+
+<style>
+/* ─── TOKENS ─────────────────────────────────────────── */
+:root {
+  --white:      #FFFFFF;
+  --off-white:  #F5F4F1;
+  --silk:       #EDE9E3;
+  --black:      #0A0A09;
+  --graphite:   #161614;
+  --slate:      #2A2A27;
+  --mist:       #9B9B94;
+  --emerald:    #1A5C3A;
+  --emerald-l:  #2D7A52;
+  --emerald-xl: #3D9966;
+  --font-display: 'Cormorant', Georgia, serif;
+  --font-body:    'Jost', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+  --ease-expo:    cubic-bezier(0.16,1,0.3,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  background: var(--white);
+  color: var(--black);
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  cursor: none;
+}
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+/* ─── CURSOR ──────────────────────────────────────────── */
+#cursor {
+  position: fixed; width: 10px; height: 10px;
+  background: var(--black); border-radius: 50%;
+  pointer-events: none; z-index: 9999;
+  transform: translate(-50%,-50%);
+  transition: transform .15s var(--ease-expo), background .2s;
+  mix-blend-mode: multiply;
+}
+#cursor-ring {
+  position: fixed; width: 36px; height: 36px;
+  border: 1px solid rgba(10,10,9,.25); border-radius: 50%;
+  pointer-events: none; z-index: 9998;
+  transform: translate(-50%,-50%);
+  transition: transform .45s var(--ease-expo), width .3s var(--ease-expo), height .3s var(--ease-expo), border-color .2s;
+}
+body:has(a:hover) #cursor-ring,
+body:has(button:hover) #cursor-ring { width: 56px; height: 56px; border-color: var(--emerald); }
+
+/* ─── NAVIGATION ─────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 4rem; height: 72px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border-bottom: 1px solid rgba(10,10,9,.06);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: .75rem;
+  font-family: var(--font-display); font-weight: 500;
+  font-size: 1.15rem; letter-spacing: .02em; color: var(--black);
+}
+.nav-logo-mark { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+.nav-links { display: flex; gap: 2.5rem; align-items: center; list-style: none; }
+.nav-links a {
+  font-size: .78rem; letter-spacing: .12em; text-transform: uppercase;
+  font-weight: 400; color: var(--slate);
+  transition: color .25s; position: relative;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: -2px; left: 0;
+  width: 0; height: 1px; background: var(--emerald);
+  transition: width .35s var(--ease-expo);
+}
+.nav-links a:hover { color: var(--black); }
+.nav-links a:hover::after { width: 100%; }
+.nav-cta {
+  font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 400;
+  padding: .55rem 1.4rem; border: 1px solid var(--black);
+  color: var(--black); border-radius: 2px;
+  transition: background .25s, color .25s;
+}
+.nav-cta:hover { background: var(--black); color: var(--white); }
+
+/* ─── PAGE HERO ──────────────────────────────────────── */
+.page-hero {
+  padding: 160px 4rem 80px;
+  background: var(--off-white);
+  position: relative;
+  overflow: hidden;
+}
+.page-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(10,10,9,.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+}
+.page-hero::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 1px; background: rgba(10,10,9,.08);
+}
+.page-hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 2; }
+.page-eyebrow {
+  font-family: var(--font-mono); font-size: .68rem;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--emerald); margin-bottom: 1.5rem;
+  display: flex; align-items: center; gap: .75rem;
+}
+.page-eyebrow::before { content: ''; display: block; width: 28px; height: 1px; background: var(--emerald); }
+.page-title {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 5vw, 5rem);
+  font-weight: 300; line-height: 1.06; letter-spacing: -.01em;
+  color: var(--black);
+}
+.page-title em { font-style: italic; color: var(--emerald); }
+.page-desc {
+  font-size: .98rem; color: var(--slate); line-height: 1.75;
+  max-width: 560px; margin-top: 1.5rem;
+}
+.page-actions {
+  display: flex; gap: 1rem; align-items: center;
+  margin-top: 2.5rem;
+}
+.btn-download {
+  display: inline-flex; align-items: center; gap: .6rem;
+  background: var(--black); color: var(--white);
+  padding: .75rem 1.8rem; border-radius: 2px;
+  font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 400;
+  transition: background .25s, transform .2s;
+}
+.btn-download:hover { background: var(--graphite); transform: translateY(-1px); }
+.btn-download svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.5; }
+
+/* ─── BROCHURE WRAP ──────────────────────────────────── */
+.brochure-wrap {
+  padding: 80px 4rem 100px;
+  background: #DDDBD8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 80px;
+}
+
+/* ─── BROCHURE SHEET (exact from HTML brochure) ──────── */
+.brochure {
+  width: min(1122px, 100%);
+  aspect-ratio: 1122 / 794;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  box-shadow: 0 4px 24px rgba(0,0,0,.14), 0 24px 80px rgba(0,0,0,.22);
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 1s var(--ease-expo), transform 1s var(--ease-expo);
+}
+.brochure.visible { opacity: 1; transform: translateY(0); }
+
+/* Fold lines */
+.brochure::before, .brochure::after {
+  content: '';
+  position: absolute; top: 0; bottom: 0;
+  width: 1px;
+  background: rgba(0,0,0,.1);
+  z-index: 10;
+  pointer-events: none;
+}
+.brochure::before { left: 33.33%; }
+.brochure::after  { left: 66.66%; }
+
+/* Panel base */
+.panel { position: relative; overflow: hidden; }
+
+/* ══ PANEL 1 — COVER ══════════════════════════════════ */
+.panel-cover {
+  background: var(--black);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(24px, 4%, 44px) clamp(20px, 3.6%, 40px);
+}
+.panel-cover::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,.055) 1px, transparent 1px);
+  background-size: 18px 18px;
+  pointer-events: none;
+}
+.cover-glow {
+  position: absolute; bottom: -80px; left: -80px;
+  width: 380px; height: 380px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(26,92,58,.32) 0%, transparent 65%);
+  filter: blur(40px); pointer-events: none;
+}
+.cover-ring {
+  position: absolute; top: -60px; right: -60px;
+  width: 220px; height: 220px;
+  border: 1px solid rgba(45,122,82,.18); border-radius: 50%;
+}
+.cover-ring::after {
+  content: ''; position: absolute; inset: 24px;
+  border: 1px solid rgba(45,122,82,.1); border-radius: 50%;
+}
+.cover-border-top { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(to right, var(--emerald), var(--emerald-l), transparent); }
+.cover-border-left { position: absolute; top: 0; left: 0; bottom: 0; width: 3px; background: var(--emerald); }
+
+/* Logo mark */
+.cover-mark { position: relative; z-index: 2; }
+.mark-grid {
+  display: grid;
+  grid-template-columns: clamp(18px,2.3%,26px) clamp(18px,2.3%,26px);
+  grid-template-rows:    clamp(18px,2.3%,26px) clamp(18px,2.3%,26px);
+  gap: 3px; position: relative; margin-bottom: 10px;
+}
+.mark-sq { border-radius: 2px; }
+.mark-tl { background: #3A3A36; }
+.mark-tr { background: var(--emerald); }
+.mark-bl { background: rgba(255,255,255,.15); }
+.mark-br { background: #050505; border: 1px solid rgba(45,122,82,.4); position: relative; }
+.mark-br::after {
+  content: ''; position: absolute; bottom: 2px; right: 2px;
+  width: 6px; height: 6px; border-radius: 1px; background: var(--emerald-l);
+}
+.mark-jewel {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--emerald);
+  box-shadow: 0 0 6px rgba(45,122,82,.8); z-index: 3;
+}
+.cover-brand-name {
+  font-family: var(--font-display); font-size: clamp(.75rem, 1.05vw, 1.1rem);
+  font-weight: 500; letter-spacing: .04em; color: var(--off-white);
+}
+.cover-brand-tag {
+  font-family: var(--font-mono); font-size: clamp(.38rem,.5vw,.52rem);
+  letter-spacing: .18em; text-transform: uppercase;
+  color: rgba(155,155,148,.45); margin-top: 3px;
+}
+
+/* Headline */
+.cover-headline { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; justify-content: center; padding: clamp(16px,2.5%,32px) 0; }
+.cover-eyebrow {
+  font-family: var(--font-mono); font-size: clamp(.38rem,.5vw,.55rem);
+  letter-spacing: .22em; text-transform: uppercase;
+  color: var(--emerald-l); margin-bottom: clamp(8px,1.5%,16px);
+  display: flex; align-items: center; gap: 8px;
+}
+.cover-eyebrow::before { content: ''; display: block; width: 20px; height: 1px; background: var(--emerald-l); }
+.cover-h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 2.85vw, 3.2rem);
+  font-weight: 300; line-height: .98; letter-spacing: -.01em; color: var(--white);
+  margin-bottom: clamp(6px, 1%, 12px);
+}
+.cover-h1 em { font-style: italic; color: var(--emerald-xl); }
+.cover-sub { font-size: clamp(.6rem,.7vw,.78rem); color: rgba(255,255,255,.38); line-height: 1.7; max-width: 260px; margin-top: clamp(6px,1%,14px); }
+
+/* Bottom */
+.cover-bottom {
+  position: relative; z-index: 2;
+  border-top: 1px solid rgba(255,255,255,.07);
+  padding-top: clamp(8px,1.5%,16px);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.cover-url, .cover-year {
+  font-family: var(--font-mono); font-size: clamp(.38rem,.48vw,.52rem); letter-spacing: .1em;
+}
+.cover-url { color: var(--emerald-l); }
+.cover-year { color: rgba(255,255,255,.15); }
+
+/* ══ PANEL 2 — ABOUT ══════════════════════════════════ */
+.panel-about {
+  background: var(--off-white);
+  padding: clamp(24px,4%,44px) clamp(20px,3.2%,36px);
+  display: flex; flex-direction: column;
+}
+.panel-about::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(10,10,9,.08) 1px, transparent 1px);
+  background-size: 18px 18px; pointer-events: none;
+}
+.about-inner { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; }
+.section-eyebrow {
+  font-family: var(--font-mono); font-size: clamp(.38rem,.48vw,.52rem);
+  letter-spacing: .2em; text-transform: uppercase;
+  color: var(--emerald); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 7px;
+}
+.section-eyebrow::before { content: ''; width: 16px; height: 1px; background: var(--emerald); }
+.about-headline {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 1.8vw, 2rem);
+  font-weight: 300; line-height: 1.08; letter-spacing: -.01em; color: var(--black); margin-bottom: 12px;
+}
+.about-headline em { font-style: italic; color: var(--emerald); }
+.about-rule { width: 100%; height: 1px; background: linear-gradient(to right, var(--emerald), rgba(26,92,58,.1)); margin: clamp(6px,1.2%,12px) 0 clamp(6px,1.2%,14px); }
+.about-body { font-size: clamp(.6rem,.7vw,.77rem); color: var(--slate); line-height: 1.75; margin-bottom: 8px; }
+.about-sig { font-family: var(--font-display); font-style: italic; font-size: clamp(.65rem,.85vw,.95rem); color: var(--mist); margin-top: 6px; margin-bottom: clamp(10px,1.8%,20px); }
+.services-heading {
+  font-family: var(--font-mono); font-size: clamp(.38rem,.48vw,.52rem);
+  letter-spacing: .2em; text-transform: uppercase;
+  color: var(--emerald); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 7px;
+}
+.services-heading::before { content: ''; width: 16px; height: 1px; background: var(--emerald); }
+.services-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: clamp(10px,1.8%,20px); }
+.service-item { display: flex; align-items: flex-start; gap: 7px; font-size: clamp(.58rem,.68vw,.72rem); color: var(--slate); line-height: 1.4; }
+.service-pip { width: 4px; height: 4px; border-radius: 50%; background: var(--emerald); flex-shrink: 0; margin-top: 4px; }
+.stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; margin-top: auto; }
+.stat-box { background: var(--silk); padding: clamp(7px,1.2%,10px) 8px; text-align: center; }
+.stat-box:first-child { background: var(--black); }
+.stat-num { font-family: var(--font-display); font-size: clamp(.9rem,1.45vw,1.6rem); font-weight: 300; line-height: 1; color: var(--black); display: block; }
+.stat-box:first-child .stat-num { color: var(--white); }
+.stat-lbl { font-family: var(--font-mono); font-size: clamp(.33rem,.43vw,.45rem); letter-spacing: .1em; text-transform: uppercase; color: var(--mist); margin-top: 2px; }
+.stat-box:first-child .stat-lbl { color: rgba(255,255,255,.3); }
+
+/* ══ PANEL 3 — PLANS ══════════════════════════════════ */
+.panel-plans { background: var(--white); display: flex; flex-direction: column; }
+.plans-top { flex: 1; padding: clamp(24px,4%,44px) clamp(20px,3.2%,36px) clamp(16px,2.5%,28px); position: relative; overflow: hidden; }
+.plans-ring { position: absolute; top: -50px; right: -50px; width: 160px; height: 160px; border: 1px solid rgba(26,92,58,.1); border-radius: 50%; }
+.plans-ring::after { content: ''; position: absolute; inset: 20px; border: 1px solid rgba(26,92,58,.07); border-radius: 50%; }
+.plans-inner { position: relative; z-index: 2; }
+
+/* Plans table */
+.plans-table { width: 100%; border-collapse: collapse; margin-top: clamp(8px,1.5%,14px); }
+.plans-table th {
+  font-family: var(--font-mono); font-size: clamp(.36rem,.45vw,.48rem);
+  letter-spacing: .12em; text-transform: uppercase; color: var(--mist);
+  padding: 0 5px clamp(4px,.8%,8px); text-align: left;
+  border-bottom: 1px solid var(--silk); font-weight: 400;
+}
+.plans-table th:not(:first-child) { text-align: right; }
+.plans-table td { padding: clamp(4px,.8%,8px) 5px; font-size: clamp(.58rem,.68vw,.72rem); border-bottom: 1px solid rgba(10,10,9,.05); vertical-align: top; }
+.plans-table td:first-child { font-weight: 400; color: var(--black); }
+.plans-table td:not(:first-child) { text-align: right; font-family: var(--font-mono); font-size: clamp(.52rem,.62vw,.65rem); color: var(--emerald); }
+.plan-name-row td:first-child { font-family: var(--font-display); font-size: clamp(.7rem,1vw,1rem); font-weight: 500; padding-top: clamp(6px,1%,10px); }
+.plan-name-row td:not(:first-child) { font-family: var(--font-display); font-size: clamp(.62rem,.82vw,.85rem); color: var(--emerald); padding-top: clamp(6px,1%,10px); }
+.plan-feature { color: var(--mist) !important; font-family: var(--font-body) !important; font-size: clamp(.5rem,.6vw,.62rem) !important; }
+.plans-note { font-family: var(--font-mono); font-size: clamp(.34rem,.44vw,.48rem); letter-spacing: .08em; color: var(--mist); margin-top: 8px; line-height: 1.6; }
+.why-section { margin-top: clamp(8px,1.5%,14px); padding-top: clamp(8px,1.5%,12px); border-top: 1px solid var(--silk); }
+.why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 7px; }
+.why-item { display: flex; align-items: flex-start; gap: 6px; font-size: clamp(.52rem,.62vw,.68rem); color: var(--slate); line-height: 1.4; }
+
+/* Dark contact strip */
+.plans-bottom { background: var(--black); padding: clamp(14px,2.5%,22px) clamp(20px,3.2%,36px); position: relative; overflow: hidden; }
+.plans-bottom::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(to right, var(--emerald), var(--emerald-l), transparent); }
+.bottom-glow { position: absolute; right: -40px; bottom: -40px; width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, rgba(26,92,58,.25) 0%, transparent 65%); filter: blur(28px); pointer-events: none; }
+.contact-heading { font-family: var(--font-mono); font-size: clamp(.38rem,.48vw,.5rem); letter-spacing: .2em; text-transform: uppercase; color: var(--emerald-l); margin-bottom: 10px; display: flex; align-items: center; gap: 7px; }
+.contact-heading::before { content: ''; width: 16px; height: 1px; background: var(--emerald-l); }
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; position: relative; z-index: 2; }
+.contact-item { display: flex; flex-direction: column; gap: 2px; }
+.contact-label { font-family: var(--font-mono); font-size: clamp(.3rem,.4vw,.44rem); letter-spacing: .12em; text-transform: uppercase; color: rgba(155,155,148,.4); }
+.contact-val { font-size: clamp(.54rem,.64vw,.68rem); color: rgba(245,244,241,.75); font-weight: 300; }
+.contact-val.em { color: var(--emerald-l); }
+.contact-cta { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.06); position: relative; z-index: 2; }
+.contact-cta p { font-family: var(--font-display); font-style: italic; font-size: clamp(.7rem,.88vw,.9rem); color: rgba(255,255,255,.3); line-height: 1.4; }
+.contact-cta strong { color: rgba(255,255,255,.7); font-weight: 400; }
+
+/* ─── DOWNLOAD CTA BAND ──────────────────────────────── */
+.download-band {
+  background: var(--graphite);
+  padding: 5rem 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+.dl-left h2 { font-family: var(--font-display); font-size: clamp(1.8rem,3vw,2.8rem); font-weight: 300; color: var(--white); line-height: 1.1; }
+.dl-left h2 em { font-style: italic; color: var(--emerald-l); }
+.dl-left p { font-size: .9rem; color: rgba(255,255,255,.35); margin-top: .75rem; }
+.dl-actions { display: flex; gap: 1rem; flex-shrink: 0; }
+.btn-dl-primary {
+  display: inline-flex; align-items: center; gap: .6rem;
+  background: var(--emerald); color: var(--white);
+  padding: .85rem 1.8rem; border-radius: 2px;
+  font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 400;
+  transition: background .25s, transform .2s;
+}
+.btn-dl-primary:hover { background: var(--emerald-l); transform: translateY(-1px); }
+.btn-dl-primary svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.5; }
+.btn-dl-ghost {
+  display: inline-flex; align-items: center; gap: .5rem;
+  font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 400;
+  color: rgba(255,255,255,.4);
+  border-bottom: 1px solid rgba(255,255,255,.15); padding-bottom: .2rem;
+  transition: color .25s, border-color .25s;
+}
+.btn-dl-ghost:hover { color: var(--white); border-color: var(--white); }
+
+/* ─── FOOTER ─────────────────────────────────────────── */
+footer {
+  background: var(--graphite);
+  border-top: 1px solid rgba(255,255,255,.06);
+  padding: 3rem 4rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-logo { font-family: var(--font-display); font-weight: 500; font-size: 1rem; letter-spacing: .04em; color: var(--white); }
+.footer-copy { font-family: var(--font-mono); font-size: .6rem; letter-spacing: .12em; color: rgba(255,255,255,.2); }
+.footer-links { display: flex; gap: 2rem; }
+.footer-links a { font-family: var(--font-mono); font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.3); transition: color .2s; }
+.footer-links a:hover { color: rgba(255,255,255,.7); }
+.footer-links a.active { color: rgba(255,255,255,.6); }
+
+/* ─── REVEAL ──────────────────────────────────────────── */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .9s var(--ease-expo), transform .9s var(--ease-expo); }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+/* ═══════════════════════════════════════════════════════════
+   BROCHURE PAGE — RESPONSIVE
+   Desktop (>1024px): original layout, fully preserved
+   Tablet  (≤1024px): panels stack, fonts restore
+   Mobile  (≤768px) : full single column, drawer nav
+   Small   (≤480px) : tight spacing
+═══════════════════════════════════════════════════════════ */
+
+/* ── HAMBURGER ──────────────────────────────────────── */
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: .5rem;
+  background: none;
+  border: none;
+  flex-shrink: 0;
+  z-index: 102;
+}
+.nav-hamburger span {
+  display: block;
+  width: 22px; height: 1.5px;
+  background: var(--black);
+  border-radius: 1px;
+  transition: transform .35s var(--ease-expo), opacity .25s;
+}
+.nav-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; }
+.nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* ── OVERLAY ────────────────────────────────────────── */
+.mob-overlay {
+  position: fixed; inset: 0;
+  background: rgba(10,10,9,.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 200;
+  opacity: 0; pointer-events: none;
+  transition: opacity .35s ease;
+}
+.mob-overlay.open { opacity: 1; pointer-events: all; }
+
+/* ── SIDE DRAWER ────────────────────────────────────── */
+.mob-drawer {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: min(320px, 88vw);
+  background: var(--white);
+  border-left: 1px solid var(--silk);
+  z-index: 201;
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .4s var(--ease-expo);
+  box-shadow: -12px 0 48px rgba(10,10,9,.14);
+}
+.mob-drawer.open { transform: translateX(0); }
+.mob-drawer-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--silk);
+  flex-shrink: 0;
+}
+.mob-drawer-logo {
+  display: flex; align-items: center; gap: .65rem;
+  font-family: var(--font-display); font-size: 1rem;
+  font-weight: 500; letter-spacing: .02em; color: var(--black);
+}
+.mob-drawer-close {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--mist); background: var(--off-white);
+  border: none; cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.mob-drawer-close:hover { background: var(--silk); color: var(--black); }
+.mob-drawer-nav {
+  flex: 1; overflow-y: auto;
+  display: flex; flex-direction: column;
+  padding: 2rem 1.5rem; gap: .2rem;
+}
+.mob-link {
+  font-family: var(--font-display);
+  font-size: 2rem; font-weight: 300; letter-spacing: .01em;
+  color: var(--black);
+  padding: .55rem 0;
+  border-bottom: 1px solid var(--silk);
+  display: flex; align-items: center; gap: .75rem;
+  transition: color .2s, padding-left .25s var(--ease-expo);
+}
+.mob-link::before {
+  content: ''; display: block; width: 0; height: 1px;
+  background: var(--emerald); flex-shrink: 0;
+  transition: width .3s var(--ease-expo);
+}
+.mob-link:hover,
+.mob-link-active { color: var(--emerald); }
+.mob-link:hover::before,
+.mob-link-active::before { width: 20px; }
+.mob-drawer-footer {
+  padding: 1.5rem; border-top: 1px solid var(--silk);
+  display: flex; flex-direction: column; gap: 1rem; flex-shrink: 0;
+}
+.mob-drawer-cta {
+  display: block; text-align: center;
+  background: var(--black); color: var(--white);
+  padding: .9rem 1.5rem; border-radius: 2px;
+  font-size: .78rem; letter-spacing: .1em;
+  text-transform: uppercase; font-weight: 400;
+  transition: background .25s;
+}
+.mob-drawer-cta:hover { background: var(--graphite); }
+.mob-drawer-contact {
+  display: flex; flex-direction: column; gap: .3rem;
+  font-family: var(--font-mono); font-size: .6rem;
+  letter-spacing: .1em; color: var(--mist); text-align: center;
+}
+
+/* ════════════════════════════════════════════════════
+   TABLET ≤ 1024px
+   Brochure panels stack vertically. All desktop styles
+   above this breakpoint are fully preserved.
+════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+
+  nav { padding: 0 2rem; }
+
+  /* Page hero */
+  .page-hero { padding: 130px 2.5rem 60px; }
+
+  /* Brochure: switch from 3-column grid to vertical stack */
+  .brochure {
+    grid-template-columns: 1fr;
+    aspect-ratio: unset;
+    width: 100%;
+    max-width: 560px;
+  }
+  /* Hide fold lines — they only make sense side-by-side */
+  .brochure::before,
+  .brochure::after { display: none; }
+
+  /* Restore full readable font sizes on each panel */
+  .panel-cover    { min-height: 460px; padding: 2.5rem; }
+  .panel-about    { padding: 2.5rem; min-height: 500px; }
+  .plans-top      { padding: 2.5rem 2.5rem 1.5rem; }
+  .plans-bottom   { padding: 1.75rem 2.5rem; }
+
+  .cover-h1         { font-size: 3.2rem; }
+  .cover-eyebrow    { font-size: .55rem; }
+  .cover-brand-name { font-size: 1.1rem; }
+  .cover-brand-tag  { font-size: .52rem; }
+  .cover-sub        { font-size: .78rem; max-width: 100%; }
+  .cover-url,
+  .cover-year       { font-size: .52rem; }
+  .mark-grid {
+    grid-template-columns: 26px 26px;
+    grid-template-rows: 26px 26px;
+  }
+  .about-headline   { font-size: 2rem; }
+  .about-body       { font-size: .77rem; }
+  .about-sig        { font-size: .95rem; }
+  .section-eyebrow,
+  .services-heading { font-size: .52rem; }
+  .service-item     { font-size: .72rem; }
+  .stat-num         { font-size: 1.6rem; }
+  .stat-lbl         { font-size: .45rem; }
+  .plans-table th   { font-size: .48rem; }
+  .plans-table td   { font-size: .72rem; }
+  .plan-name-row td:first-child       { font-size: 1rem; }
+  .plan-name-row td:not(:first-child) { font-size: .85rem; }
+  .plan-feature     { font-size: .62rem !important; }
+  .plans-note       { font-size: .48rem; }
+  .contact-label    { font-size: .44rem; }
+  .contact-val      { font-size: .68rem; }
+  .contact-cta p    { font-size: .9rem; }
+
+  /* Download band */
+  .download-band {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 3.5rem 2.5rem;
+    gap: 2rem;
+  }
+  .dl-actions   { width: 100%; flex-direction: column; gap: .75rem; }
+  .btn-dl-primary { justify-content: center; }
+
+  /* Footer */
+  footer { padding: 2.5rem; }
+}
+
+/* ════════════════════════════════════════════════════
+   MOBILE ≤ 768px
+════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Nav */
+  nav { padding: 0 1.25rem; height: 64px; }
+  .nav-links    { display: none; }
+  .nav-cta      { font-size: .68rem; padding: .45rem 1rem; }
+  .nav-hamburger { display: flex; }
+
+  /* Page hero */
+  .page-hero    { padding: 110px 1.5rem 50px; }
+  .page-title   { font-size: clamp(2.2rem, 8vw, 3.5rem); }
+  .page-desc    { font-size: .9rem; }
+  .page-actions { flex-direction: column; align-items: flex-start; gap: .75rem; }
+  .btn-download { width: 100%; justify-content: center; }
+
+  /* Brochure wrap */
+  .brochure-wrap { padding: 40px 1.25rem 60px; gap: 0; }
+
+  /* Brochure */
+  .brochure {
+    grid-template-columns: 1fr;
+    aspect-ratio: unset;
+    width: 100%;
+    max-width: 100%;
+    border-radius: 3px;
+  }
+
+  /* Cover */
+  .panel-cover    { min-height: 400px; padding: 2rem 1.75rem; }
+  .cover-h1       { font-size: clamp(2.2rem, 8vw, 3rem); }
+  .cover-sub      { max-width: 100%; font-size: .78rem; }
+  .cover-brand-name { font-size: 1.05rem; }
+  .mark-grid {
+    grid-template-columns: 26px 26px;
+    grid-template-rows: 26px 26px;
+  }
+
+  /* About */
+  .panel-about    { padding: 2rem 1.75rem; min-height: auto; }
+  .about-headline { font-size: 1.9rem; }
+  .about-body     { font-size: .78rem; }
+  .services-grid  { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .service-item   { font-size: .73rem; }
+  .stat-num       { font-size: 1.5rem; }
+
+  /* Plans */
+  .plans-top      { padding: 2rem 1.75rem 1.25rem; }
+  .plans-table th { font-size: .5rem; letter-spacing: .08em; }
+  .plans-table td { font-size: .74rem; padding: 7px 5px; }
+  .plan-name-row td:first-child       { font-size: 1rem; }
+  .plan-name-row td:not(:first-child) { font-size: .82rem; }
+  .plan-feature   { font-size: .63rem !important; }
+  .why-grid       { grid-template-columns: 1fr 1fr; }
+  .why-item       { font-size: .7rem; }
+
+  /* Contact strip */
+  .plans-bottom   { padding: 1.5rem 1.75rem; }
+  .contact-grid   { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .contact-val    { font-size: .7rem; }
+  .contact-cta p  { font-size: .88rem; }
+
+  /* Download band */
+  .download-band {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 3rem 1.5rem;
+    gap: 1.5rem;
+  }
+  .dl-left h2   { font-size: clamp(1.8rem, 6vw, 2.4rem); }
+  .dl-actions   { width: 100%; flex-direction: column; }
+  .btn-dl-primary { width: 100%; justify-content: center; }
+  .btn-dl-ghost   { align-self: center; }
+
+  /* Footer */
+  footer {
+    flex-direction: column; gap: 1.25rem;
+    padding: 2rem 1.5rem; text-align: center;
+  }
+  .footer-links { flex-wrap: wrap; justify-content: center; gap: 1.25rem; }
+}
+
+/* ════════════════════════════════════════════════════
+   SMALL MOBILE ≤ 480px
+════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  nav { padding: 0 1rem; height: 60px; }
+  .page-hero    { padding: 96px 1.25rem 40px; }
+  .brochure-wrap { padding: 28px 1rem 50px; }
+  .panel-cover  { padding: 1.75rem 1.5rem; min-height: 360px; }
+  .cover-h1     { font-size: clamp(2rem, 9vw, 2.8rem); }
+  .panel-about  { padding: 1.75rem 1.5rem; }
+  .about-headline { font-size: 1.7rem; }
+  .plans-top    { padding: 1.75rem 1.5rem 1rem; }
+  .plans-bottom { padding: 1.25rem 1.5rem; }
+  .contact-grid { grid-template-columns: 1fr; gap: 8px; }
+  .download-band { padding: 2.5rem 1.25rem; }
+  footer        { padding: 1.75rem 1.25rem; }
+}
+
+/* ════════════════════════════════════════════════════
+   LANDSCAPE PHONE
+════════════════════════════════════════════════════ */
+@media (max-width: 768px) and (orientation: landscape) {
+  .panel-cover  { min-height: 300px; }
+  .panel-about  { min-height: auto; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAVIGATION -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-mark">
+      <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="11" height="11" fill="#0A0A09"/>
+        <rect x="16" y="1" width="11" height="11" fill="#1A5C3A"/>
+        <rect x="1" y="16" width="11" height="11" fill="#9B9B94" opacity=".4"/>
+        <rect x="16" y="16" width="11" height="11" fill="#0A0A09"/>
+        <rect x="5" y="5" width="3" height="3" fill="#FFFFFF" opacity=".5"/>
+        <rect x="20" y="20" width="3" height="3" fill="#1A5C3A" opacity=".8"/>
+      </svg>
+    </div>
+    Oak & Pixel
+  </a>
+  <div class="nav-links">
+    <a href="index.html#about">Studio</a>
+    <a href="index.html#services">Services</a>
+    <a href="index.html#work">Work</a>
+    <a href="index.html#standards">Standards</a>
+    <a href="brochure.html">Brochure</a>
+  </div>
+  <a href="index.html#contact" class="nav-cta">Start a Project</a>
+  <button class="nav-hamburger" id="mob-toggle" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile overlay -->
+<div class="mob-overlay" id="mob-overlay"></div>
+
+<!-- Side drawer -->
+<aside class="mob-drawer" id="mob-drawer" role="dialog" aria-label="Navigation">
+  <div class="mob-drawer-header">
+    <div class="mob-drawer-logo">
+      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+        <rect x="1" y="1" width="11" height="11" fill="#0A0A09"/>
+        <rect x="16" y="1" width="11" height="11" fill="#1A5C3A"/>
+        <rect x="1" y="16" width="11" height="11" fill="#9B9B94" opacity=".4"/>
+        <rect x="16" y="16" width="11" height="11" fill="#0A0A09"/>
+        <rect x="5" y="5" width="3" height="3" fill="#FFFFFF" opacity=".5"/>
+        <rect x="20" y="20" width="3" height="3" fill="#1A5C3A" opacity=".8"/>
+      </svg>
+      <span>Oak &amp; Pixel</span>
+    </div>
+    <button class="mob-drawer-close" id="mob-close" aria-label="Close menu">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M2 2l12 12M14 2L2 14"/>
+      </svg>
+    </button>
+  </div>
+  <nav class="mob-drawer-nav">
+    <a href="index.html#about"        class="mob-link">Studio</a>
+    <a href="index.html#services"     class="mob-link">Services</a>
+    <a href="index.html#work"         class="mob-link">Work</a>
+    <a href="index.html#standards"    class="mob-link">Standards</a>
+    <a href="brochure.html"           class="mob-link mob-link-active">Brochure</a>
+  </nav>
+  <div class="mob-drawer-footer">
+    <a href="index.html#contact" class="mob-drawer-cta">Start a Project</a>
+    <div class="mob-drawer-contact">
+      <span>info@oakandpixel.co.za</span>
+      <span>oakandpixel.co.za</span>
+    </div>
+  </div>
+</aside>
+
+<!-- PAGE HERO -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="page-eyebrow">Studio Materials</div>
+    <h1 class="page-title">
+      Our Studio<br><em>Brochure</em>
+    </h1>
+    <p class="page-desc">
+      A concise overview of who we are, what we do, and how we can help your business grow digitally. Share it, download it, or simply explore it here.
+    </p>
+    <div class="page-actions">
+      <a href="documents/oak-pixel-brochure-za.pdf" download class="btn-download">
+        <svg viewBox="0 0 14 14"><path d="M7 2v7M4 6l3 3 3-3M2 11h10"/></svg>
+        Download PDF
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- BROCHURE -->
+<section class="brochure-wrap">
+
+  <div class="brochure" id="brochure-sheet">
+
+    <!-- ════════ PANEL 1: COVER ════════ -->
+    <div class="panel panel-cover">
+      <div class="cover-border-top"></div>
+      <div class="cover-border-left"></div>
+      <div class="cover-glow"></div>
+      <div class="cover-ring"></div>
+
+      <div class="cover-mark">
+        <div class="mark-grid">
+          <div class="mark-sq mark-tl"></div>
+          <div class="mark-sq mark-tr"></div>
+          <div class="mark-sq mark-bl"></div>
+          <div class="mark-sq mark-br"></div>
+          <div class="mark-jewel"></div>
+        </div>
+        <div class="cover-brand-name">Oak &amp; Pixel</div>
+        <div class="cover-brand-tag">Premium Digital Studio</div>
+      </div>
+
+      <div class="cover-headline">
+        <div class="cover-eyebrow">Digital Infrastructure</div>
+        <h2 class="cover-h1">
+          Designed<br>with<br><em>distinction.</em>
+        </h2>
+        <p class="cover-sub">Precision-crafted digital experiences for brands that refuse to compromise.</p>
+      </div>
+
+      <div class="cover-bottom">
+        <span class="cover-url">oakandpixel.studio</span>
+        <span class="cover-year">2025</span>
+      </div>
+    </div>
+
+    <!-- ════════ PANEL 2: ABOUT + SERVICES ════════ -->
+    <div class="panel panel-about">
+      <div class="about-inner">
+
+        <div class="section-eyebrow">Our Studio</div>
+        <h2 class="about-headline">
+          We build digital<br>presence that<br><em>endures.</em>
+        </h2>
+        <div class="about-rule"></div>
+
+        <p class="about-body">
+          Oak &amp; Pixel is a premium digital studio at the intersection of technology and taste. We design, build, and manage digital infrastructure for businesses that demand more — architecture-grade thinking, editorial-grade aesthetics.
+        </p>
+        <p class="about-body">
+          We work with a deliberately limited number of clients each year — because exceptional work demands genuine investment.
+        </p>
+
+        <div class="about-sig">— Built to last. Designed to lead.</div>
+
+        <div class="services-heading">What We Do</div>
+        <div class="services-grid">
+          <div class="service-item"><div class="service-pip"></div>Web Design &amp; Development</div>
+          <div class="service-item"><div class="service-pip"></div>Digital Infrastructure</div>
+          <div class="service-item"><div class="service-pip"></div>Lead Generation Systems</div>
+          <div class="service-item"><div class="service-pip"></div>Brand Experience Design</div>
+          <div class="service-item"><div class="service-pip"></div>SEO &amp; Performance</div>
+          <div class="service-item"><div class="service-pip"></div>Automation Strategy</div>
+          <div class="service-item"><div class="service-pip"></div>WhatsApp Integration</div>
+          <div class="service-item"><div class="service-pip"></div>Business Digital Advisory</div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-box">
+            <span class="stat-num">97%</span>
+            <div class="stat-lbl">Client retention</div>
+          </div>
+          <div class="stat-box">
+            <span class="stat-num">12+</span>
+            <div class="stat-lbl">Years of craft</div>
+          </div>
+          <div class="stat-box">
+            <span class="stat-num">180+</span>
+            <div class="stat-lbl">Engagements</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ════════ PANEL 3: PLANS + CONTACT ════════ -->
+    <div class="panel panel-plans">
+      <div class="plans-top">
+        <div class="plans-ring"></div>
+        <div class="plans-inner">
+
+          <div class="section-eyebrow" style="color:var(--emerald);">Service Plans</div>
+
+          <table class="plans-table">
+            <thead>
+              <tr>
+                <th style="width:40%">Plan</th>
+                <th>Setup</th>
+                <th>Monthly</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="plan-name-row">
+                <td>Signature</td><td>R10,000</td><td>R4,499</td>
+              </tr>
+              <tr>
+                <td colspan="3" class="plan-feature" style="padding-top:2px;padding-bottom:6px;">Website · Booking system · Appointment reminders · Basic invoicing</td>
+              </tr>
+              <tr class="plan-name-row">
+                <td>Growth</td><td>R18,000</td><td>R6,999</td>
+              </tr>
+              <tr>
+                <td colspan="3" class="plan-feature" style="padding-top:2px;padding-bottom:6px;">Everything in Signature · Payments · CRM · KPI dashboards · LeadSense Core</td>
+              </tr>
+              <tr class="plan-name-row">
+                <td>Private</td><td>R30,000</td><td>R12,499</td>
+              </tr>
+              <tr>
+                <td colspan="3" class="plan-feature" style="padding-top:2px;padding-bottom:6px;">Everything in Growth · Atlas AI · WhatsApp automation · Client portal · Advanced reporting</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p class="plans-note">
+            All prices exclude VAT. Setup fees are once-off. Monthly retainer billed at start of each month.<br>
+            A 50% deposit is required to commence. Proposals valid for 30 days.
+          </p>
+
+          <div class="why-section">
+            <div class="services-heading" style="color:var(--emerald);margin-bottom:8px;">Why Oak &amp; Pixel</div>
+            <div class="why-grid">
+              <div class="why-item"><div class="service-pip"></div>Precision-led design</div>
+              <div class="why-item"><div class="service-pip"></div>High-touch execution</div>
+              <div class="why-item"><div class="service-pip"></div>Senior practitioners only</div>
+              <div class="why-item"><div class="service-pip"></div>Technology with taste</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="plans-bottom">
+        <div class="bottom-glow"></div>
+        <div class="contact-heading">Start a Conversation</div>
+        <div class="contact-grid">
+          <div class="contact-item">
+            <div class="contact-label">Email</div>
+            <div class="contact-val em"><a href="mailto:info@oakandpixel.co.za">info@oakandpixel.co.za</a></div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-label">Phone</div>
+            <div class="contact-val">+27 (75) 089 0614</div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-label">Web</div>
+            <div class="contact-val em">oakandpixel.co.za</div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-label">Locations</div>
+            <div class="contact-val">Randburg · Gauteng</div>
+          </div>
+        </div>
+        <div class="contact-cta">
+          <p>Ready to build something <strong>remarkable?</strong></p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /brochure -->
+
+</section><!-- /brochure-wrap -->
+
+
+
+<!-- DOWNLOAD CTA BAND -->
+<section class="download-band reveal" id="dl-band">
+  <div class="dl-left">
+    <h2>Take it with<br>you — <em>download.</em></h2>
+    <p>Share it with your team, your stakeholders, or anyone who needs to understand what Oak &amp; Pixel does.</p>
+  </div>
+  <div class="dl-actions">
+    <a href="documents/oak-pixel-brochure-za.pdf" download class="btn-dl-primary">
+      <svg viewBox="0 0 14 14"><path d="M7 2v7M4 6l3 3 3-3M2 11h10"/></svg>
+      Download PDF
+    </a>
+    <a href="index.html#contact" class="btn-dl-ghost">Start a Project</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Oak & Pixel</div>
+  <p class="footer-copy">© 2025 Oak & Pixel Studio. All rights reserved.</p>
+  <div class="footer-links">
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+    <a href="https://www.instagram.com/oakandpixel_?igsh=MTc1cG05dHEzNjg2cQ%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer">Instagram</a>
+    <a href="https://www.linkedin.com/company/113094222/admin/dashboard/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+  </div>
+</footer>
+
+<script>
+// ── CURSOR ──────────────────────────────────────────────
+const cursor = document.getElementById('cursor');
+const ring   = document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cursor.style.left=mx+'px';cursor.style.top=my+'px';
+});
+(function animRing(){
+  rx+=(mx-rx)*.12;ry+=(my-ry)*.12;
+  ring.style.left=rx+'px';ring.style.top=ry+'px';
+  requestAnimationFrame(animRing);
+})();
+
+// ── SCROLL REVEAL ────────────────────────────────────────
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:.1});
+document.querySelectorAll('.reveal, .brochure').forEach(el=>obs.observe(el));
+
+// ── NAV SCROLL STATE ────────────────────────────────────
+window.addEventListener('scroll',()=>{
+  const nav=document.querySelector('nav');
+  nav.style.background=window.scrollY>40
+    ?'rgba(255,255,255,0.95)'
+    :'rgba(255,255,255,0.92)';
+});
+</script>
+</body>
+</html>

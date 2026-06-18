@@ -1,0 +1,44 @@
+{
+  "brand": "Oak & Pixel",
+  "entity_type": "premium digital studio",
+  "canonical_url": "https://www.oakandpixel.co.za/",
+  "location": "Randburg, Gauteng, South Africa",
+  "contact": {
+    "email": "info@oakandpixel.co.za",
+    "phone": "+27 (75) 089 0614",
+    "whatsapp": "https://wa.me/0750890614"
+  },
+  "summary": "Oak & Pixel builds high-end websites, lead-generation systems, automation strategy, and digital infrastructure for ambitious brands.",
+  "services": [
+    {
+      "name": "Signature Plan",
+      "answer": "A professional digital foundation with a website, booking system, appointment reminders, basic invoicing, and essential digital presence. Pricing is R10,000 setup plus R4,499/month."
+    },
+    {
+      "name": "Growth Plan",
+      "answer": "An operations and lead-management plan with online payments, CRM, KPI dashboards, automated communications, and LeadSense Core. Pricing is R18,000 setup plus R6,999/month."
+    },
+    {
+      "name": "Private Plan",
+      "answer": "A fully integrated growth ecosystem with Atlas AI chatbot, WhatsApp automation, client portal, advanced reporting, API integrations, process automation, and monthly optimisation consulting. Pricing is R30,000 setup plus R12,499/month."
+    },
+    {
+      "name": "Digital Advisory Session",
+      "answer": "A focused strategy session for prioritising digital systems, technical direction, automation opportunities, and next steps."
+    }
+  ],
+  "questions": [
+    {
+      "question": "What does Oak & Pixel do?",
+      "answer": "Oak & Pixel designs and builds premium websites, lead-generation systems, automation strategy, and digital infrastructure."
+    },
+    {
+      "question": "Where is Oak & Pixel based?",
+      "answer": "Oak & Pixel is based in Randburg, Gauteng, South Africa."
+    },
+    {
+      "question": "How do I contact Oak & Pixel?",
+      "answer": "Email info@oakandpixel.co.za, call +27 (75) 089 0614, use WhatsApp at https://wa.me/0750890614, or submit the contact form on the website."
+    }
+  ]
+}

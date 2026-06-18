@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oak & Pixel — Email Signature</title>
+<style>
+  /* Preview page styles only — not part of the signature */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #ECECEC;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 48px 24px;
+    gap: 40px;
+  }
+  .preview-label {
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: -24px;
+    align-self: flex-start;
+    max-width: 680px;
+    width: 100%;
+  }
+  .preview-card {
+    background: #fff;
+    border-radius: 6px;
+    padding: 40px 44px 44px;
+    box-shadow: 0 4px 28px rgba(0,0,0,.10);
+    max-width: 680px;
+    width: 100%;
+  }
+  .mock-email-header {
+    border-bottom: 1px solid #ebebeb;
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+  }
+  .mock-field {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #555;
+  }
+  .mock-field strong { color: #222; width: 36px; flex-shrink: 0; }
+  .mock-body {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.65;
+    margin-bottom: 28px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .copy-hint {
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #aaa;
+    text-align: center;
+    margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+
+<p class="preview-label">Preview — Light email client (Gmail, Outlook)</p>
+
+<!-- ════════════════════════════════════════════════
+     EMAIL PREVIEW WRAPPER
+════════════════════════════════════════════════ -->
+<div class="preview-card">
+  <div class="mock-email-header">
+    <div class="mock-field"><strong>From</strong> Your Name &lt;hello@oakandpixel.studio&gt;</div>
+    <div class="mock-field"><strong>To</strong> client@example.com</div>
+    <div class="mock-field"><strong>Re</strong> Project Proposal — Digital Experience</div>
+  </div>
+  <div class="mock-body">
+    Thank you for taking the time to connect. I've attached the initial proposal for your review. Please don't hesitate to reach out if you have any questions — I'd love to walk you through our approach in more detail.
+    <br><br>
+    Looking forward to the conversation.
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       ★  SIGNATURE — COPY EVERYTHING BELOW  ★
+  ════════════════════════════════════════════ -->
+  <table cellpadding="0" cellspacing="0" border="0"
+         style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+                max-width:560px;width:100%;">
+    <tr>
+      <!-- LEFT: Emerald accent bar -->
+      <td width="3" style="background-color:#1A5C3A;border-radius:2px;" valign="top">
+        &nbsp;
+      </td>
+      <td width="16">&nbsp;</td>
+
+      <!-- CENTRE: Logo mark -->
+      <td width="60" valign="middle" style="padding-right:18px;">
+        <table cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td>
+              <!-- 2x2 mark built with table cells -->
+              <table cellpadding="0" cellspacing="0" border="0"
+                     style="border-collapse:separate;border-spacing:3px;">
+                <tr>
+                  <!-- Top-left: Graphite black -->
+                  <td width="22" height="22"
+                      style="background-color:#2A2A27;
+                             border-radius:2px;
+                             width:22px;height:22px;">
+                  </td>
+                  <!-- Top-right: Emerald -->
+                  <td width="22" height="22"
+                      style="background-color:#1A5C3A;
+                             border-radius:2px;
+                             width:22px;height:22px;">
+                  </td>
+                </tr>
+                <tr>
+                  <!-- Bottom-left: Mist -->
+                  <td width="22" height="22"
+                      style="background-color:#C2BEB8;
+                             border-radius:2px;
+                             width:22px;height:22px;
+                             opacity:0.55;">
+                  </td>
+                  <!-- Bottom-right: Deep black -->
+                  <td width="22" height="22"
+                      style="background-color:#0A0A09;
+                             border-radius:2px;
+                             width:22px;height:22px;">
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+
+      <!-- RIGHT: Text block -->
+      <td valign="middle">
+        <table cellpadding="0" cellspacing="0" border="0" style="width:100%;">
+
+          <!-- Name -->
+          <tr>
+            <td style="font-size:15px;
+                       font-weight:700;
+                       color:#0A0A09;
+                       letter-spacing:0.01em;
+                       padding-bottom:1px;
+                       line-height:1.2;">
+              Neo Matime
+            </td>
+          </tr>
+
+          <!-- Title -->
+          <tr>
+            <td style="font-size:11px;
+                       color:#9B9B94;
+                       letter-spacing:0.10em;
+                       text-transform:uppercase;
+                       padding-bottom:10px;
+                       line-height:1.4;">
+              Founder &amp; Chief Executive Officer
+            </td>
+          </tr>
+
+          <!-- Divider -->
+          <tr>
+            <td style="padding-bottom:10px;">
+              <table cellpadding="0" cellspacing="0" border="0" style="width:100%;">
+                <tr>
+                  <td style="font-size:11px;
+                             font-weight:700;
+                             color:#0A0A09;
+                             letter-spacing:0.08em;
+                             text-transform:uppercase;">
+                    Oak &amp; Pixel
+                  </td>
+                  <td style="padding-left:10px;">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td width="28" height="1"
+                            style="background-color:#1A5C3A;
+                                   font-size:0;line-height:0;">
+                          &nbsp;
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td style="font-size:10px;
+                             color:#9B9B94;
+                             letter-spacing:0.08em;
+                             text-transform:uppercase;
+                             padding-left:8px;">
+                    Premium Digital Studio
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Contact details -->
+          <tr>
+            <td>
+              <table cellpadding="0" cellspacing="0" border="0">
+
+                <!-- Email -->
+                <tr>
+                  <td style="padding-bottom:4px;">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td width="10" style="font-size:0;line-height:0;padding-right:7px;">
+                          <table cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                              <td width="3" height="10"
+                                  style="background-color:#1A5C3A;
+                                         border-radius:1px;
+                                         font-size:0;line-height:0;">
+                                &nbsp;
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                        <td style="font-size:12px;color:#444444;line-height:1.4;">
+                          <a href="mailto:hello@oakandpixel.studio"
+                             style="color:#444444;text-decoration:none;">
+                            neo,natime@oakandpixel.co.za
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Phone -->
+                <tr>
+                  <td style="padding-bottom:4px;">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td width="10" style="font-size:0;line-height:0;padding-right:7px;">
+                          <table cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                              <td width="3" height="10"
+                                  style="background-color:#1A5C3A;
+                                         border-radius:1px;
+                                         font-size:0;line-height:0;">
+                                &nbsp;
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                        <td style="font-size:12px;color:#444444;line-height:1.4;">
+                          <a href="tel:+14150000000"
+                             style="color:#444444;text-decoration:none;">
+                            +27 (75) 089 0614
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Website -->
+                <tr>
+                  <td style="padding-bottom:4px;">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td width="10" style="font-size:0;line-height:0;padding-right:7px;">
+                          <table cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                              <td width="3" height="10"
+                                  style="background-color:#1A5C3A;
+                                         border-radius:1px;
+                                         font-size:0;line-height:0;">
+                                &nbsp;
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                        <td style="font-size:12px;line-height:1.4;">
+                          <a href="https://oakandpixel.co.za"
+                             style="color:#1A5C3A;text-decoration:none;font-weight:500;">
+                            www.oakandpixel.co.za
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+
+          <!-- Social links -->
+          <tr>
+            <td style="padding-top:10px;">
+              <table cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="padding-right:12px;">
+                    <a href="https://linkedin.com/company/oakandpixel"
+                       style="font-size:10px;
+                              letter-spacing:0.10em;
+                              text-transform:uppercase;
+                              color:#9B9B94;
+                              text-decoration:none;">
+                      LinkedIn
+                    </a>
+                  </td>
+                  <td style="font-size:10px;color:#D4D0CA;padding-right:12px;">·</td>
+                  <td style="padding-right:12px;">
+                    <a href="https://instagram.com/oakandpixel"
+                       style="font-size:10px;
+                              letter-spacing:0.10em;
+                              text-transform:uppercase;
+                              color:#9B9B94;
+                              text-decoration:none;">
+                      Instagram
+                    </a>
+                  </td>
+                  <td style="font-size:10px;color:#D4D0CA;padding-right:12px;">·</td>
+                  <td>
+                    <a href="https://oakandpixel.studio/work"
+                       style="font-size:10px;
+                              letter-spacing:0.10em;
+                              text-transform:uppercase;
+                              color:#9B9B94;
+                              text-decoration:none;">
+                      Our Work
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+
+    <!-- Spacer -->
+    <tr><td colspan="4" height="16">&nbsp;</td></tr>
+
+    <!-- Bottom emerald line -->
+    <tr>
+      <td colspan="4" height="1"
+          style="background:linear-gradient(to right,#1A5C3A,#2D7A52,transparent);
+                 font-size:0;line-height:0;">
+        &nbsp;
+      </td>
+    </tr>
+
+    <!-- Confidentiality note -->
+    <tr>
+      <td colspan="4" style="padding-top:10px;">
+        <p style="font-size:9px;
+                  color:#C8C4BC;
+                  line-height:1.5;
+                  margin:0;">
+          This email and any attachments are confidential and intended solely for the
+          named recipient. If you have received this email in error, please notify us
+          immediately and delete it from your system.
+        </p>
+      </td>
+    </tr>
+
+  </table>
+  <!-- ════════════════════════════════════════════
+       ★  END OF SIGNATURE  ★
+  ════════════════════════════════════════════ -->
+
+</div>
+
+<!-- ─── DARK VERSION PREVIEW ─── -->
+<p class="preview-label" style="margin-top:16px;">Preview — Dark email client</p>
+<div class="preview-card" style="background:#1C1C1A;">
+  <div class="mock-email-header" style="border-color:#2e2e2b;">
+    <div class="mock-field" style="color:#666;"><strong style="color:#888;">From</strong> Your Name &lt;hello@oakandpixel.studio&gt;</div>
+    <div class="mock-field" style="color:#666;"><strong style="color:#888;">To</strong> client@example.com</div>
+  </div>
+  <div class="mock-body" style="color:#aaa;border-color:#2a2a28;margin-bottom:28px;padding-bottom:28px;">
+    Thank you for taking the time to connect. Please find the initial proposal attached.
+    <br><br>Looking forward to the conversation.
+  </div>
+
+  <!-- Same signature, dark bg just for preview -->
+  <table cellpadding="0" cellspacing="0" border="0"
+         style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+                max-width:560px;width:100%;">
+    <tr>
+      <td width="3" style="background-color:#2D7A52;border-radius:2px;" valign="top">&nbsp;</td>
+      <td width="16">&nbsp;</td>
+      <td width="60" valign="middle" style="padding-right:18px;">
+        <table cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td>
+              <table cellpadding="0" cellspacing="0" border="0"
+                     style="border-collapse:separate;border-spacing:3px;">
+                <tr>
+                  <td width="22" height="22"
+                      style="background-color:#3A3A36;border-radius:2px;width:22px;height:22px;border:1px solid rgba(255,255,255,0.1);">
+                  </td>
+                  <td width="22" height="22"
+                      style="background-color:#1A5C3A;border-radius:2px;width:22px;height:22px;">
+                  </td>
+                </tr>
+                <tr>
+                  <td width="22" height="22"
+                      style="background-color:#5A5A55;border-radius:2px;width:22px;height:22px;">
+                  </td>
+                  <td width="22" height="22"
+                      style="background-color:#0A0A09;border-radius:2px;width:22px;height:22px;border:1px solid rgba(45,122,82,0.3);">
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+      <td valign="middle">
+        <table cellpadding="0" cellspacing="0" border="0" style="width:100%;">
+          <tr>
+            <td style="font-size:15px;font-weight:700;color:#F5F4F1;letter-spacing:0.01em;padding-bottom:1px;line-height:1.2;">
+              Your Name
+            </td>
+          </tr>
+          <tr>
+            <td style="font-size:11px;color:#6B6B64;letter-spacing:0.10em;text-transform:uppercase;padding-bottom:10px;line-height:1.4;">
+              Founder &amp; Creative Director
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-bottom:10px;">
+              <table cellpadding="0" cellspacing="0" border="0" style="width:100%;">
+                <tr>
+                  <td style="font-size:11px;font-weight:700;color:#F5F4F1;letter-spacing:0.08em;text-transform:uppercase;">
+                    Oak &amp; Pixel
+                  </td>
+                  <td style="padding-left:10px;">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                      <tr><td width="28" height="1" style="background-color:#2D7A52;font-size:0;line-height:0;">&nbsp;</td></tr>
+                    </table>
+                  </td>
+                  <td style="font-size:10px;color:#6B6B64;letter-spacing:0.08em;text-transform:uppercase;padding-left:8px;">
+                    Premium Digital Studio
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <table cellpadding="0" cellspacing="0" border="0">
+                <tr><td style="padding-bottom:4px;">
+                  <table cellpadding="0" cellspacing="0" border="0"><tr>
+                    <td width="10" style="font-size:0;padding-right:7px;">
+                      <table><tr><td width="3" height="10" style="background-color:#2D7A52;border-radius:1px;font-size:0;">&nbsp;</td></tr></table>
+                    </td>
+                    <td style="font-size:12px;color:#888;line-height:1.4;">
+                      <a href="mailto:hello@oakandpixel.studio" style="color:#888;text-decoration:none;">hello@oakandpixel.studio</a>
+                    </td>
+                  </tr></table>
+                </td></tr>
+                <tr><td style="padding-bottom:4px;">
+                  <table cellpadding="0" cellspacing="0" border="0"><tr>
+                    <td width="10" style="font-size:0;padding-right:7px;">
+                      <table><tr><td width="3" height="10" style="background-color:#2D7A52;border-radius:1px;font-size:0;">&nbsp;</td></tr></table>
+                    </td>
+                    <td style="font-size:12px;color:#888;line-height:1.4;">
+                      <a href="tel:+14150000000" style="color:#888;text-decoration:none;">+1 (415) 000 0000</a>
+                    </td>
+                  </tr></table>
+                </td></tr>
+                <tr><td>
+                  <table cellpadding="0" cellspacing="0" border="0"><tr>
+                    <td width="10" style="font-size:0;padding-right:7px;">
+                      <table><tr><td width="3" height="10" style="background-color:#2D7A52;border-radius:1px;font-size:0;">&nbsp;</td></tr></table>
+                    </td>
+                    <td style="font-size:12px;line-height:1.4;">
+                      <a href="https://oakandpixel.studio" style="color:#2D7A52;text-decoration:none;font-weight:500;">oakandpixel.studio</a>
+                    </td>
+                  </tr></table>
+                </td></tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top:10px;">
+              <table cellpadding="0" cellspacing="0" border="0"><tr>
+                <td style="padding-right:12px;"><a href="#" style="font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#6B6B64;text-decoration:none;">LinkedIn</a></td>
+                <td style="font-size:10px;color:#333;padding-right:12px;">·</td>
+                <td style="padding-right:12px;"><a href="#" style="font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#6B6B64;text-decoration:none;">Instagram</a></td>
+                <td style="font-size:10px;color:#333;padding-right:12px;">·</td>
+                <td><a href="#" style="font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#6B6B64;text-decoration:none;">Our Work</a></td>
+              </tr></table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr><td colspan="4" height="16">&nbsp;</td></tr>
+    <tr>
+      <td colspan="4" height="1" style="background-color:#2D7A52;font-size:0;line-height:0;">&nbsp;</td>
+    </tr>
+    <tr>
+      <td colspan="4" style="padding-top:10px;">
+        <p style="font-size:9px;color:#3A3A38;line-height:1.5;margin:0;">
+          This email and any attachments are confidential and intended solely for the named recipient.
+          If you have received this email in error, please notify us immediately and delete it from your system.
+        </p>
+      </td>
+    </tr>
+  </table>
+
+</div>
+
+<p class="copy-hint">Open this file in a browser · Select the signature · Copy &amp; paste into your email client</p>
+
+</body>
+</html>

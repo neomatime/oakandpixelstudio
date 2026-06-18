@@ -1,0 +1,86 @@
+{
+  "site": {
+    "name": "Oak & Pixel",
+    "legalName": "Oak & Pixel Studio",
+    "baseUrl": "https://www.oakandpixel.co.za",
+    "description": "Oak & Pixel is a premium digital studio in Randburg building high-end websites, lead generation systems, automation strategy, and digital infrastructure for ambitious brands.",
+    "email": "info@oakandpixel.co.za",
+    "phoneDisplay": "+27 (75) 089 0614",
+    "phoneE164": "+27750890614",
+    "whatsappUrl": "https://wa.me/0750890614",
+    "location": {
+      "locality": "Randburg",
+      "region": "Gauteng",
+      "country": "ZA"
+    },
+    "social": {
+      "instagram": "https://www.instagram.com/oakandpixel_?igsh=MTc1cG05dHEzNjg2cQ%3D%3D&utm_source=qr",
+      "linkedin": "https://www.linkedin.com/company/113094222/admin/dashboard/"
+    },
+    "shareImage": "https://www.oakandpixel.co.za/images/oak-pixel-whatsapp-banner-v2.png"
+  },
+  "pages": [
+    {
+      "file": "index.html",
+      "url": "https://www.oakandpixel.co.za/",
+      "title": "Oak & Pixel - Digital Infrastructure, Designed with Distinction",
+      "priority": "1.0"
+    },
+    {
+      "file": "brochure.html",
+      "url": "https://www.oakandpixel.co.za/brochure.html",
+      "title": "Studio Brochure - Oak & Pixel",
+      "priority": "0.8"
+    },
+    {
+      "file": "privacy.html",
+      "url": "https://www.oakandpixel.co.za/privacy.html",
+      "title": "Privacy Policy - Oak & Pixel",
+      "priority": "0.3"
+    },
+    {
+      "file": "terms.html",
+      "url": "https://www.oakandpixel.co.za/terms.html",
+      "title": "Terms & Conditions - Oak & Pixel",
+      "priority": "0.3"
+    }
+  ],
+  "services": [
+    {
+      "name": "Signature Plan",
+      "summary": "A professional digital foundation with a website, booking system, appointment reminders, basic invoicing, and essential digital presence."
+    },
+    {
+      "name": "Growth Plan",
+      "summary": "An operations and lead-management plan with online payments, CRM, KPI dashboards, automated communications, and LeadSense Core."
+    },
+    {
+      "name": "Private Plan",
+      "summary": "A fully integrated growth ecosystem with Atlas AI, WhatsApp automation, client portal, advanced reporting, API integrations, process automation, and monthly optimisation consulting."
+    },
+    {
+      "name": "Digital Advisory Session",
+      "summary": "A focused advisory engagement for strategy, technical direction, and prioritisation."
+    }
+  ],
+  "validation": {
+    "requiredFiles": [
+      "index.html",
+      "brochure.html",
+      "privacy.html",
+      "terms.html",
+      "robots.txt",
+      "sitemap.xml",
+      "llms.txt",
+      "llms-full.txt",
+      "answer-engine.json"
+    ],
+    "forbiddenPatterns": [
+      "__cf_email__",
+      "/cdn-cgi/",
+      "hello@oakandpixel.studio",
+      "href=\"#\"",
+      "href=\"www.oakandpixel.co.za\""
+    ]
+  }
+}

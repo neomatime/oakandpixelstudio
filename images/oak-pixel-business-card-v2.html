@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oak & Pixel — Business Card v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --white:     #FFFFFF;
+  --offwhite:  #F5F4F1;
+  --silk:      #EDE9E3;
+  --black:     #0A0A09;
+  --graphite:  #2A2A27;
+  --slate:     #1C1C1A;
+  --mist:      #9B9B94;
+  --emerald:   #1A5C3A;
+  --emerald-l: #2D7A52;
+  --emerald-xl:#3D9966;
+  --gold:      #B8955A;
+  --card-w:    1008px;
+  --card-h:    576px;
+  --card-r:    5px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #2A2A27;
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 56px 40px 72px;
+}
+
+/* ─── PAGE HEADER ─── */
+.page-title {
+  font-family: 'DM Mono', monospace;
+  font-size: .65rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.25);
+  margin-bottom: 40px;
+  align-self: flex-start;
+}
+
+/* ─── EDIT BANNER ─── */
+.edit-banner {
+  width: var(--card-w);
+  background: var(--emerald);
+  color: rgba(255,255,255,.88);
+  font-family: 'DM Mono', monospace;
+  font-size: .65rem;
+  letter-spacing: .12em;
+  padding: .65rem 1.2rem;
+  border-radius: 3px 3px 0 0;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: 0;
+}
+.edit-banner::before { content: '✎'; font-size: .85rem; }
+
+.card-set {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  width: var(--card-w);
+}
+
+.side-label {
+  font-family: 'DM Mono', monospace;
+  font-size: .58rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.22);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+.side-label::before {
+  content: ''; display: block;
+  width: 14px; height: 1px;
+  background: rgba(255,255,255,.2);
+}
+
+/* ─── CARD BASE ─── */
+.card {
+  width: var(--card-w);
+  height: var(--card-h);
+  border-radius: var(--card-r);
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 2px 4px rgba(0,0,0,.12),
+    0 12px 32px rgba(0,0,0,.28),
+    0 32px 72px rgba(0,0,0,.20);
+}
+
+/* ════════════════════════════════
+   FRONT — Split layout, dark left / light right
+════════════════════════════════ */
+.card-front { background: var(--offwhite); }
+
+/* LEFT PANEL — full-height dark block */
+.front-left-panel {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 320px;
+  background: var(--slate);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 36px 32px;
+  overflow: hidden;
+}
+
+/* Emerald glow inside dark panel */
+.front-left-panel::before {
+  content: '';
+  position: absolute;
+  bottom: -40px; left: -40px;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(26,92,58,.28) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Diagonal decoration inside dark panel */
+.front-left-panel::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 160px; height: 160px;
+  border-left: 1px solid rgba(255,255,255,.04);
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  pointer-events: none;
+}
+
+/* Logo mark inside dark panel */
+.panel-mark {
+  display: grid;
+  grid-template-columns: 30px 30px;
+  grid-template-rows: 30px 30px;
+  gap: 4px;
+  position: relative;
+  z-index: 2;
+}
+.pm-sq { border-radius: 2px; }
+.pm-tl { background: #3A3A36; border: 1px solid rgba(255,255,255,.1); }
+.pm-tr { background: var(--emerald); }
+.pm-bl { background: rgba(255,255,255,.12); }
+.pm-br {
+  background: #050505;
+  border: 1px solid rgba(45,122,82,.35);
+  position: relative;
+}
+.pm-br::after {
+  content: '';
+  position: absolute;
+  bottom: 3px; right: 3px;
+  width: 9px; height: 9px;
+  border-radius: 1.5px;
+  background: var(--emerald-l);
+}
+.pm-jewel {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--emerald);
+  z-index: 4;
+  box-shadow: 0 0 6px rgba(45,122,82,.6);
+}
+
+/* Brand name in dark panel */
+.panel-brand {
+  position: relative;
+  z-index: 2;
+}
+.panel-brand-name {
+  font-family: 'Cormorant', Georgia, serif;
+  font-weight: 500;
+  font-size: 1.6rem;
+  letter-spacing: .04em;
+  color: var(--offwhite);
+  line-height: 1;
+  margin-bottom: 5px;
+}
+.panel-brand-rule {
+  width: 32px; height: 1px;
+  background: var(--emerald-l);
+  margin-bottom: 6px;
+}
+.panel-brand-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: .52rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(155,155,148,.55);
+}
+
+/* Website / URL at bottom of panel */
+.panel-url {
+  position: relative;
+  z-index: 2;
+}
+.panel-url a,
+.panel-url span {
+  font-family: 'DM Mono', monospace;
+  font-size: .58rem;
+  letter-spacing: .1em;
+  color: var(--emerald-l);
+  text-decoration: none;
+}
+
+/* Vertical geometric line separating panels */
+.front-divider {
+  position: absolute;
+  left: 320px; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom,
+    var(--emerald) 0%,
+    var(--emerald-l) 50%,
+    transparent 100%);
+  z-index: 3;
+}
+
+/* RIGHT PANEL — contact details on light ground */
+.front-right-panel {
+  position: absolute;
+  left: 323px; top: 0; right: 0; bottom: 0;
+  padding: 32px 34px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 2;
+  overflow: hidden;
+}
+
+/* Dot-grid texture on right panel */
+.front-right-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(10,10,9,.10) 1px, transparent 1px);
+  background-size: 18px 18px;
+  pointer-events: none;
+}
+
+/* Geometric ring top-right corner */
+.front-right-panel::after {
+  content: '';
+  position: absolute;
+  top: -50px; right: -50px;
+  width: 160px; height: 160px;
+  border: 1px solid rgba(26,92,58,.12);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Small inner ring */
+.rp-ring2 {
+  position: absolute;
+  top: -22px; right: -22px;
+  width: 100px; height: 100px;
+  border: 1px solid rgba(26,92,58,.08);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Person block — top of right panel */
+.rp-person {
+  position: relative;
+  z-index: 2;
+}
+.rp-name {
+  font-family: 'Cormorant', Georgia, serif;
+  font-size: 1.75rem;
+  font-weight: 400;
+  color: var(--black);
+  letter-spacing: .015em;
+  line-height: 1.05;
+  margin-bottom: 5px;
+  /* ← EDIT: Replace with your name */
+}
+.rp-title {
+  font-family: 'DM Mono', monospace;
+  font-size: .52rem;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--emerald);
+  margin-bottom: 14px;
+  /* ← EDIT: Replace with your title */
+}
+/* Thin rule beneath title */
+.rp-rule {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, rgba(10,10,9,.1), transparent);
+  margin-bottom: 16px;
+}
+
+/* Contact details */
+.rp-contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  position: relative;
+  z-index: 2;
+}
+.rp-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.rp-pip {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--emerald);
+  flex-shrink: 0;
+}
+.rp-contact-label {
+  font-family: 'DM Mono', monospace;
+  font-size: .5rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--mist);
+  width: 42px;
+  flex-shrink: 0;
+}
+.rp-contact-val {
+  font-family: 'Jost', sans-serif;
+  font-size: .72rem;
+  font-weight: 300;
+  color: #333;
+  letter-spacing: .01em;
+}
+
+/* Bottom strip — social + location */
+.rp-bottom {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.rp-social {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.rp-social a, .rp-social span {
+  font-family: 'DM Mono', monospace;
+  font-size: .5rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--mist);
+  text-decoration: none;
+  transition: color .2s;
+}
+.rp-social a:hover { color: var(--emerald); }
+.rp-social-dot {
+  width: 2px; height: 2px;
+  border-radius: 50%;
+  background: rgba(10,10,9,.2);
+}
+.rp-location {
+  font-family: 'DM Mono', monospace;
+  font-size: .5rem;
+  letter-spacing: .1em;
+  color: rgba(155,155,148,.5);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.rp-location::before {
+  content: '';
+  width: 16px; height: 1px;
+  background: rgba(155,155,148,.3);
+}
+
+/* Bottom emerald rule */
+.front-bottom-rule {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(to right, var(--emerald), var(--emerald-l) 40%, transparent);
+  z-index: 4;
+}
+
+
+/* ════════════════════════════════
+   BACK — Full dark, geometric, dense
+════════════════════════════════ */
+.card-back {
+  background: var(--slate);
+}
+
+/* Subtle scan lines */
+.card-back::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(255,255,255,.012) 2px, rgba(255,255,255,.012) 3px
+  );
+  pointer-events: none;
+}
+
+/* Emerald bloom left */
+.back-bloom {
+  position: absolute;
+  left: -80px; top: 50%;
+  transform: translateY(-50%);
+  width: 380px; height: 380px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(26,92,58,.25) 0%, transparent 65%);
+  filter: blur(36px);
+  pointer-events: none;
+}
+
+/* Top and bottom emerald borders */
+.back-top { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(to right, var(--emerald), var(--emerald-l), transparent); z-index: 4; }
+.back-bot { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(to right, transparent, var(--emerald-l), var(--emerald)); z-index: 4; }
+.back-left { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--emerald); z-index: 4; border-radius: var(--card-r) 0 0 var(--card-r); }
+
+/* THREE-COLUMN BACK LAYOUT */
+.back-inner {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr 1px 1fr;
+  z-index: 3;
+  padding: 0 24px 0 28px;
+}
+
+/* Column dividers */
+.back-divider {
+  background: rgba(255,255,255,.06);
+  margin: 32px 0;
+}
+
+/* Each back column */
+.back-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 36px 20px;
+  gap: 0;
+}
+
+/* Left col — mark + brand */
+.back-col-left {
+  align-items: flex-start;
+  padding-left: 12px;
+}
+
+.back-mark {
+  display: grid;
+  grid-template-columns: 36px 36px;
+  grid-template-rows: 36px 36px;
+  gap: 4px;
+  position: relative;
+  margin-bottom: 20px;
+}
+.bm-sq { border-radius: 3px; }
+.bm-tl { background: #3A3A36; border: 1px solid rgba(255,255,255,.1); }
+.bm-tr { background: var(--emerald); }
+.bm-bl { background: rgba(255,255,255,.1); }
+.bm-br {
+  background: #050505;
+  border: 1px solid rgba(45,122,82,.35);
+  position: relative;
+}
+.bm-br::after {
+  content: '';
+  position: absolute;
+  bottom: 4px; right: 4px;
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  background: var(--emerald-l);
+}
+.bm-jewel {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--emerald);
+  box-shadow: 0 0 8px rgba(45,122,82,.7);
+  z-index: 4;
+}
+
+.back-brand-name {
+  font-family: 'Cormorant', Georgia, serif;
+  font-weight: 500;
+  font-size: 1.4rem;
+  letter-spacing: .06em;
+  color: var(--offwhite);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.back-brand-rule {
+  width: 28px; height: 1px;
+  background: var(--emerald-l);
+  margin-bottom: 6px;
+}
+.back-brand-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: .48rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(155,155,148,.45);
+}
+
+/* Centre col — values / pillars */
+.back-col-mid { align-items: flex-start; }
+
+.back-col-heading {
+  font-family: 'DM Mono', monospace;
+  font-size: .48rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--emerald-l);
+  margin-bottom: 18px;
+}
+.back-pillars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.back-pillar {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+.pillar-dot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--emerald-l);
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.pillar-text {
+  font-family: 'Jost', sans-serif;
+  font-size: .72rem;
+  font-weight: 300;
+  color: rgba(245,244,241,.55);
+  line-height: 1.35;
+  letter-spacing: .01em;
+}
+
+/* Right col — contact + socials */
+.back-col-right { align-items: flex-start; }
+
+.back-contact-heading {
+  font-family: 'DM Mono', monospace;
+  font-size: .48rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--emerald-l);
+  margin-bottom: 18px;
+}
+.back-contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: 22px;
+}
+.back-contact-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.bc-label {
+  font-family: 'DM Mono', monospace;
+  font-size: .44rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(155,155,148,.4);
+}
+.bc-val {
+  font-family: 'Jost', sans-serif;
+  font-size: .7rem;
+  font-weight: 300;
+  color: rgba(245,244,241,.75);
+  letter-spacing: .01em;
+}
+.bc-val.emerald { color: var(--emerald-l); }
+
+.back-social-heading {
+  font-family: 'DM Mono', monospace;
+  font-size: .48rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--emerald-l);
+  margin-bottom: 10px;
+}
+.back-socials {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.back-social-item {
+  font-family: 'DM Mono', monospace;
+  font-size: .56rem;
+  letter-spacing: .08em;
+  color: rgba(155,155,148,.45);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.back-social-item::before {
+  content: '→';
+  color: var(--emerald-l);
+  font-size: .5rem;
+}
+
+/* Geometric SVG background for back */
+.back-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ─── INSTRUCTIONS ─── */
+.instructions {
+  margin-top: 44px;
+  width: var(--card-w);
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 4px;
+  padding: 22px 26px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.instr-block h3 {
+  font-family: 'DM Mono', monospace;
+  font-size: .58rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--emerald-l);
+  margin-bottom: 10px;
+}
+.instr-block ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.instr-block li {
+  font-size: .75rem;
+  color: rgba(255,255,255,.35);
+  line-height: 1.5;
+  display: flex;
+  gap: .5rem;
+}
+.instr-block li::before { content: '—'; color: var(--emerald-l); flex-shrink: 0; }
+code {
+  font-family: 'DM Mono', monospace;
+  font-size: .68rem;
+  background: rgba(26,92,58,.15);
+  color: var(--emerald-l);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+@media print {
+  body { background: white; padding: 0; }
+  .page-title,.edit-banner,.side-label,.instructions { display: none; }
+  .card-set { gap: 0; }
+  .card { width: 3.5in; height: 2in; page-break-after: always; box-shadow: none; }
+}
+</style>
+</head>
+<body>
+
+<p class="page-title">Oak & Pixel — Business Card v2 · 3.5 × 2 in · Both Sides</p>
+
+<div class="edit-banner">
+  Edit your details — open in a text editor and search for ← EDIT to find all fields
+</div>
+
+<div class="card-set">
+
+  <!-- ════════════ FRONT ════════════ -->
+  <div>
+    <div class="side-label">Front — Split Dark / Light</div>
+    <div class="card card-front">
+
+      <!-- LEFT DARK PANEL -->
+      <div class="front-left-panel">
+
+        <!-- Mark top -->
+        <div>
+          <div class="panel-mark">
+            <div class="pm-sq pm-tl"></div>
+            <div class="pm-sq pm-tr"></div>
+            <div class="pm-sq pm-bl"></div>
+            <div class="pm-sq pm-br"></div>
+            <div class="pm-jewel"></div>
+          </div>
+        </div>
+
+        <!-- Brand centre -->
+        <div class="panel-brand">
+          <div class="panel-brand-name">Oak &amp; Pixel</div>
+          <div class="panel-brand-rule"></div>
+          <div class="panel-brand-tag">Premium Digital Studio</div>
+        </div>
+
+        <!-- URL bottom -->
+        <div class="panel-url">
+          <!-- ← EDIT: Replace with your website -->
+          <span>oakandpixel.studio</span>
+        </div>
+      </div>
+
+      <!-- DIVIDER -->
+      <div class="front-divider"></div>
+
+      <!-- RIGHT LIGHT PANEL -->
+      <div class="front-right-panel">
+        <div class="rp-ring2"></div>
+
+        <!-- Person block -->
+        <div class="rp-person">
+          <!-- ← EDIT: Replace with your name -->
+          <div class="rp-name">Your Full Name</div>
+          <!-- ← EDIT: Replace with your title -->
+          <div class="rp-title">Founder &amp; Creative Director</div>
+          <div class="rp-rule"></div>
+
+          <div class="rp-contacts">
+            <div class="rp-contact-item">
+              <div class="rp-pip"></div>
+              <div class="rp-contact-label">Email</div>
+              <!-- ← EDIT: Replace email -->
+              <div class="rp-contact-val">hello@oakandpixel.studio</div>
+            </div>
+            <div class="rp-contact-item">
+              <div class="rp-pip"></div>
+              <div class="rp-contact-label">Phone</div>
+              <!-- ← EDIT: Replace phone -->
+              <div class="rp-contact-val">+1 (415) 000 0000</div>
+            </div>
+            <div class="rp-contact-item">
+              <div class="rp-pip"></div>
+              <div class="rp-contact-label">Web</div>
+              <!-- ← EDIT: Replace website -->
+              <div class="rp-contact-val">oakandpixel.studio</div>
+            </div>
+            <div class="rp-contact-item">
+              <div class="rp-pip"></div>
+              <div class="rp-contact-label">LinkedIn</div>
+              <!-- ← EDIT: Replace LinkedIn -->
+              <div class="rp-contact-val">linkedin.com/in/yourname</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom: social + location -->
+        <div class="rp-bottom">
+          <div class="rp-social">
+            <span>Instagram</span>
+            <div class="rp-social-dot"></div>
+            <span>LinkedIn</span>
+            <div class="rp-social-dot"></div>
+            <span>Behance</span>
+          </div>
+          <!-- ← EDIT: Replace city/country -->
+          <div class="rp-location">Cape Town · South Africa</div>
+        </div>
+
+      </div>
+
+      <div class="front-bottom-rule"></div>
+    </div>
+  </div>
+
+  <!-- ════════════ BACK ════════════ -->
+  <div>
+    <div class="side-label">Back — Dark Three-Column</div>
+    <div class="card card-back">
+
+      <div class="back-bloom"></div>
+      <div class="back-top"></div>
+      <div class="back-bot"></div>
+      <div class="back-left"></div>
+
+      <!-- Geometric SVG background -->
+      <svg class="back-svg" viewBox="0 0 1008 576" xmlns="http://www.w3.org/2000/svg">
+        <!-- Concentric rings far right -->
+        <circle cx="980" cy="288" r="220" stroke="rgba(45,122,82,0.10)" stroke-width="1" fill="none"/>
+        <circle cx="980" cy="288" r="170" stroke="rgba(45,122,82,0.08)" stroke-width="1" fill="none"/>
+        <circle cx="980" cy="288" r="120" stroke="rgba(45,122,82,0.07)" stroke-width="1" fill="none"/>
+        <circle cx="980" cy="288" r="70"  stroke="rgba(45,122,82,0.09)" stroke-width="1" fill="none"/>
+        <circle cx="980" cy="288" r="28"  stroke="rgba(45,122,82,0.12)" stroke-width="1" fill="none"/>
+        <!-- Crosshair -->
+        <line x1="980" y1="60"  x2="980" y2="516" stroke="rgba(45,122,82,0.06)" stroke-width="1"/>
+        <line x1="760" y1="288" x2="1008" y2="288" stroke="rgba(45,122,82,0.06)" stroke-width="1"/>
+        <!-- Diagonal grid -->
+        <line x1="0"   y1="576" x2="200" y2="0"   stroke="rgba(255,255,255,0.025)" stroke-width="1"/>
+        <line x1="50"  y1="576" x2="250" y2="0"   stroke="rgba(255,255,255,0.018)" stroke-width="1"/>
+        <line x1="100" y1="576" x2="300" y2="0"   stroke="rgba(255,255,255,0.014)" stroke-width="1"/>
+        <!-- Horizontal hairlines -->
+        <line x1="0" y1="192" x2="1008" y2="192" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+        <line x1="0" y1="384" x2="1008" y2="384" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+        <!-- Small centre dot -->
+        <circle cx="980" cy="288" r="3" fill="rgba(45,122,82,0.4)"/>
+      </svg>
+
+      <!-- THREE COLUMNS -->
+      <div class="back-inner">
+
+        <!-- COL 1: Mark + Brand -->
+        <div class="back-col back-col-left">
+          <div class="back-mark">
+            <div class="bm-sq bm-tl"></div>
+            <div class="bm-sq bm-tr"></div>
+            <div class="bm-sq bm-bl"></div>
+            <div class="bm-sq bm-br"></div>
+            <div class="bm-jewel"></div>
+          </div>
+          <div class="back-brand-name">Oak &amp; Pixel</div>
+          <div class="back-brand-rule"></div>
+          <div class="back-brand-tag">Premium Digital Studio</div>
+        </div>
+
+        <div class="back-divider"></div>
+
+        <!-- COL 2: Pillars -->
+        <div class="back-col back-col-mid">
+          <div class="back-col-heading">Our Standards</div>
+          <div class="back-pillars">
+            <div class="back-pillar">
+              <div class="pillar-dot"></div>
+              <div class="pillar-text">Precision-led design</div>
+            </div>
+            <div class="back-pillar">
+              <div class="pillar-dot"></div>
+              <div class="pillar-text">Premium digital strategy</div>
+            </div>
+            <div class="back-pillar">
+              <div class="pillar-dot"></div>
+              <div class="pillar-text">Elegant systems thinking</div>
+            </div>
+            <div class="back-pillar">
+              <div class="pillar-dot"></div>
+              <div class="pillar-text">High-touch execution</div>
+            </div>
+            <div class="back-pillar">
+              <div class="pillar-dot"></div>
+              <div class="pillar-text">Technology with taste</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="back-divider"></div>
+
+        <!-- COL 3: Contact + Social -->
+        <div class="back-col back-col-right">
+          <div class="back-contact-heading">Get in Touch</div>
+          <div class="back-contacts">
+            <div class="back-contact-item">
+              <div class="bc-label">Email</div>
+              <!-- ← EDIT: Replace email -->
+              <div class="bc-val">hello@oakandpixel.studio</div>
+            </div>
+            <div class="back-contact-item">
+              <div class="bc-label">Phone</div>
+              <!-- ← EDIT: Replace phone -->
+              <div class="bc-val">+1 (415) 000 0000</div>
+            </div>
+            <div class="back-contact-item">
+              <div class="bc-label">Web</div>
+              <!-- ← EDIT: Replace website -->
+              <div class="bc-val emerald">oakandpixel.studio</div>
+            </div>
+          </div>
+
+          <div class="back-social-heading">Connect</div>
+          <div class="back-socials">
+            <!-- ← EDIT: Replace social handles -->
+            <div class="back-social-item">@oakandpixel</div>
+            <div class="back-social-item">linkedin.com/company/oakandpixel</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div><!-- /card-set -->
+
+<!-- INSTRUCTIONS -->
+<div class="instructions">
+  <div class="instr-block">
+    <h3>How to Edit</h3>
+    <ul>
+      <li>Open this file in any text editor (VS Code, Notepad, TextEdit)</li>
+      <li>Search for <code>← EDIT</code> to jump to each editable field</li>
+      <li>Replace <code>Your Full Name</code>, title, email, phone, website</li>
+      <li>Update social handles and location (Cape Town · South Africa)</li>
+    </ul>
+  </div>
+  <div class="instr-block">
+    <h3>Print Specifications</h3>
+    <ul>
+      <li>Size: <code>3.5 × 2 inches</code> — standard business card</li>
+      <li>Add <code>3mm bleed</code> on all sides before sending to printer</li>
+      <li>Export as PDF or PNG at <code>300 DPI minimum</code></li>
+      <li>Paper: <code>400gsm</code> silk or uncoated matte recommended</li>
+      <li>Front: soft-touch matte laminate · Back: spot UV on mark</li>
+    </ul>
+  </div>
+</div>
+
+</body>
+</html>

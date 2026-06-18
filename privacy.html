@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Read how Oak & Pixel Studio collects, uses, stores, and protects personal information submitted through the website and its services.">
+<link rel="canonical" href="https://www.oakandpixel.co.za/privacy.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Oak & Pixel">
+<meta property="og:title" content="Privacy Policy - Oak & Pixel">
+<meta property="og:description" content="Read how Oak & Pixel Studio collects, uses, stores, and protects personal information submitted through the website and its services.">
+<meta property="og:url" content="https://www.oakandpixel.co.za/privacy.html">
+<meta property="og:image" content="https://www.oakandpixel.co.za/images/oak-pixel-whatsapp-banner-v2.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Privacy Policy - Oak & Pixel">
+<meta name="twitter:description" content="Read how Oak & Pixel Studio collects, uses, stores, and protects personal information submitted through the website and its services.">
+<meta name="twitter:image" content="https://www.oakandpixel.co.za/images/oak-pixel-whatsapp-banner-v2.png">
+<title>Privacy Policy — Oak & Pixel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+<!-- Favicons -->
+<link rel="icon" href="images/favicons/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="images/favicons/favicon_32.png">
+<link rel="apple-touch-icon" href="images/favicons/favicon_512_apple.png"> 
+
+<style>
+/* ─── TOKENS ─────────────────────────────────────────── */
+:root {
+  --white:     #FFFFFF;
+  --off-white: #F5F4F1;
+  --silk:      #EDE9E3;
+  --black:     #0A0A09;
+  --graphite:  #161614;
+  --slate:     #2A2A27;
+  --mist:      #9B9B94;
+  --emerald:   #1A5C3A;
+  --emerald-l: #2D7A52;
+  --font-display: 'Cormorant', Georgia, serif;
+  --font-body:    'Jost', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+  --ease-expo:    cubic-bezier(0.16,1,0.3,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  background: var(--white);
+  color: var(--black);
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  cursor: none;
+}
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+/* ─── CUSTOM CURSOR ──────────────────────────────────── */
+#cursor {
+  position: fixed; width: 10px; height: 10px;
+  background: var(--black); border-radius: 50%;
+  pointer-events: none; z-index: 9999;
+  transform: translate(-50%,-50%);
+  transition: transform .15s var(--ease-expo), background .2s;
+  mix-blend-mode: multiply;
+}
+#cursor-ring {
+  position: fixed; width: 36px; height: 36px;
+  border: 1px solid rgba(10,10,9,0.25); border-radius: 50%;
+  pointer-events: none; z-index: 9998;
+  transform: translate(-50%,-50%);
+  transition: transform .45s var(--ease-expo), width .3s var(--ease-expo), height .3s var(--ease-expo), border-color .2s;
+}
+body:has(a:hover) #cursor-ring,
+body:has(button:hover) #cursor-ring {
+  width: 56px; height: 56px; border-color: var(--emerald);
+}
+
+/* ─── NAVIGATION ─────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 4rem; height: 72px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border-bottom: 1px solid rgba(10,10,9,0.06);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: .75rem;
+  font-family: var(--font-display); font-weight: 500;
+  font-size: 1.15rem; letter-spacing: 0.02em; color: var(--black);
+}
+.nav-logo-mark { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+.nav-links { display: flex; gap: 2.5rem; align-items: center; list-style: none; }
+.nav-links a {
+  font-size: .78rem; letter-spacing: .12em; text-transform: uppercase;
+  font-weight: 400; color: var(--slate);
+  transition: color .25s; position: relative;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: -2px; left: 0;
+  width: 0; height: 1px; background: var(--emerald);
+  transition: width .35s var(--ease-expo);
+}
+.nav-links a:hover { color: var(--black); }
+.nav-links a:hover::after { width: 100%; }
+.nav-cta {
+  font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 400;
+  padding: .55rem 1.4rem; border: 1px solid var(--black);
+  color: var(--black); border-radius: 2px;
+  transition: background .25s, color .25s;
+}
+.nav-cta:hover { background: var(--black); color: var(--white); }
+.nav-wa {
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 50%;
+  color: #25D366; border: 1px solid rgba(37,211,102,.25);
+  transition: background .25s, border-color .25s, transform .2s;
+  margin-right: .25rem;
+}
+.nav-wa:hover { background: rgba(37,211,102,.08); border-color: rgba(37,211,102,.5); transform: scale(1.08); }
+
+/* ─── PAGE HERO ──────────────────────────────────────── */
+.page-hero {
+  padding: 160px 4rem 80px;
+  background: var(--off-white);
+  position: relative;
+  overflow: hidden;
+}
+.page-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(10,10,9,.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+}
+.page-hero::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 1px; background: rgba(10,10,9,.08);
+}
+.page-hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 2; }
+.page-eyebrow {
+  font-family: var(--font-mono); font-size: .68rem;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--emerald); margin-bottom: 1.5rem;
+  display: flex; align-items: center; gap: .75rem;
+}
+.page-eyebrow::before { content: ''; display: block; width: 28px; height: 1px; background: var(--emerald); }
+.page-title {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 5vw, 5rem);
+  font-weight: 300; line-height: 1.06; letter-spacing: -.01em;
+  color: var(--black); margin-bottom: 1.5rem;
+}
+.page-title em { font-style: italic; color: var(--emerald); }
+.page-meta {
+  font-family: var(--font-mono); font-size: .65rem;
+  letter-spacing: .12em; color: var(--mist);
+  display: flex; align-items: center; gap: 1.5rem;
+  margin-top: 2rem;
+}
+.page-meta span { display: flex; align-items: center; gap: .5rem; }
+.page-meta span::before { content: ''; display: block; width: 4px; height: 4px; border-radius: 50%; background: var(--emerald); }
+
+/* ─── CONTENT LAYOUT ─────────────────────────────────── */
+.content-wrap {
+  max-width: 1200px; margin: 0 auto;
+  padding: 0 4rem;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 6rem;
+  padding-top: 80px;
+  padding-bottom: 100px;
+}
+
+/* ─── SIDEBAR TOC ────────────────────────────────────── */
+.toc {
+  position: sticky; top: 100px;
+  align-self: start;
+  height: fit-content;
+}
+.toc-label {
+  font-family: var(--font-mono); font-size: .62rem;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--mist); margin-bottom: 1.25rem;
+  display: flex; align-items: center; gap: .5rem;
+}
+.toc-label::before { content: ''; display: block; width: 16px; height: 1px; background: var(--mist); }
+.toc-list { display: flex; flex-direction: column; gap: .15rem; }
+.toc-item a {
+  font-family: var(--font-mono); font-size: .62rem;
+  letter-spacing: .08em; color: var(--mist);
+  padding: .4rem 0 .4rem .75rem;
+  border-left: 1px solid var(--silk);
+  display: block;
+  transition: color .2s, border-color .2s;
+  line-height: 1.4;
+}
+.toc-item a:hover { color: var(--emerald); border-color: var(--emerald); }
+.toc-item.active a { color: var(--black); border-color: var(--emerald); }
+
+/* ─── MAIN CONTENT ───────────────────────────────────── */
+.policy-body {}
+.policy-section {
+  margin-bottom: 4rem;
+  padding-bottom: 4rem;
+  border-bottom: 1px solid var(--silk);
+}
+.policy-section:last-child { border-bottom: none; margin-bottom: 0; }
+
+.section-number {
+  font-family: var(--font-mono); font-size: .6rem;
+  letter-spacing: .18em; color: var(--emerald);
+  margin-bottom: .75rem;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: 1.9rem; font-weight: 400;
+  line-height: 1.15; letter-spacing: -.01em;
+  color: var(--black); margin-bottom: 1.5rem;
+}
+.policy-text {
+  font-size: .97rem; color: #444;
+  line-height: 1.85; margin-bottom: 1.25rem;
+}
+.policy-text:last-child { margin-bottom: 0; }
+.policy-text a { color: var(--emerald); border-bottom: 1px solid rgba(26,92,58,.2); transition: border-color .2s; }
+.policy-text a:hover { border-color: var(--emerald); }
+
+.policy-list {
+  list-style: none; margin: 1.25rem 0; padding: 0;
+  display: flex; flex-direction: column; gap: .75rem;
+}
+.policy-list li {
+  display: flex; align-items: flex-start; gap: .9rem;
+  font-size: .95rem; color: #444; line-height: 1.75;
+}
+.policy-list li::before {
+  content: '';
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--emerald); flex-shrink: 0;
+  margin-top: .55rem;
+}
+
+/* Highlighted callout box */
+.policy-callout {
+  background: var(--off-white);
+  border-left: 3px solid var(--emerald);
+  padding: 1.5rem 1.75rem;
+  border-radius: 0 3px 3px 0;
+  margin: 1.75rem 0;
+}
+.policy-callout p {
+  font-size: .93rem; color: var(--slate);
+  line-height: 1.75;
+}
+.policy-callout strong { color: var(--black); font-weight: 500; }
+
+/* Sub-heading inside section */
+.policy-sub {
+  font-family: var(--font-body); font-weight: 500;
+  font-size: .88rem; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--black);
+  margin: 1.75rem 0 .75rem;
+}
+
+/* ─── FOOTER ─────────────────────────────────────────── */
+footer {
+  background: var(--graphite);
+  border-top: 1px solid rgba(255,255,255,.06);
+  padding: 3rem 4rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-logo { font-family: var(--font-display); font-weight: 500; font-size: 1rem; letter-spacing: .04em; color: var(--white); }
+.footer-copy { font-family: var(--font-mono); font-size: .6rem; letter-spacing: .12em; color: rgba(255,255,255,.2); }
+.footer-links { display: flex; gap: 2rem; }
+.footer-links a { font-family: var(--font-mono); font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.3); transition: color .2s; }
+.footer-links a:hover { color: rgba(255,255,255,.7); }
+.footer-links a.active { color: rgba(255,255,255,.6); }
+
+/* ─── SCROLL REVEAL ──────────────────────────────────── */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .9s var(--ease-expo), transform .9s var(--ease-expo); }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: .1s; }
+.reveal-delay-2 { transition-delay: .22s; }
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE — Mobile First
+   Desktop (>1024px): original layout, no changes
+   Tablet  (≤1024px): moderate collapse
+   Mobile  (≤768px) : full single-column, drawer nav
+   Small   (≤480px) : tight spacing adjustments
+   All desktop styles are fully preserved above 1024px
+═══════════════════════════════════════════════════════════ */
+
+/* ── HAMBURGER (always in DOM, hidden on desktop) ─── */
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: .5rem;
+  background: none;
+  border: none;
+  flex-shrink: 0;
+  z-index: 102;
+}
+.nav-hamburger span {
+  display: block;
+  width: 22px; height: 1.5px;
+  background: var(--black);
+  border-radius: 1px;
+  transition: transform .35s var(--ease-expo), opacity .25s;
+}
+.nav-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; }
+.nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* ── OVERLAY ────────────────────────────────────────── */
+.mob-overlay {
+  position: fixed; inset: 0;
+  background: rgba(10,10,9,.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 200;
+  opacity: 0; pointer-events: none;
+  transition: opacity .35s ease;
+}
+.mob-overlay.open { opacity: 1; pointer-events: all; }
+
+/* ── SIDE DRAWER ────────────────────────────────────── */
+.mob-drawer {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: min(320px, 88vw);
+  background: var(--white);
+  border-left: 1px solid var(--silk);
+  z-index: 201;
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .4s var(--ease-expo);
+  box-shadow: -12px 0 48px rgba(10,10,9,.14);
+}
+.mob-drawer.open { transform: translateX(0); }
+
+.mob-drawer-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--silk);
+  flex-shrink: 0;
+}
+.mob-drawer-logo {
+  display: flex; align-items: center; gap: .65rem;
+  font-family: var(--font-display); font-size: 1rem;
+  font-weight: 500; letter-spacing: .02em; color: var(--black);
+}
+.mob-drawer-close {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--mist); background: var(--off-white);
+  border: none; cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.mob-drawer-close:hover { background: var(--silk); color: var(--black); }
+
+.mob-drawer-nav {
+  flex: 1; overflow-y: auto;
+  display: flex; flex-direction: column;
+  padding: 2rem 1.5rem; gap: .2rem;
+}
+.mob-link {
+  font-family: var(--font-display);
+  font-size: 2rem; font-weight: 300; letter-spacing: .01em;
+  color: var(--black);
+  padding: .55rem 0;
+  border-bottom: 1px solid var(--silk);
+  display: flex; align-items: center; gap: .75rem;
+  transition: color .2s, padding-left .25s var(--ease-expo);
+}
+.mob-link::before {
+  content: ''; display: block; width: 0; height: 1px;
+  background: var(--emerald); flex-shrink: 0;
+  transition: width .3s var(--ease-expo);
+}
+.mob-link:hover { color: var(--emerald); padding-left: .5rem; }
+.mob-link:hover::before { width: 20px; }
+
+.mob-drawer-footer {
+  padding: 1.5rem; border-top: 1px solid var(--silk);
+  display: flex; flex-direction: column; gap: 1rem; flex-shrink: 0;
+}
+.mob-drawer-cta {
+  display: block; text-align: center;
+  background: var(--black); color: var(--white);
+  padding: .9rem 1.5rem; border-radius: 2px;
+  font-size: .78rem; letter-spacing: .1em;
+  text-transform: uppercase; font-weight: 400;
+  transition: background .25s;
+}
+.mob-drawer-cta:hover { background: var(--graphite); }
+.mob-drawer-contact {
+  display: flex; flex-direction: column; gap: .3rem;
+  font-family: var(--font-mono); font-size: .6rem;
+  letter-spacing: .1em; color: var(--mist); text-align: center;
+}
+
+/* ════════════════════════════════════════════════════
+   TABLET — ≤ 1024px
+   Desktop layout begins restoring above this point
+════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  nav { padding: 0 2rem; }
+  .container { padding: 0 2.5rem; }
+
+  /* Hero: drop to single column */
+  .hero-inner {
+    grid-template-columns: 1fr;
+    padding: 5rem 2.5rem 6rem;
+    gap: 2.5rem;
+    text-align: left;
+  }
+  .hero-visual { display: none; }
+
+  /* About */
+  .about-grid { grid-template-columns: 1fr; gap: 4rem; }
+
+  /* Services */
+  .services-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Work */
+  .work-grid { grid-template-columns: 1fr; }
+  .work-item:first-child { grid-row: span 1; }
+
+  /* Standards */
+  .standards-intro { grid-template-columns: 1fr; gap: 2rem; margin-bottom: 3rem; }
+  .standards-grid  { grid-template-columns: repeat(2, 1fr); }
+
+  /* Contact */
+  .contact-inner { grid-template-columns: 1fr; gap: 4rem; }
+
+  /* Cookie */
+  .cookie-inner { grid-template-columns: 1fr; gap: 1.5rem; }
+  .cookie-actions { flex-direction: row; }
+}
+
+/* ════════════════════════════════════════════════════
+   MOBILE — ≤ 768px
+════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Nav */
+  nav { padding: 0 1.25rem; height: 64px; }
+  .nav-links { display: none; }
+  .nav-cta   { font-size: .68rem; padding: .45rem 1rem; }
+  .nav-hamburger { display: flex; }
+
+  /* Sections */
+  #about, #services, #work, #standards { padding: 5rem 0; }
+  #contact { padding: 6rem 0; }
+  .container { padding: 0 1.5rem; }
+
+  /* Hero */
+  #hero { padding-top: 64px; }
+  .hero-inner { padding: 3.5rem 1.5rem 4.5rem; gap: 2rem; }
+  .hero-actions { flex-direction: column; align-items: flex-start; gap: .75rem; }
+  .btn-primary  { width: 100%; justify-content: center; }
+  .hero-scroll  { display: none; }
+
+  /* About */
+  .about-grid   { grid-template-columns: 1fr; gap: 3rem; }
+  .about-stats  { grid-template-columns: 1fr 1fr; }
+  .about-headline { font-size: clamp(2rem, 7vw, 3rem); }
+
+  /* Services */
+  .services-grid { grid-template-columns: 1fr; }
+
+  /* Work */
+  .work-grid    { grid-template-columns: 1fr; }
+  .work-header  { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .work-img     { height: 260px; min-height: 260px !important; }
+
+  /* Standards */
+  .standards-intro { grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2.5rem; }
+  .standards-grid  { grid-template-columns: 1fr; }
+
+  /* Contact */
+  .contact-inner { grid-template-columns: 1fr; gap: 3rem; }
+  .contact-headline { font-size: clamp(2.2rem, 7vw, 3.5rem); }
+  /* Prevent iOS input zoom */
+  .form-input, .form-textarea, .form-select { font-size: 16px !important; }
+
+  /* Pixel sections */
+  #pixel-dimension, #scroll-zoom { height: 100svh; }
+  .sz-giant-mark { grid-template-columns: 120px 120px; grid-template-rows: 120px 120px; gap: 10px; }
+
+  /* Footer */
+  footer { flex-direction: column; gap: 1.25rem; padding: 2.5rem 1.5rem; text-align: center; }
+  .footer-links { flex-wrap: wrap; justify-content: center; gap: 1.25rem; }
+
+  /* WhatsApp & Chatbot */
+  #whatsapp-btn  { bottom: 7rem; right: 1.25rem; }
+  #chatbot-float { bottom: 1.25rem; right: 1.25rem; }
+  .chat-window   { width: calc(100vw - 2.5rem); right: 0; }
+
+  /* Cookie modal */
+  #cookie-modal  { padding: 1.5rem; margin: 1rem; }
+  .cookie-inner  { grid-template-columns: 1fr; gap: 1.25rem; }
+  .cookie-actions { flex-direction: column; }
+  .cookie-btn-accept, .cookie-btn-necessary { width: 100%; text-align: center; }
+}
+
+/* ════════════════════════════════════════════════════
+   SMALL MOBILE — ≤ 480px
+════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  nav { padding: 0 1rem; height: 60px; }
+  #hero { padding-top: 60px; }
+  .hero-inner { padding: 3rem 1.25rem 4rem; }
+  .container  { padding: 0 1.25rem; }
+  .about-stats { grid-template-columns: 1fr 1fr; }
+  .stat-num    { font-size: 3rem; }
+  footer { padding: 2rem 1.25rem; }
+}
+
+/* ════════════════════════════════════════════════════
+   LANDSCAPE PHONE
+════════════════════════════════════════════════════ */
+@media (max-width: 768px) and (orientation: landscape) {
+  .hero-inner { padding: 2.5rem 2rem 3rem; }
+  #pixel-dimension, #scroll-zoom { height: 100vw; min-height: 380px; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAVIGATION -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-mark">
+      <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="11" height="11" fill="#0A0A09"/>
+        <rect x="16" y="1" width="11" height="11" fill="#1A5C3A"/>
+        <rect x="1" y="16" width="11" height="11" fill="#9B9B94" opacity=".4"/>
+        <rect x="16" y="16" width="11" height="11" fill="#0A0A09"/>
+        <rect x="5" y="5" width="3" height="3" fill="#FFFFFF" opacity=".5"/>
+        <rect x="20" y="20" width="3" height="3" fill="#1A5C3A" opacity=".8"/>
+      </svg>
+    </div>
+    Oak & Pixel
+  </a>
+  <div class="nav-links">
+    <a href="index.html#about">Studio</a>
+    <a href="index.html#services">Services</a>
+    <a href="index.html#work">Work</a>
+    <a href="index.html#standards">Standards</a>
+  </div>
+  <a href="index.html#contact" class="nav-cta">Start a Project</a>
+</nav>
+
+<!-- PAGE HERO -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="page-eyebrow">Legal</div>
+    <h1 class="page-title">
+      Privacy<br><em>Policy</em>
+    </h1>
+    <div class="page-meta">
+      <span>Effective date: 1 January 2025</span>
+      <span>Last updated: 1 January 2025</span>
+      <span>Oak & Pixel Studio</span>
+    </div>
+  </div>
+</section>
+
+<!-- CONTENT -->
+<div class="content-wrap">
+
+  <!-- TABLE OF CONTENTS -->
+  <aside class="toc" id="toc">
+    <div class="toc-label">Contents</div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#overview">Overview</a></li>
+      <li class="toc-item"><a href="#information">Information We Collect</a></li>
+      <li class="toc-item"><a href="#use">How We Use It</a></li>
+      <li class="toc-item"><a href="#sharing">Sharing & Disclosure</a></li>
+      <li class="toc-item"><a href="#cookies">Cookies</a></li>
+      <li class="toc-item"><a href="#retention">Data Retention</a></li>
+      <li class="toc-item"><a href="#rights">Your Rights</a></li>
+      <li class="toc-item"><a href="#security">Security</a></li>
+      <li class="toc-item"><a href="#third-party">Third-Party Links</a></li>
+      <li class="toc-item"><a href="#children">Children's Privacy</a></li>
+      <li class="toc-item"><a href="#changes">Changes to This Policy</a></li>
+      <li class="toc-item"><a href="#contact">Contact Us</a></li>
+    </ul>
+  </aside>
+
+  <!-- POLICY BODY -->
+  <main class="policy-body">
+
+    <!-- 1. OVERVIEW -->
+    <div class="policy-section reveal" id="overview">
+      <div class="section-number">01</div>
+      <h2 class="section-title">Overview</h2>
+      <div class="policy-callout">
+        <p><strong>The short version:</strong> We collect only what we need, we protect it carefully, and we never sell it. Your trust matters more to us than any data point.</p>
+      </div>
+      <p class="policy-text">
+        Oak & Pixel Studio ("we", "our", or "us") is committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website at <a href="https://www.oakandpixel.co.za">www.oakandpixel.co.za</a>, engage with our services, or communicate with us.
+      </p>
+      <p class="policy-text">
+        Please read this policy carefully. If you disagree with its terms, please discontinue use of our site. If you have any questions, we're always reachable at <a href="mailto:info@oakandpixel.co.za">info@oakandpixel.co.za</a>.
+      </p>
+    </div>
+
+    <!-- 2. INFORMATION WE COLLECT -->
+    <div class="policy-section reveal" id="information">
+      <div class="section-number">02</div>
+      <h2 class="section-title">Information We Collect</h2>
+      <p class="policy-text">We collect information in the following ways:</p>
+
+      <div class="policy-sub">Information You Provide Directly</div>
+      <ul class="policy-list">
+        <li>Name and contact information (email address, phone number) submitted via our contact or consultation form</li>
+        <li>Project details and briefs shared when requesting a quote or consultation</li>
+        <li>Communication content when you email, call, or message us directly</li>
+        <li>Billing and invoice information for active client engagements</li>
+      </ul>
+
+      <div class="policy-sub">Information Collected Automatically</div>
+      <ul class="policy-list">
+        <li>Browser type, device type, and operating system</li>
+        <li>Pages visited, time spent on pages, and referring URLs</li>
+        <li>IP address and general geographic location (country/city level)</li>
+        <li>Interaction data such as clicks and scroll depth, used to improve site performance</li>
+      </ul>
+
+      <div class="policy-sub">Information From Third Parties</div>
+      <p class="policy-text">
+        We may receive information about you from third-party platforms such as LinkedIn or referral partners when you choose to engage with us through those channels.
+      </p>
+    </div>
+
+    <!-- 3. HOW WE USE IT -->
+    <div class="policy-section reveal" id="use">
+      <div class="section-number">03</div>
+      <h2 class="section-title">How We Use It</h2>
+      <p class="policy-text">We use the information we collect to:</p>
+      <ul class="policy-list">
+        <li>Respond to your enquiries and manage project consultations</li>
+        <li>Deliver the services you engage us for, including design, development, and digital strategy</li>
+        <li>Send project updates, proposals, and invoices to active and prospective clients</li>
+        <li>Improve our website experience, understand how visitors engage with our content, and refine our services</li>
+        <li>Comply with legal obligations and resolve any disputes that may arise</li>
+        <li>Send occasional updates about Oak & Pixel, where you have given consent to receive such communications</li>
+      </ul>
+      <div class="policy-callout">
+        <p>We do <strong>not</strong> use your personal information for automated decision-making, profiling for advertising purposes, or any form of data brokering.</p>
+      </div>
+    </div>
+
+    <!-- 4. SHARING & DISCLOSURE -->
+    <div class="policy-section reveal" id="sharing">
+      <div class="section-number">04</div>
+      <h2 class="section-title">Sharing & Disclosure</h2>
+      <p class="policy-text">
+        We do not sell, trade, or rent your personal information to third parties. We may share your information only in the following limited circumstances:
+      </p>
+      <ul class="policy-list">
+        <li><strong>Service providers:</strong> Trusted tools and platforms that help us operate our business — such as our email platform, project management software, and cloud storage. These providers are bound by confidentiality obligations and may only use your data to perform services on our behalf.</li>
+        <li><strong>Legal requirements:</strong> If we are required by law, court order, or governmental authority to disclose information, we will do so and, where permitted, notify you.</li>
+        <li><strong>Business transfers:</strong> In the event of a merger, acquisition, or sale of business assets, your information may be transferred as part of that transaction. We will notify you of any such change in advance.</li>
+        <li><strong>With your consent:</strong> In any other circumstance, only with your explicit permission.</li>
+      </ul>
+    </div>
+
+    <!-- 5. COOKIES -->
+    <div class="policy-section reveal" id="cookies">
+      <div class="section-number">05</div>
+      <h2 class="section-title">Cookies</h2>
+      <p class="policy-text">
+        Our website uses cookies — small text files stored on your device — to improve your experience and help us understand how the site is being used.
+      </p>
+
+      <div class="policy-sub">Types of Cookies We Use</div>
+      <ul class="policy-list">
+        <li><strong>Essential cookies:</strong> Required for the site to function correctly. These cannot be disabled.</li>
+        <li><strong>Analytics cookies:</strong> Help us understand visitor behaviour so we can improve the site. We use privacy-friendly analytics tools that do not track individuals across sites.</li>
+        <li><strong>Preference cookies:</strong> Remember your settings to personalise your experience.</li>
+      </ul>
+      <p class="policy-text">
+        You can control cookies through your browser settings. Note that disabling certain cookies may affect the functionality of our site.
+      </p>
+    </div>
+
+    <!-- 6. DATA RETENTION -->
+    <div class="policy-section reveal" id="retention">
+      <div class="section-number">06</div>
+      <h2 class="section-title">Data Retention</h2>
+      <p class="policy-text">
+        We retain your personal information only for as long as necessary to fulfil the purposes for which it was collected, or as required by law.
+      </p>
+      <ul class="policy-list">
+        <li>Enquiry and contact form data is retained for up to 12 months following initial contact, unless an active client relationship is established.</li>
+        <li>Active client project records are retained for up to 5 years following project completion for legal and accounting purposes.</li>
+        <li>Marketing communication preferences are retained until you unsubscribe or request deletion.</li>
+        <li>Analytics data is typically retained in anonymised or aggregated form indefinitely.</li>
+      </ul>
+    </div>
+
+    <!-- 7. YOUR RIGHTS -->
+    <div class="policy-section reveal" id="rights">
+      <div class="section-number">07</div>
+      <h2 class="section-title">Your Rights</h2>
+      <p class="policy-text">
+        Depending on your location, you may have the following rights regarding your personal information:
+      </p>
+      <ul class="policy-list">
+        <li><strong>Right of access:</strong> Request a copy of the personal data we hold about you.</li>
+        <li><strong>Right to rectification:</strong> Request correction of inaccurate or incomplete information.</li>
+        <li><strong>Right to erasure:</strong> Request deletion of your personal data, subject to legal obligations.</li>
+        <li><strong>Right to restriction:</strong> Request that we limit how we process your data.</li>
+        <li><strong>Right to data portability:</strong> Request your data in a structured, machine-readable format.</li>
+        <li><strong>Right to object:</strong> Object to processing based on legitimate interests or for direct marketing.</li>
+        <li><strong>Right to withdraw consent:</strong> Where processing is based on consent, withdraw it at any time.</li>
+      </ul>
+      <p class="policy-text">
+        To exercise any of these rights, please contact us at <a href="mailto:info@oakandpixel.co.za">info@oakandpixel.co.za</a>. We will respond within 30 days.
+      </p>
+    </div>
+
+    <!-- 8. SECURITY -->
+    <div class="policy-section reveal" id="security">
+      <div class="section-number">08</div>
+      <h2 class="section-title">Security</h2>
+      <p class="policy-text">
+        We take the security of your personal information seriously. We implement appropriate technical and organisational measures to protect your data against unauthorised access, alteration, disclosure, or destruction.
+      </p>
+      <p class="policy-text">
+        These measures include encrypted data transmission (HTTPS), access controls, regular security reviews, and secure cloud storage with reputable providers. However, no method of transmission over the internet is 100% secure, and we cannot guarantee absolute security.
+      </p>
+      <div class="policy-callout">
+        <p>If you suspect any unauthorised access to your personal data, please contact us immediately at <a href="mailto:info@oakandpixel.co.za">info@oakandpixel.co.za</a>.</p>
+      </div>
+    </div>
+
+    <!-- 9. THIRD-PARTY LINKS -->
+    <div class="policy-section reveal" id="third-party">
+      <div class="section-number">09</div>
+      <h2 class="section-title">Third-Party Links</h2>
+      <p class="policy-text">
+        Our website may contain links to third-party websites, platforms, or services — such as LinkedIn, Instagram, or client work we reference. These sites operate under their own privacy policies, and we have no control over or responsibility for their content or practices.
+      </p>
+      <p class="policy-text">
+        We encourage you to review the privacy policies of any third-party sites you visit.
+      </p>
+    </div>
+
+    <!-- 10. CHILDREN'S PRIVACY -->
+    <div class="policy-section reveal" id="children">
+      <div class="section-number">10</div>
+      <h2 class="section-title">Children's Privacy</h2>
+      <p class="policy-text">
+        Our services are not directed to individuals under the age of 18. We do not knowingly collect personal information from children. If you believe we have inadvertently collected information from a minor, please contact us immediately and we will delete it promptly.
+      </p>
+    </div>
+
+    <!-- 11. CHANGES -->
+    <div class="policy-section reveal" id="changes">
+      <div class="section-number">11</div>
+      <h2 class="section-title">Changes to This Policy</h2>
+      <p class="policy-text">
+        We may update this Privacy Policy from time to time to reflect changes in our practices, legal requirements, or operational needs. When we make material changes, we will update the "Last updated" date at the top of this page.
+      </p>
+      <p class="policy-text">
+        We encourage you to review this policy periodically. Continued use of our website following any updates constitutes acceptance of the revised policy.
+      </p>
+    </div>
+
+    <!-- 12. CONTACT -->
+    <div class="policy-section reveal" id="contact">
+      <div class="section-number">12</div>
+      <h2 class="section-title">Contact Us</h2>
+      <p class="policy-text">
+        If you have any questions, concerns, or requests regarding this Privacy Policy or how we handle your personal information, please reach out:
+      </p>
+      <div class="policy-callout">
+        <p>
+          <strong>Oak & Pixel Studio</strong><br>
+          Email: <a href="mailto:info@oakandpixel.co.za">info@oakandpixel.co.za</a><br>
+          Phone: <a href="tel:+27750890614">+27 (75) 089 0614</a><br>
+          Website: <a href="https://www.oakandpixel.co.za">www.oakandpixel.co.za</a>
+        </p>
+      </div>
+      <p class="policy-text">
+        We are committed to resolving any privacy concerns promptly and transparently. All enquiries are handled with full confidentiality.
+      </p>
+    </div>
+
+  </main>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Oak & Pixel</div>
+  <p class="footer-copy">© 2025 Oak & Pixel Studio. All rights reserved.</p>
+  <div class="footer-links">
+    <a href="privacy.html" class="active">Privacy</a>
+    <a href="terms.html">Terms</a>
+    <a href="https://www.instagram.com/oakandpixel_?igsh=MTc1cG05dHEzNjg2cQ%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer">Instagram</a>
+    <a href="https://www.linkedin.com/company/113094222/admin/dashboard/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+  </div>
+</footer>
+
+<script>
+// ── CURSOR ──────────────────────────────────────────────
+const cursor = document.getElementById('cursor');
+const ring   = document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cursor.style.left=mx+'px';cursor.style.top=my+'px';
+});
+(function animRing(){
+  rx+=(mx-rx)*.12;ry+=(my-ry)*.12;
+  ring.style.left=rx+'px';ring.style.top=ry+'px';
+  requestAnimationFrame(animRing);
+})();
+
+// ── SCROLL REVEAL ────────────────────────────────────────
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// ── ACTIVE TOC ───────────────────────────────────────────
+const sections = document.querySelectorAll('.policy-section');
+const tocLinks = document.querySelectorAll('.toc-item');
+const scrollObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id = e.target.id;
+      tocLinks.forEach(li=>{
+        const a = li.querySelector('a');
+        li.classList.toggle('active', a && a.getAttribute('href')==='#'+id);
+      });
+    }
+  });
+},{rootMargin:'-20% 0px -70% 0px'});
+sections.forEach(s=>scrollObs.observe(s));
+</script>
+</body>
+</html>

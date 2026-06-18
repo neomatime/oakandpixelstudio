@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Review Oak & Pixel Studio terms covering engagements, payments, intellectual property, confidentiality, timelines, and service responsibilities.">
+<link rel="canonical" href="https://www.oakandpixel.co.za/terms.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Oak & Pixel">
+<meta property="og:title" content="Terms & Conditions - Oak & Pixel">
+<meta property="og:description" content="Review Oak & Pixel Studio terms covering engagements, payments, intellectual property, confidentiality, timelines, and service responsibilities.">
+<meta property="og:url" content="https://www.oakandpixel.co.za/terms.html">
+<meta property="og:image" content="https://www.oakandpixel.co.za/images/oak-pixel-whatsapp-banner-v2.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Terms & Conditions - Oak & Pixel">
+<meta name="twitter:description" content="Review Oak & Pixel Studio terms covering engagements, payments, intellectual property, confidentiality, timelines, and service responsibilities.">
+<meta name="twitter:image" content="https://www.oakandpixel.co.za/images/oak-pixel-whatsapp-banner-v2.png">
+<title>Terms & Conditions — Oak & Pixel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+<!-- Favicons -->
+<link rel="icon" href="images/favicons/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="images/favicons/favicon_32.png">
+<link rel="apple-touch-icon" href="images/favicons/favicon_512_apple.png"> 
+
+<style>
+/* ─── TOKENS ─────────────────────────────────────────── */
+:root {
+  --white:     #FFFFFF;
+  --off-white: #F5F4F1;
+  --silk:      #EDE9E3;
+  --black:     #0A0A09;
+  --graphite:  #161614;
+  --slate:     #2A2A27;
+  --mist:      #9B9B94;
+  --emerald:   #1A5C3A;
+  --emerald-l: #2D7A52;
+  --font-display: 'Cormorant', Georgia, serif;
+  --font-body:    'Jost', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+  --ease-expo:    cubic-bezier(0.16,1,0.3,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  background: var(--white);
+  color: var(--black);
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  cursor: none;
+}
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+/* ─── CUSTOM CURSOR ──────────────────────────────────── */
+#cursor {
+  position: fixed; width: 10px; height: 10px;
+  background: var(--black); border-radius: 50%;
+  pointer-events: none; z-index: 9999;
+  transform: translate(-50%,-50%);
+  transition: transform .15s var(--ease-expo), background .2s;
+  mix-blend-mode: multiply;
+}
+#cursor-ring {
+  position: fixed; width: 36px; height: 36px;
+  border: 1px solid rgba(10,10,9,0.25); border-radius: 50%;
+  pointer-events: none; z-index: 9998;
+  transform: translate(-50%,-50%);
+  transition: transform .45s var(--ease-expo), width .3s var(--ease-expo), height .3s var(--ease-expo), border-color .2s;
+}
+body:has(a:hover) #cursor-ring,
+body:has(button:hover) #cursor-ring {
+  width: 56px; height: 56px; border-color: var(--emerald);
+}
+
+/* ─── NAVIGATION ─────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 4rem; height: 72px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border-bottom: 1px solid rgba(10,10,9,0.06);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: .75rem;
+  font-family: var(--font-display); font-weight: 500;
+  font-size: 1.15rem; letter-spacing: 0.02em; color: var(--black);
+}
+.nav-logo-mark { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+.nav-links { display: flex; gap: 2.5rem; align-items: center; list-style: none; }
+.nav-links a {
+  font-size: .78rem; letter-spacing: .12em; text-transform: uppercase;
+  font-weight: 400; color: var(--slate);
+  transition: color .25s; position: relative;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: -2px; left: 0;
+  width: 0; height: 1px; background: var(--emerald);
+  transition: width .35s var(--ease-expo);
+}
+.nav-links a:hover { color: var(--black); }
+.nav-links a:hover::after { width: 100%; }
+.nav-cta {
+  font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 400;
+  padding: .55rem 1.4rem; border: 1px solid var(--black);
+  color: var(--black); border-radius: 2px;
+  transition: background .25s, color .25s;
+}
+.nav-cta:hover { background: var(--black); color: var(--white); }
+
+/* ─── PAGE HERO ──────────────────────────────────────── */
+.page-hero {
+  padding: 160px 4rem 80px;
+  background: var(--off-white);
+  position: relative;
+  overflow: hidden;
+}
+.page-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(10,10,9,.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+}
+.page-hero::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 1px; background: rgba(10,10,9,.08);
+}
+.page-hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 2; }
+.page-eyebrow {
+  font-family: var(--font-mono); font-size: .68rem;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--emerald); margin-bottom: 1.5rem;
+  display: flex; align-items: center; gap: .75rem;
+}
+.page-eyebrow::before { content: ''; display: block; width: 28px; height: 1px; background: var(--emerald); }
+.page-title {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 5vw, 5rem);
+  font-weight: 300; line-height: 1.06; letter-spacing: -.01em;
+  color: var(--black); margin-bottom: 1.5rem;
+}
+.page-title em { font-style: italic; color: var(--emerald); }
+.page-meta {
+  font-family: var(--font-mono); font-size: .65rem;
+  letter-spacing: .12em; color: var(--mist);
+  display: flex; align-items: center; gap: 1.5rem;
+  margin-top: 2rem;
+}
+.page-meta span { display: flex; align-items: center; gap: .5rem; }
+.page-meta span::before { content: ''; display: block; width: 4px; height: 4px; border-radius: 50%; background: var(--emerald); }
+
+/* ─── CONTENT LAYOUT ─────────────────────────────────── */
+.content-wrap {
+  max-width: 1200px; margin: 0 auto;
+  padding: 80px 4rem 100px;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 6rem;
+}
+
+/* ─── SIDEBAR TOC ────────────────────────────────────── */
+.toc {
+  position: sticky; top: 100px;
+  align-self: start;
+  height: fit-content;
+}
+.toc-label {
+  font-family: var(--font-mono); font-size: .62rem;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--mist); margin-bottom: 1.25rem;
+  display: flex; align-items: center; gap: .5rem;
+}
+.toc-label::before { content: ''; display: block; width: 16px; height: 1px; background: var(--mist); }
+.toc-list { display: flex; flex-direction: column; gap: .15rem; list-style: none; }
+.toc-item a {
+  font-family: var(--font-mono); font-size: .62rem;
+  letter-spacing: .08em; color: var(--mist);
+  padding: .4rem 0 .4rem .75rem;
+  border-left: 1px solid var(--silk);
+  display: block;
+  transition: color .2s, border-color .2s;
+  line-height: 1.4;
+}
+.toc-item a:hover { color: var(--emerald); border-color: var(--emerald); }
+.toc-item.active a { color: var(--black); border-color: var(--emerald); }
+
+/* ─── MAIN CONTENT ───────────────────────────────────── */
+.policy-section {
+  margin-bottom: 4rem;
+  padding-bottom: 4rem;
+  border-bottom: 1px solid var(--silk);
+}
+.policy-section:last-child { border-bottom: none; margin-bottom: 0; }
+.section-number {
+  font-family: var(--font-mono); font-size: .6rem;
+  letter-spacing: .18em; color: var(--emerald);
+  margin-bottom: .75rem;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: 1.9rem; font-weight: 400;
+  line-height: 1.15; letter-spacing: -.01em;
+  color: var(--black); margin-bottom: 1.5rem;
+}
+.policy-text {
+  font-size: .97rem; color: #444;
+  line-height: 1.85; margin-bottom: 1.25rem;
+}
+.policy-text:last-child { margin-bottom: 0; }
+.policy-text a { color: var(--emerald); border-bottom: 1px solid rgba(26,92,58,.2); transition: border-color .2s; }
+.policy-text a:hover { border-color: var(--emerald); }
+.policy-list {
+  list-style: none; margin: 1.25rem 0; padding: 0;
+  display: flex; flex-direction: column; gap: .75rem;
+}
+.policy-list li {
+  display: flex; align-items: flex-start; gap: .9rem;
+  font-size: .95rem; color: #444; line-height: 1.75;
+}
+.policy-list li::before {
+  content: '';
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--emerald); flex-shrink: 0;
+  margin-top: .55rem;
+}
+.policy-callout {
+  background: var(--off-white);
+  border-left: 3px solid var(--emerald);
+  padding: 1.5rem 1.75rem;
+  border-radius: 0 3px 3px 0;
+  margin: 1.75rem 0;
+}
+.policy-callout p {
+  font-size: .93rem; color: var(--slate); line-height: 1.75;
+}
+.policy-callout strong { color: var(--black); font-weight: 500; }
+.policy-sub {
+  font-family: var(--font-body); font-weight: 500;
+  font-size: .88rem; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--black);
+  margin: 1.75rem 0 .75rem;
+}
+
+/* ─── FOOTER ─────────────────────────────────────────── */
+footer {
+  background: var(--graphite);
+  border-top: 1px solid rgba(255,255,255,.06);
+  padding: 3rem 4rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-logo { font-family: var(--font-display); font-weight: 500; font-size: 1rem; letter-spacing: .04em; color: var(--white); }
+.footer-copy { font-family: var(--font-mono); font-size: .6rem; letter-spacing: .12em; color: rgba(255,255,255,.2); }
+.footer-links { display: flex; gap: 2rem; }
+.footer-links a { font-family: var(--font-mono); font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.3); transition: color .2s; }
+.footer-links a:hover { color: rgba(255,255,255,.7); }
+.footer-links a.active { color: rgba(255,255,255,.6); }
+
+/* ─── SCROLL REVEAL ──────────────────────────────────── */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .9s var(--ease-expo), transform .9s var(--ease-expo); }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: .1s; }
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE — Mobile First
+   Desktop (>1024px): original layout, no changes
+   Tablet  (≤1024px): moderate collapse
+   Mobile  (≤768px) : full single-column, drawer nav
+   Small   (≤480px) : tight spacing adjustments
+   All desktop styles are fully preserved above 1024px
+═══════════════════════════════════════════════════════════ */
+
+/* ── HAMBURGER (always in DOM, hidden on desktop) ─── */
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: .5rem;
+  background: none;
+  border: none;
+  flex-shrink: 0;
+  z-index: 102;
+}
+.nav-hamburger span {
+  display: block;
+  width: 22px; height: 1.5px;
+  background: var(--black);
+  border-radius: 1px;
+  transition: transform .35s var(--ease-expo), opacity .25s;
+}
+.nav-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; }
+.nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* ── OVERLAY ────────────────────────────────────────── */
+.mob-overlay {
+  position: fixed; inset: 0;
+  background: rgba(10,10,9,.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 200;
+  opacity: 0; pointer-events: none;
+  transition: opacity .35s ease;
+}
+.mob-overlay.open { opacity: 1; pointer-events: all; }
+
+/* ── SIDE DRAWER ────────────────────────────────────── */
+.mob-drawer {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: min(320px, 88vw);
+  background: var(--white);
+  border-left: 1px solid var(--silk);
+  z-index: 201;
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .4s var(--ease-expo);
+  box-shadow: -12px 0 48px rgba(10,10,9,.14);
+}
+.mob-drawer.open { transform: translateX(0); }
+
+.mob-drawer-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--silk);
+  flex-shrink: 0;
+}
+.mob-drawer-logo {
+  display: flex; align-items: center; gap: .65rem;
+  font-family: var(--font-display); font-size: 1rem;
+  font-weight: 500; letter-spacing: .02em; color: var(--black);
+}
+.mob-drawer-close {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--mist); background: var(--off-white);
+  border: none; cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.mob-drawer-close:hover { background: var(--silk); color: var(--black); }
+
+.mob-drawer-nav {
+  flex: 1; overflow-y: auto;
+  display: flex; flex-direction: column;
+  padding: 2rem 1.5rem; gap: .2rem;
+}
+.mob-link {
+  font-family: var(--font-display);
+  font-size: 2rem; font-weight: 300; letter-spacing: .01em;
+  color: var(--black);
+  padding: .55rem 0;
+  border-bottom: 1px solid var(--silk);
+  display: flex; align-items: center; gap: .75rem;
+  transition: color .2s, padding-left .25s var(--ease-expo);
+}
+.mob-link::before {
+  content: ''; display: block; width: 0; height: 1px;
+  background: var(--emerald); flex-shrink: 0;
+  transition: width .3s var(--ease-expo);
+}
+.mob-link:hover { color: var(--emerald); padding-left: .5rem; }
+.mob-link:hover::before { width: 20px; }
+
+.mob-drawer-footer {
+  padding: 1.5rem; border-top: 1px solid var(--silk);
+  display: flex; flex-direction: column; gap: 1rem; flex-shrink: 0;
+}
+.mob-drawer-cta {
+  display: block; text-align: center;
+  background: var(--black); color: var(--white);
+  padding: .9rem 1.5rem; border-radius: 2px;
+  font-size: .78rem; letter-spacing: .1em;
+  text-transform: uppercase; font-weight: 400;
+  transition: background .25s;
+}
+.mob-drawer-cta:hover { background: var(--graphite); }
+.mob-drawer-contact {
+  display: flex; flex-direction: column; gap: .3rem;
+  font-family: var(--font-mono); font-size: .6rem;
+  letter-spacing: .1em; color: var(--mist); text-align: center;
+}
+
+/* ════════════════════════════════════════════════════
+   TABLET — ≤ 1024px
+   Desktop layout begins restoring above this point
+════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  nav { padding: 0 2rem; }
+  .container { padding: 0 2.5rem; }
+
+  /* Hero: drop to single column */
+  .hero-inner {
+    grid-template-columns: 1fr;
+    padding: 5rem 2.5rem 6rem;
+    gap: 2.5rem;
+    text-align: left;
+  }
+  .hero-visual { display: none; }
+
+  /* About */
+  .about-grid { grid-template-columns: 1fr; gap: 4rem; }
+
+  /* Services */
+  .services-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Work */
+  .work-grid { grid-template-columns: 1fr; }
+  .work-item:first-child { grid-row: span 1; }
+
+  /* Standards */
+  .standards-intro { grid-template-columns: 1fr; gap: 2rem; margin-bottom: 3rem; }
+  .standards-grid  { grid-template-columns: repeat(2, 1fr); }
+
+  /* Contact */
+  .contact-inner { grid-template-columns: 1fr; gap: 4rem; }
+
+  /* Cookie */
+  .cookie-inner { grid-template-columns: 1fr; gap: 1.5rem; }
+  .cookie-actions { flex-direction: row; }
+}
+
+/* ════════════════════════════════════════════════════
+   MOBILE — ≤ 768px
+════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Nav */
+  nav { padding: 0 1.25rem; height: 64px; }
+  .nav-links { display: none; }
+  .nav-cta   { font-size: .68rem; padding: .45rem 1rem; }
+  .nav-hamburger { display: flex; }
+
+  /* Sections */
+  #about, #services, #work, #standards { padding: 5rem 0; }
+  #contact { padding: 6rem 0; }
+  .container { padding: 0 1.5rem; }
+
+  /* Hero */
+  #hero { padding-top: 64px; }
+  .hero-inner { padding: 3.5rem 1.5rem 4.5rem; gap: 2rem; }
+  .hero-actions { flex-direction: column; align-items: flex-start; gap: .75rem; }
+  .btn-primary  { width: 100%; justify-content: center; }
+  .hero-scroll  { display: none; }
+
+  /* About */
+  .about-grid   { grid-template-columns: 1fr; gap: 3rem; }
+  .about-stats  { grid-template-columns: 1fr 1fr; }
+  .about-headline { font-size: clamp(2rem, 7vw, 3rem); }
+
+  /* Services */
+  .services-grid { grid-template-columns: 1fr; }
+
+  /* Work */
+  .work-grid    { grid-template-columns: 1fr; }
+  .work-header  { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .work-img     { height: 260px; min-height: 260px !important; }
+
+  /* Standards */
+  .standards-intro { grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2.5rem; }
+  .standards-grid  { grid-template-columns: 1fr; }
+
+  /* Contact */
+  .contact-inner { grid-template-columns: 1fr; gap: 3rem; }
+  .contact-headline { font-size: clamp(2.2rem, 7vw, 3.5rem); }
+  /* Prevent iOS input zoom */
+  .form-input, .form-textarea, .form-select { font-size: 16px !important; }
+
+  /* Pixel sections */
+  #pixel-dimension, #scroll-zoom { height: 100svh; }
+  .sz-giant-mark { grid-template-columns: 120px 120px; grid-template-rows: 120px 120px; gap: 10px; }
+
+  /* Footer */
+  footer { flex-direction: column; gap: 1.25rem; padding: 2.5rem 1.5rem; text-align: center; }
+  .footer-links { flex-wrap: wrap; justify-content: center; gap: 1.25rem; }
+
+  /* WhatsApp & Chatbot */
+  #whatsapp-btn  { bottom: 7rem; right: 1.25rem; }
+  #chatbot-float { bottom: 1.25rem; right: 1.25rem; }
+  .chat-window   { width: calc(100vw - 2.5rem); right: 0; }
+
+  /* Cookie modal */
+  #cookie-modal  { padding: 1.5rem; margin: 1rem; }
+  .cookie-inner  { grid-template-columns: 1fr; gap: 1.25rem; }
+  .cookie-actions { flex-direction: column; }
+  .cookie-btn-accept, .cookie-btn-necessary { width: 100%; text-align: center; }
+}
+
+/* ════════════════════════════════════════════════════
+   SMALL MOBILE — ≤ 480px
+════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  nav { padding: 0 1rem; height: 60px; }
+  #hero { padding-top: 60px; }
+  .hero-inner { padding: 3rem 1.25rem 4rem; }
+  .container  { padding: 0 1.25rem; }
+  .about-stats { grid-template-columns: 1fr 1fr; }
+  .stat-num    { font-size: 3rem; }
+  footer { padding: 2rem 1.25rem; }
+}
+
+/* ════════════════════════════════════════════════════
+   LANDSCAPE PHONE
+════════════════════════════════════════════════════ */
+@media (max-width: 768px) and (orientation: landscape) {
+  .hero-inner { padding: 2.5rem 2rem 3rem; }
+  #pixel-dimension, #scroll-zoom { height: 100vw; min-height: 380px; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAVIGATION -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-mark">
+      <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="11" height="11" fill="#0A0A09"/>
+        <rect x="16" y="1" width="11" height="11" fill="#1A5C3A"/>
+        <rect x="1" y="16" width="11" height="11" fill="#9B9B94" opacity=".4"/>
+        <rect x="16" y="16" width="11" height="11" fill="#0A0A09"/>
+        <rect x="5" y="5" width="3" height="3" fill="#FFFFFF" opacity=".5"/>
+        <rect x="20" y="20" width="3" height="3" fill="#1A5C3A" opacity=".8"/>
+      </svg>
+    </div>
+    Oak & Pixel
+  </a>
+  <div class="nav-links">
+    <a href="index.html#about">Studio</a>
+    <a href="index.html#services">Services</a>
+    <a href="index.html#work">Work</a>
+    <a href="index.html#standards">Standards</a>
+  </div>
+  <a href="index.html#contact" class="nav-cta">Start a Project</a>
+</nav>
+
+<!-- PAGE HERO -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="page-eyebrow">Legal</div>
+    <h1 class="page-title">
+      Terms &amp;<br><em>Conditions</em>
+    </h1>
+    <div class="page-meta">
+      <span>Effective date: 1 January 2025</span>
+      <span>Last updated: 1 January 2025</span>
+      <span>Oak & Pixel Studio</span>
+    </div>
+  </div>
+</section>
+
+<!-- CONTENT -->
+<div class="content-wrap">
+
+  <!-- TABLE OF CONTENTS -->
+  <aside class="toc" id="toc">
+    <div class="toc-label">Contents</div>
+    <ul class="toc-list">
+      <li class="toc-item"><a href="#overview">Overview</a></li>
+      <li class="toc-item"><a href="#services">Our Services</a></li>
+      <li class="toc-item"><a href="#engagements">Engagements & Proposals</a></li>
+      <li class="toc-item"><a href="#payment">Payment Terms</a></li>
+      <li class="toc-item"><a href="#ip">Intellectual Property</a></li>
+      <li class="toc-item"><a href="#confidentiality">Confidentiality</a></li>
+      <li class="toc-item"><a href="#revisions">Revisions & Scope</a></li>
+      <li class="toc-item"><a href="#timeline">Timeline & Delays</a></li>
+      <li class="toc-item"><a href="#termination">Termination</a></li>
+      <li class="toc-item"><a href="#liability">Limitation of Liability</a></li>
+      <li class="toc-item"><a href="#warranties">Warranties</a></li>
+      <li class="toc-item"><a href="#governing">Governing Law</a></li>
+      <li class="toc-item"><a href="#contact">Contact Us</a></li>
+    </ul>
+  </aside>
+
+  <!-- TERMS BODY -->
+  <main class="policy-body">
+
+    <!-- 1. OVERVIEW -->
+    <div class="policy-section reveal" id="overview">
+      <div class="section-number">01</div>
+      <h2 class="section-title">Overview</h2>
+      <div class="policy-callout">
+        <p><strong>The short version:</strong> By working with us, you agree to these terms. They are written to be fair, transparent, and protective of both parties. We believe good working relationships are built on clarity.</p>
+      </div>
+      <p class="policy-text">
+        These Terms and Conditions ("Terms") govern your engagement with Oak & Pixel Studio ("we", "us", "our") and apply to all services, proposals, projects, and communications between us and any individual or entity ("Client", "you") that engages our services.
+      </p>
+      <p class="policy-text">
+        By signing a proposal, paying a deposit, or proceeding with any project work, you confirm that you have read, understood, and agree to be bound by these Terms. If you do not agree, please do not proceed with an engagement.
+      </p>
+      <p class="policy-text">
+        These Terms should be read alongside any project-specific proposal, scope of work, or service agreement provided to you, which together form the complete agreement between us.
+      </p>
+    </div>
+
+    <!-- 2. OUR SERVICES -->
+    <div class="policy-section reveal" id="services">
+      <div class="section-number">02</div>
+      <h2 class="section-title">Our Services</h2>
+      <p class="policy-text">Oak & Pixel Studio provides premium digital services including but not limited to:</p>
+      <ul class="policy-list">
+        <li>Web design and user interface design</li>
+        <li>Website development and engineering</li>
+        <li>Digital infrastructure architecture and setup</li>
+        <li>Brand experience system design</li>
+        <li>UI/UX strategy and research</li>
+        <li>Automation ecosystem design and integration</li>
+        <li>Digital consultancy and strategy</li>
+      </ul>
+      <p class="policy-text">
+        The specific scope, deliverables, and timeline for each engagement are defined in the project proposal or statement of work provided prior to commencement. Services not explicitly included in the agreed scope are not covered by the quoted fee.
+      </p>
+    </div>
+
+    <!-- 3. ENGAGEMENTS & PROPOSALS -->
+    <div class="policy-section reveal" id="engagements">
+      <div class="section-number">03</div>
+      <h2 class="section-title">Engagements & Proposals</h2>
+      <p class="policy-text">
+        All project proposals are valid for 30 days from the date of issue unless otherwise stated. A proposal does not constitute a binding agreement until it has been formally accepted by the Client and a deposit has been received.
+      </p>
+      <div class="policy-sub">Acceptance</div>
+      <p class="policy-text">
+        An engagement is confirmed when the Client signs or formally accepts the proposal in writing (including email) and the required deposit payment is received. We reserve the right to decline or withdraw from any engagement prior to formal confirmation.
+      </p>
+      <div class="policy-sub">Scope of Work</div>
+      <p class="policy-text">
+        The scope of work is defined in the proposal or statement of work. Any requests that fall outside this scope will be treated as a change request and may be subject to additional fees and revised timelines. We will always communicate this clearly before proceeding.
+      </p>
+    </div>
+
+    <!-- 4. PAYMENT TERMS -->
+    <div class="policy-section reveal" id="payment">
+      <div class="section-number">04</div>
+      <h2 class="section-title">Payment Terms</h2>
+      <div class="policy-sub">Deposit</div>
+      <p class="policy-text">
+        A non-refundable deposit of 50% of the total project fee is required prior to commencement of any work. This deposit secures your position in our schedule and covers initial research, strategy, and design work.
+      </p>
+      <div class="policy-sub">Milestone & Final Payments</div>
+      <p class="policy-text">
+        The remaining balance is structured according to the payment schedule outlined in your proposal — typically tied to project milestones or due upon final delivery. All invoices are payable within 14 days of issue unless otherwise agreed.
+      </p>
+      <div class="policy-sub">Late Payments</div>
+      <p class="policy-text">
+        Invoices not settled within 14 days may incur a late payment fee of 2% per month on the outstanding balance. We reserve the right to pause project work until all outstanding invoices are settled.
+      </p>
+      <div class="policy-callout">
+        <p>Final deliverables, files, and project assets will only be released upon receipt of full and final payment. Ownership of work does not transfer until payment is complete.</p>
+      </div>
+      <div class="policy-sub">Currency & Taxes</div>
+      <p class="policy-text">
+        All fees are quoted exclusive of applicable taxes unless stated otherwise. The Client is responsible for any taxes, duties, or levies applicable in their jurisdiction.
+      </p>
+    </div>
+
+    <!-- 5. INTELLECTUAL PROPERTY -->
+    <div class="policy-section reveal" id="ip">
+      <div class="section-number">05</div>
+      <h2 class="section-title">Intellectual Property</h2>
+      <div class="policy-sub">Client Ownership</div>
+      <p class="policy-text">
+        Upon receipt of full and final payment, Oak & Pixel Studio assigns to the Client all intellectual property rights in the final, approved deliverables created specifically for their project. This includes design files, source code, and associated assets as specified in the project scope.
+      </p>
+      <div class="policy-sub">Our Retained Rights</div>
+      <p class="policy-text">
+        We retain the right to display the work in our portfolio, case studies, and marketing materials unless the Client requests confidentiality in writing prior to project commencement. We also retain ownership of all preliminary concepts, unused designs, frameworks, tools, and methodologies developed during the project.
+      </p>
+      <div class="policy-sub">Third-Party Assets</div>
+      <p class="policy-text">
+        Where third-party assets, fonts, stock imagery, or licensed software are incorporated into a project, the Client is responsible for ensuring ongoing licensing compliance. We will always disclose the use of such assets.
+      </p>
+    </div>
+
+    <!-- 6. CONFIDENTIALITY -->
+    <div class="policy-section reveal" id="confidentiality">
+      <div class="section-number">06</div>
+      <h2 class="section-title">Confidentiality</h2>
+      <p class="policy-text">
+        Both parties agree to treat as confidential any proprietary information, business strategies, client data, or trade secrets disclosed during the course of the engagement. This obligation survives the termination of any project or agreement.
+      </p>
+      <p class="policy-text">
+        We will not disclose your confidential information to any third party without your written consent, except where required by law or as necessary to deliver the agreed services using trusted subcontractors or tools — all of whom are subject to equivalent confidentiality obligations.
+      </p>
+      <p class="policy-text">
+        If a Non-Disclosure Agreement (NDA) is required, this must be requested and executed prior to the sharing of any sensitive information.
+      </p>
+    </div>
+
+    <!-- 7. REVISIONS & SCOPE -->
+    <div class="policy-section reveal" id="revisions">
+      <div class="section-number">07</div>
+      <h2 class="section-title">Revisions & Scope</h2>
+      <p class="policy-text">
+        Each project proposal includes a defined number of revision rounds per deliverable. Revisions are understood to mean refinements within the agreed design direction — not fundamental changes to scope, concept, or direction.
+      </p>
+      <ul class="policy-list">
+        <li>Revisions requested within the agreed rounds are included at no additional cost</li>
+        <li>Revisions beyond the agreed rounds will be quoted and invoiced separately</li>
+        <li>Changes to the original brief, direction, or scope after work has commenced may require a revised proposal and timeline</li>
+        <li>Approval of a deliverable, whether written or implied by silence over 7 business days, is taken as acceptance</li>
+      </ul>
+    </div>
+
+    <!-- 8. TIMELINE & DELAYS -->
+    <div class="policy-section reveal" id="timeline">
+      <div class="section-number">08</div>
+      <h2 class="section-title">Timeline & Delays</h2>
+      <p class="policy-text">
+        We commit to the timelines outlined in agreed project proposals. Timely delivery is dependent on the Client providing required materials, approvals, and feedback within the agreed windows.
+      </p>
+      <ul class="policy-list">
+        <li>Delays caused by late Client feedback, missing content, or scope changes may result in revised timelines</li>
+        <li>If a project is paused at the Client's request for more than 30 days, we reserve the right to reschedule the project and may require an additional restart fee</li>
+        <li>Force majeure events — including illness, technical failures, or circumstances beyond reasonable control — will be communicated promptly and timelines adjusted accordingly</li>
+      </ul>
+      <div class="policy-callout">
+        <p>We operate with a small, senior team. We take on a limited number of projects to ensure each receives the attention it deserves. Your timeline slot is reserved specifically for you.</p>
+      </div>
+    </div>
+
+    <!-- 9. TERMINATION -->
+    <div class="policy-section reveal" id="termination">
+      <div class="section-number">09</div>
+      <h2 class="section-title">Termination</h2>
+      <div class="policy-sub">Termination by Client</div>
+      <p class="policy-text">
+        The Client may terminate a project at any time with written notice. In such cases, the Client is liable for payment of all work completed to the date of termination, calculated on a pro-rata basis against the total project fee. The deposit is non-refundable.
+      </p>
+      <div class="policy-sub">Termination by Oak & Pixel</div>
+      <p class="policy-text">
+        We reserve the right to terminate an engagement with 14 days written notice if the Client fails to meet payment obligations, provides false information, or engages in conduct that makes continued collaboration unreasonable. In such cases, payment for all completed work remains due.
+      </p>
+      <div class="policy-sub">Effect of Termination</div>
+      <p class="policy-text">
+        Upon termination, each party will return or destroy the other's confidential materials. Work-in-progress files and partial deliverables will only be released upon settlement of all outstanding fees.
+      </p>
+    </div>
+
+    <!-- 10. LIMITATION OF LIABILITY -->
+    <div class="policy-section reveal" id="liability">
+      <div class="section-number">10</div>
+      <h2 class="section-title">Limitation of Liability</h2>
+      <p class="policy-text">
+        To the fullest extent permitted by applicable law, Oak & Pixel Studio shall not be liable for any indirect, incidental, consequential, or punitive damages arising from or related to the services provided, including but not limited to loss of revenue, data, business opportunities, or reputation.
+      </p>
+      <p class="policy-text">
+        Our total liability to the Client for any claim arising from an engagement shall not exceed the total fees paid by the Client for the specific project to which the claim relates.
+      </p>
+      <p class="policy-text">
+        We are not responsible for third-party platforms, hosting providers, CMS systems, or any external services that form part of the delivered solution. We will always recommend reputable providers, but their continued performance is outside our control.
+      </p>
+    </div>
+
+    <!-- 11. WARRANTIES -->
+    <div class="policy-section reveal" id="warranties">
+      <div class="section-number">11</div>
+      <h2 class="section-title">Warranties</h2>
+      <p class="policy-text">
+        We warrant that all work delivered by Oak & Pixel Studio will be our own original creation or properly licensed, and that to the best of our knowledge it will not infringe the intellectual property rights of any third party.
+      </p>
+      <p class="policy-text">
+        We do not warrant that digital products will be free from all defects or will operate without interruption. Where defects arise from our own work within 30 days of delivery, we will resolve them at no additional charge. Issues arising from Client modifications, third-party integrations, or hosting environments are not covered by this warranty.
+      </p>
+      <div class="policy-callout">
+        <p>We stand behind our craft. If something we've built isn't working as agreed, we will fix it. That is our commitment to you.</p>
+      </div>
+    </div>
+
+    <!-- 12. GOVERNING LAW -->
+    <div class="policy-section reveal" id="governing">
+      <div class="section-number">12</div>
+      <h2 class="section-title">Governing Law</h2>
+      <p class="policy-text">
+        These Terms shall be governed by and construed in accordance with the laws of the jurisdiction in which Oak & Pixel Studio is registered, without regard to its conflict of law principles.
+      </p>
+      <p class="policy-text">
+        Any disputes arising from these Terms or from any engagement with Oak & Pixel Studio shall first be subject to good-faith negotiation between the parties. If a resolution cannot be reached within 30 days, the matter may be referred to mediation or the appropriate courts of the applicable jurisdiction.
+      </p>
+    </div>
+
+    <!-- 13. CONTACT -->
+    <div class="policy-section reveal" id="contact">
+      <div class="section-number">13</div>
+      <h2 class="section-title">Contact Us</h2>
+      <p class="policy-text">
+        If you have any questions about these Terms, or wish to discuss a specific clause before entering an engagement, please reach out. We believe in transparency and are always happy to clarify.
+      </p>
+      <div class="policy-callout">
+        <p>
+          <strong>Oak & Pixel Studio</strong><br>
+          Email: <a href="mailto:info@oakandpixel.co.za">info@oakandpixel.co.za</a><br>
+          Phone: <a href="tel:+27750890614">+27 (75) 089 0614</a><br>
+          Website: <a href="https://www.oakandpixel.co.za">www.oakandpixel.co.za</a>
+        </p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Oak & Pixel</div>
+  <p class="footer-copy">© 2025 Oak & Pixel Studio. All rights reserved.</p>
+  <div class="footer-links">
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html" class="active">Terms</a>
+    <a href="https://www.instagram.com/oakandpixel_?igsh=MTc1cG05dHEzNjg2cQ%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer">Instagram</a>
+    <a href="https://www.linkedin.com/company/113094222/admin/dashboard/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+  </div>
+</footer>
+
+<script>
+// ── CURSOR ──────────────────────────────────────────────
+const cursor = document.getElementById('cursor');
+const ring   = document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cursor.style.left=mx+'px';cursor.style.top=my+'px';
+});
+(function animRing(){
+  rx+=(mx-rx)*.12;ry+=(my-ry)*.12;
+  ring.style.left=rx+'px';ring.style.top=ry+'px';
+  requestAnimationFrame(animRing);
+})();
+
+// ── SCROLL REVEAL ────────────────────────────────────────
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// ── ACTIVE TOC ───────────────────────────────────────────
+const sections = document.querySelectorAll('.policy-section');
+const tocLinks = document.querySelectorAll('.toc-item');
+const scrollObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id = e.target.id;
+      tocLinks.forEach(li=>{
+        const a = li.querySelector('a');
+        li.classList.toggle('active', a && a.getAttribute('href')==='#'+id);
+      });
+    }
+  });
+},{rootMargin:'-20% 0px -70% 0px'});
+sections.forEach(s=>scrollObs.observe(s));
+</script>
+</body>
+</html>

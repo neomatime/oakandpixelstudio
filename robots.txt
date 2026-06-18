@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://www.oakandpixel.co.za/sitemap.xml
+
+# AI/answer-engine orientation files:
+# https://www.oakandpixel.co.za/llms.txt
+# https://www.oakandpixel.co.za/llms-full.txt

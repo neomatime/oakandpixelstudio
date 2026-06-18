@@ -1,0 +1,132 @@
+<svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" width="800" height="800">
+  <defs>
+    <!-- Background -->
+    <rect id="bg" width="800" height="800" fill="#F5F4F1"/>
+
+    <!-- Subtle grain texture -->
+    <filter id="grain" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feBlend in="SourceGraphic" mode="multiply" result="blended"/>
+      <feComposite in="blended" in2="SourceGraphic" operator="in"/>
+    </filter>
+
+    <!-- Drop shadow for mark -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="14" flood-color="#0A0A09" flood-opacity="0.10"/>
+    </filter>
+
+    <!-- Inner highlight on black square -->
+    <linearGradient id="gloss-black" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2A2A27"/>
+      <stop offset="100%" stop-color="#0A0A09"/>
+    </linearGradient>
+
+    <!-- Emerald gradient -->
+    <linearGradient id="gloss-emerald" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2D7A52"/>
+      <stop offset="100%" stop-color="#1A5C3A"/>
+    </linearGradient>
+
+    <!-- Mist gradient -->
+    <linearGradient id="gloss-mist" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#C8C4BC"/>
+      <stop offset="100%" stop-color="#9B9B94"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ── BACKGROUND ── -->
+  <rect width="800" height="800" fill="#F5F4F1"/>
+
+  <!-- Subtle off-white vignette -->
+  <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+    <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.6"/>
+    <stop offset="100%" stop-color="#EDE9E3" stop-opacity="0.0"/>
+  </radialGradient>
+  <rect width="800" height="800" fill="url(#vignette)"/>
+
+  <!-- ── MARK GROUP (centered) ── -->
+  <g transform="translate(400, 340)" filter="url(#shadow)">
+
+    <!-- Grid: 2×2 squares, each 110px, gap 10px. Total = 230px wide/tall. Offset: -115 -->
+
+    <!-- Top-left: Matte Black -->
+    <rect x="-115" y="-115" width="110" height="110" rx="4" fill="url(#gloss-black)"/>
+    <!-- Inner face highlight -->
+    <rect x="-115" y="-115" width="110" height="110" rx="4" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+    <!-- White pixel accent (top-left square, lower-right corner) -->
+    <rect x="-39" y="-39" width="22" height="22" rx="2" fill="rgba(255,255,255,0.18)"/>
+    <rect x="-33" y="-33" width="10" height="10" rx="1" fill="rgba(255,255,255,0.55)"/>
+
+    <!-- Top-right: Emerald -->
+    <rect x="5" y="-115" width="110" height="110" rx="4" fill="url(#gloss-emerald)"/>
+    <rect x="5" y="-115" width="110" height="110" rx="4" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+    <!-- Pixel dot top-right quad -->
+    <rect x="11" y="-109" width="18" height="18" rx="2" fill="rgba(255,255,255,0.12)"/>
+    <rect x="15" y="-105" width="10" height="10" rx="1" fill="rgba(255,255,255,0.3)"/>
+    <!-- Cross-hair mark center of emerald -->
+    <line x1="60" y1="-108" x2="60" y2="-92" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+    <line x1="53" y1="-100" x2="67" y2="-100" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+
+    <!-- Bottom-left: Mist (subdued) -->
+    <rect x="-115" y="5" width="110" height="110" rx="4" fill="url(#gloss-mist)" opacity="0.45"/>
+    <rect x="-115" y="5" width="110" height="110" rx="4" fill="none" stroke="rgba(10,10,9,0.08)" stroke-width="1"/>
+    <!-- Sparse dot grid in mist square -->
+    <rect x="-100" y="20" width="5" height="5" rx="1" fill="rgba(10,10,9,0.15)"/>
+    <rect x="-85" y="20" width="5" height="5" rx="1" fill="rgba(10,10,9,0.10)"/>
+    <rect x="-70" y="20" width="5" height="5" rx="1" fill="rgba(10,10,9,0.07)"/>
+    <rect x="-100" y="35" width="5" height="5" rx="1" fill="rgba(10,10,9,0.10)"/>
+    <rect x="-85" y="35" width="5" height="5" rx="1" fill="rgba(10,10,9,0.15)"/>
+    <rect x="-70" y="35" width="5" height="5" rx="1" fill="rgba(10,10,9,0.07)"/>
+
+    <!-- Bottom-right: Matte Black (deeper) -->
+    <rect x="5" y="5" width="110" height="110" rx="4" fill="#0A0A09"/>
+    <rect x="5" y="5" width="110" height="110" rx="4" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+    <!-- Emerald micro-pixel signature -->
+    <rect x="77" y="77" width="26" height="26" rx="3" fill="#1A5C3A" opacity="0.9"/>
+    <rect x="83" y="83" width="14" height="14" rx="1.5" fill="#2D7A52"/>
+
+    <!-- Hairline gap cross (the intentional 10px split rendered as negative space accent lines) -->
+    <!-- Horizontal divider -->
+    <line x1="-115" y1="0" x2="115" y2="0" stroke="#F5F4F1" stroke-width="10"/>
+    <!-- Vertical divider -->
+    <line x1="0" y1="-115" x2="0" y2="115" stroke="#F5F4F1" stroke-width="10"/>
+
+    <!-- Center intersection dot — emerald -->
+    <circle cx="0" cy="0" r="5" fill="#1A5C3A"/>
+
+  </g>
+
+  <!-- ── WORDMARK ── -->
+  <!-- Using embedded text; font stack for clean rendering -->
+
+  <!-- "OAK & PIXEL" -->
+  <text
+    x="400" y="535"
+    text-anchor="middle"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="30"
+    font-weight="400"
+    letter-spacing="14"
+    fill="#0A0A09"
+  >OAK &amp; PIXEL</text>
+
+  <!-- Rule lines flanking wordmark -->
+  <line x1="172" y1="527" x2="270" y2="527" stroke="#0A0A09" stroke-width="0.8" opacity="0.2"/>
+  <line x1="530" y1="527" x2="628" y2="527" stroke="#0A0A09" stroke-width="0.8" opacity="0.2"/>
+
+  <!-- Tagline -->
+  <text
+    x="400" y="573"
+    text-anchor="middle"
+    font-family="'Courier New', Courier, monospace"
+    font-size="11"
+    font-weight="400"
+    letter-spacing="5"
+    fill="#9B9B94"
+  >DIGITAL STUDIO</text>
+
+  <!-- Emerald accent line under tagline -->
+  <line x1="368" y1="584" x2="432" y2="584" stroke="#1A5C3A" stroke-width="1" opacity="0.6"/>
+
+</svg>

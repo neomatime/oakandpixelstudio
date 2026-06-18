@@ -1,0 +1,5 @@
+# Files not needed in the Vercel build context
+package-lock.json
+node_modules/
+scripts/
+docs/
