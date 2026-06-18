@@ -317,7 +317,7 @@ section{position:relative}
   padding:3rem 2.5rem;
   position:relative;overflow:hidden;
   transition:background .4s,border-color .4s;
-  cursor:default;
+  cursor:pointer;
 }
 .service-card::before{
   content:'';position:absolute;inset:0;
@@ -1399,7 +1399,7 @@ footer{
       },
       "sameAs": [
         "https://www.instagram.com/oakandpixel_?igsh=MTc1cG05dHEzNjg2cQ%3D%3D&utm_source=qr",
-        "https://www.linkedin.com/company/113094222/admin/dashboard/"
+        "https://www.linkedin.com/company/oak-and-pixel-studio/"
       ],
       "hasOfferCatalog": {
         "@type": "OfferCatalog",
@@ -1620,8 +1620,8 @@ footer{
             <span class="stat-label">Engagements delivered</span>
           </div>
           <div class="stat-card">
-            <span class="stat-num">4.0s</span>
-            <span class="stat-label">Avg. load time, halved</span>
+            <span class="stat-num">2×</span>
+            <span class="stat-label">Avg. site speed improvement</span>
           </div>
         </div>
         <div class="about-panel">
@@ -1765,7 +1765,7 @@ footer{
         </div>
         <div class="work-overlay">
           <div class="work-overlay-text">Premium Finance Platform</div>
-          <div class="work-overlay-btn">Case Study</div>
+          <a href="#contact" class="work-overlay-btn">Discuss Similar Work</a>
         </div>
       </div>
       <!-- Item 2 -->
@@ -1785,7 +1785,7 @@ footer{
         </div>
         <div class="work-overlay">
           <div class="work-overlay-text">Luxury E-Commerce</div>
-          <div class="work-overlay-btn">Case Study</div>
+          <a href="#contact" class="work-overlay-btn">Discuss Similar Work</a>
         </div>
       </div>
       <!-- Item 3 -->
@@ -1805,7 +1805,7 @@ footer{
         </div>
         <div class="work-overlay">
           <div class="work-overlay-text">Sustainability Platform</div>
-          <div class="work-overlay-btn">Case Study</div>
+          <a href="#contact" class="work-overlay-btn">Discuss Similar Work</a>
         </div>
       </div>
       <!-- Item 4 -->
@@ -1826,7 +1826,7 @@ footer{
         </div>
         <div class="work-overlay">
           <div class="work-overlay-text">Enterprise Architecture</div>
-          <div class="work-overlay-btn">Case Study</div>
+          <a href="#contact" class="work-overlay-btn">Discuss Similar Work</a>
         </div>
       </div>
     </div>
@@ -1922,7 +1922,7 @@ footer{
     </h2>
     <div class="sz-rule"></div>
     <p class="sz-body">
-      We operate at the intersection of technology and taste. Every system we build, every surface we design, carries the weight of genuine craft. We don't produce websites — we construct digital presence.
+      The standard isn't set by what's average — it's defined by what's possible. Every engagement we take on is treated as if our own reputation depends on it. Because it does.
     </p>
   </div>
 </section>
@@ -2000,7 +2000,7 @@ footer{
     <a href="privacy.html">Privacy</a>
     <a href="terms.html">Terms</a>
     <a href="https://www.instagram.com/oakandpixel_?igsh=MTc1cG05dHEzNjg2cQ%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer">Instagram</a>
-    <a href="https://www.linkedin.com/company/113094222/admin/dashboard/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    <a href="https://www.linkedin.com/company/oak-and-pixel-studio/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
   </div>
 </footer>
 
@@ -2008,7 +2008,7 @@ footer{
 <div id="whatsapp-btn">
   <div class="wa-tooltip">Chat on WhatsApp</div>
   <!-- ← EDIT: Replace with your WhatsApp number -->
-  <a href="https://wa.me/0750890614" target="_blank" rel="noopener noreferrer" class="wa-trigger" aria-label="Chat on WhatsApp">
+  <a href="https://wa.me/27750890614" target="_blank" rel="noopener noreferrer" class="wa-trigger" aria-label="Chat on WhatsApp">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.978-1.405A9.953 9.953 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18a7.952 7.952 0 01-4.073-1.117l-.29-.173-3.007.849.853-2.938-.19-.302A7.951 7.951 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
     </svg>
@@ -3028,6 +3028,13 @@ window.addEventListener('scroll',()=>{
   if(hasTTS && 'onvoiceschanged' in synth) synth.onvoiceschanged = () => {};
 })();
 
+
+// ── SERVICE CARDS → scroll to contact ──────────────────
+document.querySelectorAll('.service-card').forEach(card => {
+  card.addEventListener('click', () =>
+    document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })
+  );
+});
 
 // ── MOBILE SIDE DRAWER ──────────────────────────────
 (function(){
