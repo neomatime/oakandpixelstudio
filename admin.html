@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <link rel="icon" href="images/favicons/favicon_32.png" type="image/png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <style>
 :root{
   --bg:#0A0A09;--sidebar:#0d0d0c;--card:#161614;
@@ -318,6 +319,26 @@ a{color:inherit;text-decoration:none;}
 [data-theme="light"] .flatpickr-day.flatpickr-disabled,[data-theme="light"] .flatpickr-day.prevMonthDay,[data-theme="light"] .flatpickr-day.nextMonthDay{color:rgba(26,26,24,.18)!important;}
 [data-theme="light"] .flatpickr-weekday{color:rgba(26,26,24,.4)!important;}
 [data-theme="light"] .flatpickr-calendar{box-shadow:0 8px 28px rgba(0,0,0,.12)!important;}
+
+/* ── CHARTS ───────────────────────────────── */
+.charts-row{display:grid;grid-template-columns:1fr 1.8fr;gap:1rem;margin-bottom:1.5rem;}
+.chart-wrap{padding:1rem 1.5rem 1.5rem;position:relative;min-height:180px;}
+#chart-status{max-height:200px;}
+#chart-trend{max-height:200px;}
+
+/* ── CONTACTS ─────────────────────────────── */
+.contacts-toolbar{display:flex;align-items:center;gap:.75rem;padding:1rem 1.5rem;border-bottom:1px solid var(--border);}
+.search-input{flex:1;background:rgba(245,244,241,.04);border:1px solid var(--border-hi);color:var(--off-white);font-family:var(--font-b);font-size:.8rem;padding:.55rem .9rem;outline:none;transition:border-color .2s;max-width:260px;}
+.search-input:focus{border-color:var(--emerald);}
+[data-theme="light"] .search-input{background:rgba(26,26,24,.05);color:#1A1A18;}
+.badge-new{background:var(--gold-dim);color:var(--gold);}
+.badge-contacted{background:rgba(100,149,237,.12);color:#8aabee;}
+.badge-qualified{background:var(--ok-dim);color:var(--ok);}
+.badge-closed{background:rgba(245,244,241,.06);color:rgba(245,244,241,.35);}
+.status-select{background:transparent;border:none;color:inherit;font-family:var(--font-m);font-size:.53rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;outline:none;padding:0;}
+.status-select option{background:var(--card);color:var(--off-white);}
+.contact-brief-cell{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(245,244,241,.38);font-size:.74rem;}
+[data-theme="light"] .contact-brief-cell{color:rgba(26,26,24,.4);}
 </style>
 </head>
 <body>
@@ -374,6 +395,12 @@ a{color:inherit;text-decoration:none;}
         <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
         Services
       </button>
+
+      <button class="nav-item" data-page="contacts">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        Contacts
+        <span class="nav-badge" id="new-contact-badge"></span>
+      </button>
     </nav>
 
     <div class="sidebar-footer">
@@ -428,6 +455,17 @@ a{color:inherit;text-decoration:none;}
               <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </div>
             <div><div class="stat-num" id="stat-slots">—</div><div class="stat-lbl">Open Slots</div></div>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <div class="card" style="margin-bottom:0">
+            <div class="card-header"><span class="card-title">Bookings by Status</span></div>
+            <div class="chart-wrap"><canvas id="chart-status"></canvas></div>
+          </div>
+          <div class="card" style="margin-bottom:0">
+            <div class="card-header"><span class="card-title">Last 7 Days</span></div>
+            <div class="chart-wrap"><canvas id="chart-trend"></canvas></div>
           </div>
         </div>
 
@@ -510,6 +548,23 @@ a{color:inherit;text-decoration:none;}
         <div class="services-grid" id="services-grid"><p class="loading-row">Loading…</p></div>
       </section>
 
+      <!-- ── CONTACTS ── -->
+      <section class="page" id="page-contacts">
+        <div class="card">
+          <div class="contacts-toolbar">
+            <input type="text" class="search-input" id="contact-search" placeholder="Search by name or email…">
+            <div class="filter-row" style="margin:0;gap:.35rem;">
+              <button class="f-tab active" data-cfilter="all">All</button>
+              <button class="f-tab" data-cfilter="new">New</button>
+              <button class="f-tab" data-cfilter="contacted">Contacted</button>
+              <button class="f-tab" data-cfilter="qualified">Qualified</button>
+              <button class="f-tab" data-cfilter="closed">Closed</button>
+            </div>
+          </div>
+          <div id="contacts-table"><p class="loading-row">Loading…</p></div>
+        </div>
+      </section>
+
     </div><!-- /page-content -->
   </main>
 
@@ -528,7 +583,11 @@ const $ = id => document.getElementById(id);
 
 let currentFilter = 'all';
 let allBookings = [];
+let allContacts = [];
+let contactFilter = 'all';
+let contactSearch = '';
 let datePicker;
+let statusChart, trendChart;
 
 /* ── Date helpers ── */
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -570,6 +629,7 @@ function applyTheme(mode) {
 }
 $('theme-toggle').addEventListener('click', () => {
   applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  setTimeout(renderCharts, 50);
 });
 
 async function init() {
@@ -617,7 +677,7 @@ $('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') $(
 $('logout-btn').addEventListener('click', () => sb.auth.signOut());
 
 /* ── Navigation ── */
-const PAGE_TITLES = { overview:'Overview', bookings:'Bookings', availability:'Availability', services:'Services' };
+const PAGE_TITLES = { overview:'Overview', bookings:'Bookings', availability:'Availability', services:'Services', contacts:'Contacts' };
 
 document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
   btn.addEventListener('click', () => switchPage(btn.dataset.page));
@@ -634,7 +694,7 @@ function switchPage(name) {
 
 /* ── Load all data ── */
 async function loadAll() {
-  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices()]);
+  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadContacts()]);
 }
 
 /* ── Stats ── */
@@ -667,6 +727,7 @@ async function loadBookings() {
   allBookings = data || [];
   renderBookings();
   renderRecent();
+  renderCharts();
 }
 
 function renderRecent() {
@@ -732,6 +793,70 @@ document.querySelectorAll('.f-tab[data-filter]').forEach(tab => {
     renderBookings();
   });
 });
+
+/* ── Charts ── */
+function renderCharts() {
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  const textColor = isDark ? 'rgba(245,244,241,.45)' : 'rgba(26,26,24,.45)';
+  const gridColor = isDark ? 'rgba(245,244,241,.05)' : 'rgba(26,26,24,.06)';
+
+  const pending   = allBookings.filter(b => b.status === 'pending').length;
+  const confirmed = allBookings.filter(b => b.status === 'confirmed').length;
+  const declined  = allBookings.filter(b => b.status === 'declined').length;
+
+  const ctx1 = document.getElementById('chart-status')?.getContext('2d');
+  if (ctx1) {
+    if (statusChart) statusChart.destroy();
+    statusChart = new Chart(ctx1, {
+      type: 'doughnut',
+      data: {
+        labels: ['Pending', 'Confirmed', 'Declined'],
+        datasets: [{ data: [pending || 0, confirmed || 0, declined || 0],
+          backgroundColor: ['#B8955A','#5a9e6f','#e07070'],
+          borderWidth: 0, hoverOffset: 4 }]
+      },
+      options: {
+        cutout: '70%', responsive: true, maintainAspectRatio: true,
+        plugins: {
+          legend: { position: 'bottom', labels: {
+            color: textColor, boxWidth: 10, padding: 14,
+            font: { family: "'DM Mono', monospace", size: 10 }
+          }}
+        }
+      }
+    });
+  }
+
+  const today = new Date();
+  const days = Array.from({length:7}, (_,i) => {
+    const d = new Date(today); d.setDate(d.getDate() - (6-i));
+    return d.toISOString().split('T')[0];
+  });
+  const dayLabels = days.map(d => new Date(d+'T00:00:00').toLocaleDateString('en-ZA',{weekday:'short'}));
+  const dayCounts = days.map(d => allBookings.filter(b => b.created_at?.startsWith(d)).length);
+
+  const ctx2 = document.getElementById('chart-trend')?.getContext('2d');
+  if (ctx2) {
+    if (trendChart) trendChart.destroy();
+    trendChart = new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: dayLabels,
+        datasets: [{ label: 'Bookings', data: dayCounts,
+          backgroundColor: 'rgba(26,92,58,.55)', borderColor: 'rgba(26,92,58,.9)',
+          borderWidth: 1, borderRadius: 3, borderSkipped: false }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: gridColor }, ticks: { color: textColor, font: { family:"'DM Mono',monospace", size:10 } } },
+          y: { grid: { color: gridColor }, ticks: { color: textColor, font: { family:"'DM Mono',monospace", size:10 }, stepSize:1 }, min:0, beginAtZero:true }
+        }
+      }
+    });
+  }
+}
 
 /* ── Availability ── */
 async function loadSlots() {
@@ -807,6 +932,75 @@ $('qa-morning').addEventListener('click',   () => selectPills(['07:00','07:30','
 $('qa-afternoon').addEventListener('click', () => selectPills(['12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00']));
 $('qa-full').addEventListener('click',      () => selectPills(['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00']));
 $('qa-clear').addEventListener('click',     () => $('time-pills').querySelectorAll('.time-pill').forEach(p => p.classList.remove('selected')));
+
+/* ── Contacts ── */
+async function loadContacts() {
+  const { data } = await sb.from('contacts').select('*').order('created_at', { ascending: false });
+  allContacts = data || [];
+  renderContacts();
+  const newCount = allContacts.filter(c => c.status === 'new').length;
+  const badge = $('new-contact-badge');
+  if (newCount > 0) { badge.textContent = newCount; badge.classList.add('show'); }
+  else badge.classList.remove('show');
+}
+
+function renderContacts() {
+  const c = $('contacts-table');
+  let rows = allContacts;
+  if (contactFilter !== 'all') rows = rows.filter(r => r.status === contactFilter);
+  if (contactSearch) {
+    const q = contactSearch.toLowerCase();
+    rows = rows.filter(r => r.full_name?.toLowerCase().includes(q) || r.email?.toLowerCase().includes(q));
+  }
+  if (!rows.length) { c.innerHTML = emptyState('No contacts found', 'Enquiries from the website will appear here.'); return; }
+  c.innerHTML = `<table class="a-table">
+    <thead><tr>
+      <th>Name</th><th>Company</th><th>Email</th><th>Budget</th><th>Project</th><th>Brief</th><th>Status</th><th>Date</th>
+    </tr></thead>
+    <tbody>${rows.map(r => `<tr>
+      <td class="td-name">${r.full_name}</td>
+      <td style="font-size:.76rem;color:rgba(245,244,241,.5)">${r.company || '—'}</td>
+      <td class="td-dim">${r.email}</td>
+      <td class="td-dim">${r.budget || '—'}</td>
+      <td style="font-size:.74rem;color:rgba(245,244,241,.45)">${r.project_type || '—'}</td>
+      <td class="contact-brief-cell" title="${(r.brief||'').replace(/"/g,'&quot;')}">${r.brief || '—'}</td>
+      <td>
+        <span class="badge badge-${r.status}" style="cursor:pointer">
+          <select class="status-select" data-id="${r.id}">
+            <option value="new"${r.status==='new'?' selected':''}>New</option>
+            <option value="contacted"${r.status==='contacted'?' selected':''}>Contacted</option>
+            <option value="qualified"${r.status==='qualified'?' selected':''}>Qualified</option>
+            <option value="closed"${r.status==='closed'?' selected':''}>Closed</option>
+          </select>
+        </span>
+      </td>
+      <td class="td-dim">${fmtDate(r.created_at?.split('T')[0])}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+
+  c.querySelectorAll('.status-select').forEach(sel => {
+    sel.addEventListener('change', async () => {
+      const newStatus = sel.value;
+      await sb.from('contacts').update({ status: newStatus }).eq('id', sel.dataset.id);
+      toast(`Contact marked as ${newStatus}.`);
+      loadContacts();
+    });
+  });
+}
+
+document.querySelectorAll('.f-tab[data-cfilter]').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.f-tab[data-cfilter]').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    contactFilter = tab.dataset.cfilter;
+    renderContacts();
+  });
+});
+
+$('contact-search').addEventListener('input', e => {
+  contactSearch = e.target.value.trim();
+  renderContacts();
+});
 
 /* ── Services ── */
 async function loadServices() {

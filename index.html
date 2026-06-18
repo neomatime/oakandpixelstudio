@@ -313,42 +313,62 @@ section{position:relative}
 }
 .service-card{
   background:rgba(255,255,255,.03);
-  border:1px solid rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.07);
   padding:3rem 2.5rem;
   position:relative;overflow:hidden;
-  transition:background .4s,border-color .4s;
+  transition:background .4s,border-color .4s,box-shadow .5s,transform .5s;
   cursor:pointer;
 }
 .service-card::before{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,var(--emerald-g),transparent);
-  opacity:0;transition:opacity .4s;
+  background:linear-gradient(135deg,var(--emerald-g),transparent 60%);
+  opacity:0;transition:opacity .5s;
 }
-.service-card:hover{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1)}
+.service-card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--emerald-l),var(--emerald-g),transparent);
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .55s var(--ease-expo);
+}
+.service-card:hover{
+  background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.13);
+  box-shadow:0 24px 64px rgba(0,0,0,.55),0 0 0 1px rgba(26,92,58,.2);
+}
 .service-card:hover::before{opacity:1}
+.service-card:hover::after{transform:scaleX(1)}
+.service-card.reveal{transform:translateY(52px) scale(.96);}
+.service-card.reveal.visible{transform:translateY(0) scale(1);}
+.service-card.reveal.visible:hover{transform:translateY(-6px) scale(1.005);}
 .service-num{
   font-family:var(--font-mono);font-size:.65rem;
   letter-spacing:.15em;color:var(--emerald-l);
-  margin-bottom:2rem;
+  margin-bottom:2rem;display:flex;align-items:center;gap:.6rem;
 }
+.service-num::after{content:'';width:18px;height:1px;background:var(--emerald-l);opacity:.4;}
 .service-icon{
-  width:40px;height:40px;margin-bottom:1.75rem;
-  opacity:.7;
+  width:44px;height:44px;margin-bottom:1.75rem;
+  opacity:.55;transition:opacity .4s,filter .4s;
 }
+.service-card:hover .service-icon{opacity:1;filter:drop-shadow(0 0 10px rgba(26,92,58,.55));}
 .service-name{
   font-family:var(--font-display);font-size:1.5rem;
   font-weight:400;color:var(--white);margin-bottom:1rem;
   line-height:1.2;
 }
-.service-desc{font-size:.88rem;color:rgba(255,255,255,.4);line-height:1.75}
+.service-desc{font-size:.88rem;color:rgba(255,255,255,.4);line-height:1.75;transition:color .35s;}
+.service-card:hover .service-desc{color:rgba(255,255,255,.6);}
 .service-arrow{
   position:absolute;bottom:2.5rem;right:2.5rem;
-  width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+  width:30px;height:30px;display:flex;align-items:center;justify-content:center;
   border:1px solid rgba(255,255,255,.1);border-radius:50%;
   color:rgba(255,255,255,.3);
-  transition:border-color .3s,color .3s,transform .3s;
+  transition:border-color .3s,color .3s,transform .35s,background .3s;
 }
-.service-card:hover .service-arrow{border-color:var(--emerald-l);color:var(--emerald-l);transform:translate(2px,-2px)}
+.service-card:hover .service-arrow{
+  border-color:var(--emerald-l);color:var(--emerald-l);
+  background:rgba(26,92,58,.15);
+  transform:translate(3px,-3px);
+}
 
 /* Pricing */
 #pricing{
@@ -2667,6 +2687,18 @@ document.addEventListener('mousemove',e=>{
       );
 
       if (res.ok) {
+        // Mirror to Supabase CRM (fire-and-forget)
+        fetch('https://wdbsmcxzhmdkfjoftulm.supabase.co/rest/v1/contacts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkYnNtY3h6aG1ka2Zqb2Z0dWxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDEwMTQsImV4cCI6MjA5NzM3NzAxNH0.xo9x29q_QVmDl81soUI3OMDzJBKmqEme-I6v5IZmeN0',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkYnNtY3h6aG1ka2Zqb2Z0dWxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDEwMTQsImV4cCI6MjA5NzM3NzAxNH0.xo9x29q_QVmDl81soUI3OMDzJBKmqEme-I6v5IZmeN0',
+            'Prefer': 'return=minimal',
+          },
+          body: JSON.stringify({ full_name: fullName, email, company, phone, website, project_type: project, budget, brief }),
+        }).catch(() => {});
+
         status.textContent = 'Your enquiry has been received. We\'ll be in touch within 48 hours.';
         status.className = 'form-status success';
         // Reset form and counters
