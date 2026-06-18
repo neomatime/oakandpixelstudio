@@ -1045,9 +1045,13 @@ async function loadServices() {
       input.value = current; input.className = 'svc-price-input';
       el.replaceWith(input);
       input.focus(); input.select();
+      let saved = false;
       input.addEventListener('blur', async () => {
+        if (saved) return;
+        saved = true;
         const newPrice = Math.max(0, parseInt(input.value) || 0);
-        await sb.from('services').update({ price: newPrice }).eq('id', id);
+        const { error } = await sb.from('services').update({ price: newPrice }).eq('id', id);
+        if (error) { toast('Error saving price.'); saved = false; loadServices(); return; }
         toast('Price updated.');
         loadServices();
       });
