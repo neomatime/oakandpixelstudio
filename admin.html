@@ -7,228 +7,456 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
-:root{--black:#0A0A09;--graphite:#161614;--gold:#B8955A;--off-white:#F5F4F1;--mist:#9B9B94;--error:#e07070;--ok:#5a9e6f;}
+:root{
+  --bg:#0A0A09;--sidebar:#0d0d0c;--card:#161614;
+  --border:rgba(245,244,241,.07);--border-hi:rgba(245,244,241,.14);
+  --emerald:#1A5C3A;--em-dim:rgba(26,92,58,.13);--em-mid:rgba(26,92,58,.25);
+  --gold:#B8955A;--gold-dim:rgba(184,149,90,.12);
+  --off-white:#F5F4F1;--mist:#9B9B94;
+  --ok:#5a9e6f;--ok-dim:rgba(90,158,111,.12);
+  --err:#e07070;--err-dim:rgba(224,112,112,.11);
+  --amber:#c4963a;--amber-dim:rgba(196,150,58,.12);
+  --sidebar-w:230px;
+  --font-d:'Cormorant Garamond',serif;
+  --font-b:'Jost',sans-serif;
+  --font-m:'DM Mono',monospace;
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--black);color:var(--off-white);font-family:'Jost',sans-serif;min-height:100vh;}
+body{background:var(--bg);color:var(--off-white);font-family:var(--font-b);min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased;}
+button{cursor:pointer;}
+a{color:inherit;text-decoration:none;}
 
-/* ── Login ── */
-#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;}
-.login-card{width:min(400px,100%);border:1px solid rgba(184,149,90,.15);padding:3rem 2.5rem;}
-.login-logo{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:400;letter-spacing:.06em;margin-bottom:.2rem;}
-.login-sub{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mist);margin-bottom:2.5rem;}
-.a-label{display:block;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,244,241,.4);margin-bottom:.35rem;}
-.a-input{width:100%;background:rgba(245,244,241,.04);border:1px solid rgba(245,244,241,.12);color:var(--off-white);font-family:'Jost',sans-serif;font-size:.85rem;padding:.7rem .9rem;outline:none;margin-bottom:1rem;transition:border-color .2s;}
-.a-input:focus{border-color:rgba(184,149,90,.5);}
-.a-btn{width:100%;background:var(--gold);color:var(--black);border:none;font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;padding:.85rem;cursor:pointer;transition:opacity .2s;margin-top:.5rem;}
-.a-btn:hover{opacity:.85;}
-.a-btn:disabled{opacity:.4;cursor:default;}
-.login-error{font-size:.78rem;color:var(--error);margin-top:.75rem;min-height:1rem;}
+/* ── LOGIN ────────────────────────────────── */
+#login-screen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;
+  background:radial-gradient(ellipse at 25% 60%,rgba(26,92,58,.07) 0%,transparent 55%),
+             radial-gradient(ellipse at 80% 20%,rgba(184,149,90,.04) 0%,transparent 50%);
+}
+.login-card{width:min(400px,100%);background:var(--card);border:1px solid var(--border-hi);padding:3rem 2.5rem;}
+.login-logo{font-family:var(--font-d);font-size:1.6rem;font-weight:400;letter-spacing:.03em;margin-bottom:.25rem;}
+.login-sub{font-family:var(--font-m);font-size:.56rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:2.5rem;display:flex;align-items:center;gap:.6rem;}
+.login-sub::before{content:'';width:18px;height:1px;background:var(--emerald);display:block;}
+.f-label{display:block;font-family:var(--font-m);font-size:.57rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,244,241,.38);margin-bottom:.4rem;}
+.f-input{width:100%;background:rgba(245,244,241,.04);border:1px solid var(--border-hi);color:var(--off-white);font-family:var(--font-b);font-size:.85rem;padding:.75rem 1rem;outline:none;margin-bottom:1rem;transition:border-color .2s;}
+.f-input:focus{border-color:var(--emerald);}
+.btn-login{width:100%;background:var(--emerald);color:#fff;border:none;font-family:var(--font-m);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;padding:.9rem;transition:opacity .2s;margin-top:.5rem;}
+.btn-login:hover{opacity:.85;}
+.btn-login:disabled{opacity:.4;cursor:default;}
+.login-err{font-size:.75rem;color:var(--err);min-height:1rem;margin-top:.75rem;}
 
-/* ── Dashboard ── */
-#dashboard{display:none;flex-direction:column;min-height:100vh;}
-#dashboard.visible{display:flex;}
-.admin-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid rgba(245,244,241,.08);}
-.admin-brand{font-family:'Cormorant Garamond',serif;font-size:1.1rem;letter-spacing:.06em;}
-.admin-header-right{display:flex;align-items:center;gap:1.5rem;}
-.admin-user-email{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--mist);}
-.logout-btn{background:none;border:1px solid rgba(245,244,241,.15);color:rgba(245,244,241,.5);font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .85rem;cursor:pointer;transition:border-color .2s,color .2s;}
-.logout-btn:hover{border-color:rgba(245,244,241,.4);color:var(--off-white);}
+/* ── APP SHELL ────────────────────────────── */
+.app{display:none;min-height:100vh;}
+.app.visible{display:flex;}
 
-/* Tabs */
-.admin-tabs{display:flex;border-bottom:1px solid rgba(245,244,241,.08);padding:0 2rem;}
-.tab-btn{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,244,241,.35);padding:.85rem 1.25rem;cursor:pointer;border:none;border-bottom:2px solid transparent;background:none;transition:color .2s,border-color .2s;}
-.tab-btn:hover{color:rgba(245,244,241,.7);}
-.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+/* ── SIDEBAR ──────────────────────────────── */
+.sidebar{
+  width:var(--sidebar-w);background:var(--sidebar);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;height:100vh;z-index:100;
+}
+.sidebar-brand{
+  padding:1.6rem 1.4rem;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:.85rem;
+}
+.brand-mark{
+  width:32px;height:32px;flex-shrink:0;
+  background:var(--em-dim);border:1px solid var(--em-mid);
+  display:flex;align-items:center;justify-content:center;
+}
+.brand-mark svg{width:14px;height:14px;stroke:var(--emerald);fill:none;stroke-width:1.5;}
+.brand-name{font-family:var(--font-d);font-size:.95rem;font-weight:400;letter-spacing:.04em;line-height:1.1;}
+.brand-label{font-family:var(--font-m);font-size:.5rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-top:.15rem;}
 
-.admin-content{padding:2rem;flex:1;max-width:1100px;width:100%;}
-.admin-section{display:none;}
-.admin-section.active{display:block;}
-.section-heading{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;margin-bottom:1.5rem;}
+.sidebar-nav{flex:1;padding:.75rem 0;display:flex;flex-direction:column;overflow-y:auto;}
+.nav-label{font-family:var(--font-m);font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(245,244,241,.22);padding:.6rem 1.4rem .3rem;}
+.nav-item{
+  display:flex;align-items:center;gap:.75rem;
+  padding:.65rem 1.4rem;
+  font-family:var(--font-b);font-size:.8rem;
+  color:rgba(245,244,241,.38);
+  background:none;border:none;
+  position:relative;transition:color .18s,background .18s;
+  text-align:left;width:100%;
+}
+.nav-item svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.5;flex-shrink:0;transition:opacity .18s;}
+.nav-item:hover{color:rgba(245,244,241,.72);background:rgba(245,244,241,.03);}
+.nav-item.active{color:var(--off-white);background:rgba(26,92,58,.1);}
+.nav-item.active::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:2px;background:var(--emerald);}
+.nav-badge{
+  margin-left:auto;min-width:18px;height:18px;padding:0 5px;
+  background:var(--emerald);color:#fff;border-radius:2px;
+  font-family:var(--font-m);font-size:.5rem;letter-spacing:0;
+  display:none;align-items:center;justify-content:center;
+}
+.nav-badge.show{display:flex;}
 
-/* Table */
+.sidebar-footer{border-top:1px solid var(--border);padding:1rem 1.4rem;}
+.user-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;}
+.user-initials{
+  width:28px;height:28px;flex-shrink:0;
+  background:var(--em-dim);border:1px solid var(--em-mid);
+  font-family:var(--font-m);font-size:.6rem;color:var(--emerald);
+  display:flex;align-items:center;justify-content:center;
+}
+.user-email-sm{font-size:.7rem;color:rgba(245,244,241,.4);font-family:var(--font-m);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.user-role-sm{font-size:.58rem;color:rgba(245,244,241,.22);font-family:var(--font-m);margin-top:.1rem;}
+.btn-signout{
+  width:100%;background:none;border:1px solid var(--border-hi);
+  color:rgba(245,244,241,.3);font-family:var(--font-m);
+  font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:.5rem;transition:all .2s;
+}
+.btn-signout:hover{border-color:rgba(245,244,241,.35);color:var(--off-white);}
+
+/* ── MAIN ─────────────────────────────────── */
+.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.4rem 2rem 1.1rem;border-bottom:1px solid var(--border);
+  position:sticky;top:0;background:rgba(10,10,9,.9);backdrop-filter:blur(12px);z-index:50;
+}
+.page-title{font-family:var(--font-d);font-size:1.5rem;font-weight:400;}
+.page-date{font-family:var(--font-m);font-size:.57rem;letter-spacing:.08em;color:var(--mist);margin-top:.1rem;}
+.page-content{padding:1.75rem 2rem;flex:1;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* ── STAT CARDS ───────────────────────────── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;}
+@media(max-width:1200px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+.stat-card{
+  background:var(--card);border:1px solid var(--border);
+  padding:1.25rem 1.4rem;display:flex;align-items:center;gap:1rem;
+  transition:border-color .2s;
+}
+.stat-card:hover{border-color:var(--border-hi);}
+.stat-icon{width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.stat-icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;}
+.si-emerald{background:var(--em-dim);color:var(--emerald);}
+.si-gold{background:var(--gold-dim);color:var(--gold);}
+.si-ok{background:var(--ok-dim);color:var(--ok);}
+.si-err{background:var(--err-dim);color:var(--err);}
+.si-muted{background:rgba(245,244,241,.05);color:var(--mist);}
+.stat-info{}
+.stat-num{font-family:var(--font-d);font-size:2.1rem;font-weight:400;line-height:1;}
+.stat-lbl{font-family:var(--font-m);font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);margin-top:.3rem;}
+
+/* ── CARDS ────────────────────────────────── */
+.card{background:var(--card);border:1px solid var(--border);margin-bottom:1.5rem;}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid var(--border);}
+.card-title{font-family:var(--font-d);font-size:1.05rem;font-weight:400;}
+.card-body{padding:0;}
+.btn-link{background:none;border:none;color:var(--mist);font-family:var(--font-m);font-size:.57rem;letter-spacing:.1em;text-transform:uppercase;transition:color .2s;}
+.btn-link:hover{color:var(--off-white);}
+
+/* ── TABLE ────────────────────────────────── */
 .a-table{width:100%;border-collapse:collapse;}
-.a-table th{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,244,241,.35);text-align:left;padding:.6rem .75rem;border-bottom:1px solid rgba(245,244,241,.08);}
-.a-table td{font-size:.82rem;padding:.75rem;border-bottom:1px solid rgba(245,244,241,.05);vertical-align:middle;}
-.a-table tr:hover td{background:rgba(245,244,241,.02);}
+.a-table th{font-family:var(--font-m);font-size:.53rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,244,241,.28);text-align:left;padding:.65rem 1.5rem;border-bottom:1px solid var(--border);}
+.a-table td{font-size:.79rem;padding:.85rem 1.5rem;border-bottom:1px solid var(--border);vertical-align:middle;}
+.a-table tr:last-child td{border-bottom:none;}
+.a-table tr:hover td{background:rgba(245,244,241,.018);}
+.td-name{font-weight:500;}
+.td-dim{font-family:var(--font-m);font-size:.68rem;color:var(--mist);}
+.td-stack{display:flex;flex-direction:column;gap:.15rem;}
 
-/* Badges */
-.badge{display:inline-block;font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .5rem;}
-.badge-pending{background:rgba(184,149,90,.12);color:var(--gold);}
-.badge-confirmed{background:rgba(90,158,111,.12);color:var(--ok);}
-.badge-declined{background:rgba(224,112,112,.12);color:var(--error);}
+/* ── BADGES ───────────────────────────────── */
+.badge{display:inline-block;font-family:var(--font-m);font-size:.53rem;letter-spacing:.08em;text-transform:uppercase;padding:.22rem .55rem;}
+.badge-pending{background:var(--gold-dim);color:var(--gold);}
+.badge-confirmed{background:var(--ok-dim);color:var(--ok);}
+.badge-declined{background:var(--err-dim);color:var(--err);}
 
-/* Action buttons */
-.act-btn{background:none;border:1px solid rgba(245,244,241,.12);color:rgba(245,244,241,.5);font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;padding:.3rem .65rem;cursor:pointer;transition:border-color .2s,color .2s;}
+/* ── ACT BUTTONS ──────────────────────────── */
+.act-btn{background:none;border:1px solid var(--border);color:rgba(245,244,241,.38);font-family:var(--font-m);font-size:.53rem;letter-spacing:.08em;text-transform:uppercase;padding:.28rem .6rem;transition:all .2s;}
 .act-btn.confirm:hover{border-color:var(--ok);color:var(--ok);}
-.act-btn.decline:hover{border-color:var(--error);color:var(--error);}
-.act-btn.delete:hover{border-color:var(--error);color:var(--error);}
-.act-group{display:flex;gap:.4rem;}
+.act-btn.decline:hover{border-color:var(--err);color:var(--err);}
+.act-btn.delete:hover{border-color:var(--err);color:var(--err);}
+.act-group{display:flex;gap:.35rem;}
 
-/* Add form */
-.add-form{border:1px solid rgba(245,244,241,.08);padding:1.5rem;margin-bottom:2rem;}
-.add-form-title{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin-bottom:1.25rem;}
-.form-row{display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;}
-.form-grp{display:flex;flex-direction:column;gap:.35rem;flex:1;min-width:140px;}
-.form-grp label{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,244,241,.35);}
-.form-grp input,.form-grp select{background:rgba(245,244,241,.04);border:1px solid rgba(245,244,241,.12);color:var(--off-white);font-family:'Jost',sans-serif;font-size:.82rem;padding:.6rem .85rem;outline:none;transition:border-color .2s;}
-.form-grp input:focus{border-color:rgba(184,149,90,.45);}
-.form-grp input[type="date"]{color-scheme:dark;}
-.form-submit{background:var(--gold);color:var(--black);border:none;font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:.65rem 1.25rem;cursor:pointer;white-space:nowrap;transition:opacity .2s;align-self:flex-end;}
-.form-submit:hover{opacity:.85;}
+/* ── FILTER TABS ──────────────────────────── */
+.filter-row{display:flex;gap:.4rem;margin-bottom:1.5rem;}
+.f-tab{background:none;border:1px solid var(--border);color:rgba(245,244,241,.35);font-family:var(--font-m);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;padding:.42rem 1rem;transition:all .2s;}
+.f-tab:hover{border-color:var(--border-hi);color:var(--off-white);}
+.f-tab.active{background:var(--emerald);border-color:var(--emerald);color:#fff;}
 
-/* Toggle */
-.toggle{display:inline-flex;align-items:center;gap:.5rem;cursor:pointer;}
-.toggle-track{width:32px;height:18px;background:rgba(245,244,241,.15);border-radius:9px;position:relative;transition:background .2s;}
-.toggle-track.on{background:var(--gold);}
-.toggle-thumb{position:absolute;width:12px;height:12px;background:var(--black);border-radius:50%;top:3px;left:3px;transition:left .2s;}
-.toggle-track.on .toggle-thumb{left:17px;}
-.toggle-label{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--mist);}
+/* ── FORM ─────────────────────────────────── */
+.form-stack{display:flex;flex-direction:column;gap:.75rem;padding:1.5rem;}
+.form-row{display:flex;gap:.75rem;align-items:flex-end;flex-wrap:wrap;}
+.f-grp{display:flex;flex-direction:column;gap:.35rem;flex:1;min-width:130px;}
+.f-grp label{font-family:var(--font-m);font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,244,241,.32);}
+.f-grp input,.f-grp select{background:rgba(245,244,241,.04);border:1px solid var(--border-hi);color:var(--off-white);font-family:var(--font-b);font-size:.82rem;padding:.65rem .9rem;outline:none;transition:border-color .2s;width:100%;}
+.f-grp input:focus{border-color:var(--emerald);}
+.f-grp input[type="date"]{color-scheme:dark;}
+.btn-add{background:var(--emerald);color:#fff;border:none;font-family:var(--font-m);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;padding:.7rem 1.25rem;white-space:nowrap;transition:opacity .2s;align-self:flex-end;}
+.btn-add:hover{opacity:.85;}
 
-/* Misc */
-.empty-state{padding:2.5rem;text-align:center;color:rgba(245,244,241,.3);font-size:.82rem;border:1px solid rgba(245,244,241,.06);}
-.loading-msg{color:rgba(245,244,241,.3);font-size:.82rem;padding:1.5rem 0;}
-.mono-sm{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--mist);}
-.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--graphite);border:1px solid rgba(184,149,90,.2);color:var(--off-white);font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.06em;padding:.75rem 1.25rem;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;}
+/* ── TWO-COL ──────────────────────────────── */
+.two-col{display:grid;grid-template-columns:1fr 1.5fr;gap:1.5rem;}
+@media(max-width:960px){.two-col{grid-template-columns:1fr;}}
+
+/* ── SLOTS LIST ───────────────────────────── */
+.slots-section{padding:.75rem 0;}
+.slots-day{margin-bottom:1.25rem;}
+.slots-day-lbl{font-family:var(--font-m);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);padding:.3rem 1.5rem .5rem;display:flex;align-items:center;gap:.6rem;}
+.slots-day-lbl::after{content:'';flex:1;height:1px;background:var(--border);}
+.slots-chips{display:flex;flex-wrap:wrap;gap:.4rem;padding:0 1.5rem;}
+.slot-chip{display:inline-flex;align-items:center;gap:.35rem;border:1px solid var(--border);padding:.28rem .65rem;}
+.slot-chip-t{font-family:var(--font-m);font-size:.65rem;}
+.slot-chip.booked .slot-chip-t{color:rgba(245,244,241,.28);}
+.slot-chip.booked{border-color:rgba(245,244,241,.04);}
+.slot-chip .booked-lbl{font-family:var(--font-m);font-size:.5rem;letter-spacing:.06em;color:rgba(245,244,241,.22);text-transform:uppercase;}
+.btn-rm{background:none;border:none;color:rgba(245,244,241,.25);font-size:.85rem;line-height:1;padding:.1rem;transition:color .18s;}
+.btn-rm:hover{color:var(--err);}
+
+/* ── SERVICE CARDS ────────────────────────── */
+.services-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;}
+.svc-card{background:var(--card);border:1px solid var(--border);padding:1.25rem 1.4rem;display:flex;flex-direction:column;transition:border-color .2s;}
+.svc-card:hover{border-color:var(--border-hi);}
+.svc-card-name{font-family:var(--font-d);font-size:1.02rem;font-weight:400;margin-bottom:.4rem;}
+.svc-card-desc{font-size:.73rem;color:rgba(245,244,241,.38);line-height:1.55;flex:1;margin-bottom:1rem;}
+.svc-card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:.85rem;border-top:1px solid var(--border);}
+
+/* ── TOGGLE ───────────────────────────────── */
+.toggle{display:inline-flex;align-items:center;gap:.5rem;}
+.toggle-track{width:30px;height:17px;background:rgba(245,244,241,.1);border-radius:9px;position:relative;transition:background .2s;cursor:pointer;flex-shrink:0;}
+.toggle-track.on{background:var(--emerald);}
+.toggle-thumb{position:absolute;width:11px;height:11px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s;}
+.toggle-track.on .toggle-thumb{left:16px;}
+.toggle-lbl{font-family:var(--font-m);font-size:.57rem;color:var(--mist);}
+
+/* ── MISC ─────────────────────────────────── */
+.empty-state{padding:3rem 2rem;text-align:center;color:rgba(245,244,241,.22);font-size:.8rem;}
+.empty-state svg{width:30px;height:30px;stroke:rgba(245,244,241,.12);fill:none;stroke-width:1.5;margin:0 auto .85rem;display:block;}
+.loading-row{padding:1.5rem 1.5rem;color:rgba(245,244,241,.28);font-size:.78rem;font-family:var(--font-m);}
+.divider{height:1px;background:var(--border);margin:1rem 0;}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--card);border:1px solid var(--border-hi);color:var(--off-white);font-family:var(--font-m);font-size:.62rem;letter-spacing:.05em;padding:.75rem 1.25rem;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;max-width:280px;}
 .toast.show{opacity:1;}
 </style>
 </head>
 <body>
 
-<!-- ── Login ── -->
+<!-- ── LOGIN ───────────────────────────────── -->
 <div id="login-screen">
   <div class="login-card">
     <div class="login-logo">Oak &amp; Pixel Studio</div>
     <div class="login-sub">Admin Portal</div>
-    <label class="a-label">Email</label>
-    <input type="email" class="a-input" id="login-email" placeholder="admin@oakandpixel.co.za" autocomplete="email">
-    <label class="a-label">Password</label>
-    <input type="password" class="a-input" id="login-password" placeholder="••••••••" autocomplete="current-password">
-    <button class="a-btn" id="login-btn">Sign In</button>
-    <p class="login-error" id="login-error"></p>
+    <label class="f-label">Email Address</label>
+    <input type="email" class="f-input" id="login-email" placeholder="admin@oakandpixel.co.za" autocomplete="email">
+    <label class="f-label">Password</label>
+    <input type="password" class="f-input" id="login-password" placeholder="••••••••" autocomplete="current-password">
+    <button class="btn-login" id="login-btn">Sign In</button>
+    <p class="login-err" id="login-err"></p>
   </div>
 </div>
 
-<!-- ── Dashboard ── -->
-<div id="dashboard">
-  <header class="admin-header">
-    <span class="admin-brand">Oak &amp; Pixel Studio</span>
-    <div class="admin-header-right">
-      <span class="admin-user-email" id="admin-email"></span>
-      <button class="logout-btn" id="logout-btn">Sign Out</button>
-    </div>
-  </header>
+<!-- ── APP ─────────────────────────────────── -->
+<div class="app" id="app">
 
-  <nav class="admin-tabs">
-    <button class="tab-btn active" data-tab="bookings">Bookings</button>
-    <button class="tab-btn" data-tab="availability">Availability</button>
-    <button class="tab-btn" data-tab="services">Services</button>
-  </nav>
-
-  <div class="admin-content">
-
-    <!-- Bookings -->
-    <div class="admin-section active" id="tab-bookings">
-      <h2 class="section-heading">Discovery Sessions</h2>
-      <div id="bookings-list"><p class="loading-msg">Loading…</p></div>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <div>
+        <div class="brand-name">Oak &amp; Pixel</div>
+        <div class="brand-label">Studio Admin</div>
+      </div>
     </div>
 
-    <!-- Availability -->
-    <div class="admin-section" id="tab-availability">
-      <h2 class="section-heading">Manage Availability</h2>
-      <div class="add-form">
-        <div class="add-form-title">Add Time Slots</div>
-        <div class="form-row">
-          <div class="form-grp" style="flex:0 0 auto;min-width:160px">
-            <label>Date</label>
-            <input type="date" id="slot-date">
-          </div>
-          <div class="form-grp">
-            <label>Times — comma-separated (e.g. 09:00, 10:00, 14:30)</label>
-            <input type="text" id="slot-times" placeholder="09:00, 10:00, 14:30">
-          </div>
-          <button class="form-submit" id="add-slots-btn">Add Slots</button>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Navigation</div>
+
+      <button class="nav-item active" data-page="overview">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Overview
+      </button>
+
+      <button class="nav-item" data-page="bookings">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Bookings
+        <span class="nav-badge" id="pending-badge"></span>
+      </button>
+
+      <button class="nav-item" data-page="availability">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Availability
+      </button>
+
+      <button class="nav-item" data-page="services">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        Services
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-initials" id="user-initials">—</div>
+        <div style="overflow:hidden">
+          <div class="user-email-sm" id="user-email-sm">—</div>
+          <div class="user-role-sm">Administrator</div>
         </div>
       </div>
-      <div id="slots-list"><p class="loading-msg">Loading…</p></div>
+      <button class="btn-signout" id="logout-btn">Sign Out</button>
     </div>
+  </aside>
 
-    <!-- Services -->
-    <div class="admin-section" id="tab-services">
-      <h2 class="section-heading">Booking Services</h2>
-      <div class="add-form">
-        <div class="add-form-title">Add New Service</div>
-        <div class="form-row">
-          <div class="form-grp">
-            <label>Service Name</label>
-            <input type="text" id="svc-name" placeholder="e.g. Brand Strategy Session">
-          </div>
-          <div class="form-grp">
-            <label>Description (optional)</label>
-            <input type="text" id="svc-desc" placeholder="Brief description">
-          </div>
-          <button class="form-submit" id="add-svc-btn">Add Service</button>
-        </div>
+  <!-- Main -->
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1 class="page-title" id="page-title">Overview</h1>
+        <p class="page-date" id="page-date"></p>
       </div>
-      <div id="services-list"><p class="loading-msg">Loading…</p></div>
-    </div>
+    </header>
 
-  </div>
-</div>
+    <div class="page-content">
+
+      <!-- ── OVERVIEW ── -->
+      <section class="page active" id="page-overview">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon si-emerald">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+            </div>
+            <div><div class="stat-num" id="stat-total">—</div><div class="stat-lbl">Total Bookings</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon si-gold">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div><div class="stat-num" id="stat-pending">—</div><div class="stat-lbl">Pending Review</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon si-ok">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div><div class="stat-num" id="stat-confirmed">—</div><div class="stat-lbl">Confirmed</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon si-muted">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </div>
+            <div><div class="stat-num" id="stat-slots">—</div><div class="stat-lbl">Open Slots</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Recent Bookings</span>
+            <button class="btn-link" data-goto="bookings">View all →</button>
+          </div>
+          <div id="recent-list"><p class="loading-row">Loading…</p></div>
+        </div>
+      </section>
+
+      <!-- ── BOOKINGS ── -->
+      <section class="page" id="page-bookings">
+        <div class="filter-row">
+          <button class="f-tab active" data-filter="all">All</button>
+          <button class="f-tab" data-filter="pending">Pending</button>
+          <button class="f-tab" data-filter="confirmed">Confirmed</button>
+          <button class="f-tab" data-filter="declined">Declined</button>
+        </div>
+        <div class="card">
+          <div id="bookings-table"><p class="loading-row">Loading…</p></div>
+        </div>
+      </section>
+
+      <!-- ── AVAILABILITY ── -->
+      <section class="page" id="page-availability">
+        <div class="two-col">
+          <div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">Add Time Slots</span></div>
+              <div class="form-stack">
+                <div class="f-grp">
+                  <label>Date</label>
+                  <input type="date" id="slot-date">
+                </div>
+                <div class="f-grp">
+                  <label>Times — comma separated (e.g. 09:00, 10:00, 14:30)</label>
+                  <input type="text" id="slot-times" placeholder="09:00, 10:00, 14:30">
+                </div>
+                <div>
+                  <button class="btn-add" id="add-slots-btn">Add Slots</button>
+                </div>
+                <div style="border-top:1px solid var(--border);padding-top:1rem;">
+                  <p style="font-family:var(--font-m);font-size:.57rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(245,244,241,.28);margin-bottom:.65rem;">Quick add</p>
+                  <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
+                    <button class="f-tab" id="qa-morning">Morning (9–12)</button>
+                    <button class="f-tab" id="qa-afternoon">Afternoon (13–17)</button>
+                    <button class="f-tab" id="qa-full">Full Day</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:0">
+              <div class="card-header"><span class="card-title">Upcoming Slots</span></div>
+              <div class="slots-section" id="slots-list"><p class="loading-row">Loading…</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SERVICES ── -->
+      <section class="page" id="page-services">
+        <div class="card" style="margin-bottom:1.5rem">
+          <div class="card-header"><span class="card-title">Add Service</span></div>
+          <div class="form-stack">
+            <div class="form-row">
+              <div class="f-grp">
+                <label>Service Name</label>
+                <input type="text" id="svc-name" placeholder="e.g. Brand Strategy Session">
+              </div>
+              <div class="f-grp" style="flex:2">
+                <label>Description (optional)</label>
+                <input type="text" id="svc-desc" placeholder="Brief description for the booking modal">
+              </div>
+              <button class="btn-add" id="add-svc-btn">Add</button>
+            </div>
+          </div>
+        </div>
+        <div class="services-grid" id="services-grid"><p class="loading-row">Loading…</p></div>
+      </section>
+
+    </div><!-- /page-content -->
+  </main>
+
+</div><!-- /app -->
 
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+'use strict';
 const SB_URL = 'https://wdbsmcxzhmdkfjoftulm.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkYnNtY3h6aG1ka2Zqb2Z0dWxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDEwMTQsImV4cCI6MjA5NzM3NzAxNH0.xo9x29q_QVmDl81soUI3OMDzJBKmqEme-I6v5IZmeN0';
 const sb = supabase.createClient(SB_URL, SB_KEY);
 const $ = id => document.getElementById(id);
 
-/* ── Auth ── */
-async function init() {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) showDashboard(session.user);
+let currentFilter = 'all';
+let allBookings = [];
 
-  sb.auth.onAuthStateChange((_e, session) => {
-    if (session) showDashboard(session.user);
-    else showLogin();
-  });
+/* ── Date helpers ── */
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS_S = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtDate(ds) {
+  const d = new Date(ds + 'T00:00:00');
+  return `${d.getDate()} ${MONTHS_S[d.getMonth()]} ${d.getFullYear()}`;
 }
-
-function showLogin() {
-  $('login-screen').style.display = 'flex';
-  $('dashboard').classList.remove('visible');
+function fmtDateLong(ds) {
+  const d = new Date(ds + 'T00:00:00');
+  return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS_S[d.getMonth()]}`;
 }
-
-function showDashboard(user) {
-  $('login-screen').style.display = 'none';
-  $('dashboard').classList.add('visible');
-  $('admin-email').textContent = user?.email || '';
-  loadBookings(); loadSlots(); loadServices();
+function fmtTime(t) {
+  if (!t) return '—';
+  const [h, m] = t.slice(0, 5).split(':').map(Number);
+  return `${h === 0 ? 12 : h > 12 ? h - 12 : h}:${String(m).padStart(2,'0')} ${h >= 12 ? 'PM' : 'AM'}`;
 }
-
-$('login-btn').addEventListener('click', async () => {
-  const email = $('login-email').value.trim();
-  const pw    = $('login-password').value;
-  const errEl = $('login-error');
-  const btn   = $('login-btn');
-  errEl.textContent = '';
-  btn.disabled = true; btn.textContent = 'Signing in…';
-  const { error } = await sb.auth.signInWithPassword({ email, password: pw });
-  if (error) { errEl.textContent = error.message; btn.disabled = false; btn.textContent = 'Sign In'; }
-});
-$('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') $('login-btn').click(); });
-$('logout-btn').addEventListener('click', () => sb.auth.signOut());
-
-/* ── Tabs ── */
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-    btn.classList.add('active');
-    $('tab-' + btn.dataset.tab).classList.add('active');
-  });
-});
+function todayStr() { return new Date().toISOString().split('T')[0]; }
 
 /* ── Toast ── */
 function toast(msg) {
@@ -238,127 +466,243 @@ function toast(msg) {
   setTimeout(() => el.classList.remove('show'), 2800);
 }
 
+/* ── Auth ── */
+async function init() {
+  // Set page date
+  $('page-date').textContent = new Date().toLocaleDateString('en-ZA', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) showApp(session.user);
+
+  sb.auth.onAuthStateChange((_e, session) => {
+    if (session) showApp(session.user);
+    else showLogin();
+  });
+}
+
+function showLogin() {
+  $('login-screen').style.display = 'flex';
+  $('app').classList.remove('visible');
+}
+
+function showApp(user) {
+  $('login-screen').style.display = 'none';
+  $('app').classList.add('visible');
+  const email = user?.email || '';
+  $('user-email-sm').textContent = email;
+  $('user-initials').textContent = email.charAt(0).toUpperCase();
+  loadAll();
+}
+
+$('login-btn').addEventListener('click', async () => {
+  const email = $('login-email').value.trim();
+  const pw    = $('login-password').value;
+  const errEl = $('login-err'), btn = $('login-btn');
+  errEl.textContent = '';
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+  if (error) { errEl.textContent = error.message; btn.disabled = false; btn.textContent = 'Sign In'; }
+});
+$('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') $('login-btn').click(); });
+$('logout-btn').addEventListener('click', () => sb.auth.signOut());
+
+/* ── Navigation ── */
+const PAGE_TITLES = { overview:'Overview', bookings:'Bookings', availability:'Availability', services:'Services' };
+
+document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
+  btn.addEventListener('click', () => switchPage(btn.dataset.page));
+});
+document.querySelectorAll('.btn-link[data-goto]').forEach(btn => {
+  btn.addEventListener('click', () => switchPage(btn.dataset.goto));
+});
+
+function switchPage(name) {
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.page === name));
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
+  $('page-title').textContent = PAGE_TITLES[name] || name;
+}
+
+/* ── Load all data ── */
+async function loadAll() {
+  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices()]);
+}
+
+/* ── Stats ── */
+async function loadStats() {
+  const [bRes, sRes] = await Promise.all([
+    sb.from('bookings').select('status'),
+    sb.from('available_slots').select('is_booked').eq('is_booked', false).gte('date', todayStr())
+  ]);
+  const bookings = bRes.data || [];
+  const total     = bookings.length;
+  const pending   = bookings.filter(b => b.status === 'pending').length;
+  const confirmed = bookings.filter(b => b.status === 'confirmed').length;
+  const slots     = (sRes.data || []).length;
+
+  $('stat-total').textContent     = total;
+  $('stat-pending').textContent   = pending;
+  $('stat-confirmed').textContent = confirmed;
+  $('stat-slots').textContent     = slots;
+
+  const badge = $('pending-badge');
+  if (pending > 0) { badge.textContent = pending; badge.classList.add('show'); }
+  else badge.classList.remove('show');
+}
+
 /* ── Bookings ── */
 async function loadBookings() {
-  const c = $('bookings-list');
-  c.innerHTML = '<p class="loading-msg">Loading…</p>';
-  const { data, error } = await sb.from('bookings')
+  const { data } = await sb.from('bookings')
     .select('id,full_name,company,email,phone,status,created_at,service:service_id(name),slot:slot_id(date,start_time)')
     .order('created_at', { ascending: false });
-  if (error || !data?.length) { c.innerHTML = '<div class="empty-state">No bookings yet.</div>'; return; }
+  allBookings = data || [];
+  renderBookings();
+  renderRecent();
+}
 
-  c.innerHTML = `<table class="a-table">
+function renderRecent() {
+  const c = $('recent-list');
+  const recent = allBookings.slice(0, 5);
+  if (!recent.length) { c.innerHTML = emptyState('No bookings yet'); return; }
+  c.innerHTML = bookingTable(recent, true);
+  wireBookingActions(c);
+}
+
+function renderBookings() {
+  const c = $('bookings-table');
+  const filtered = currentFilter === 'all' ? allBookings : allBookings.filter(b => b.status === currentFilter);
+  if (!filtered.length) { c.innerHTML = emptyState('No bookings found'); return; }
+  c.innerHTML = bookingTable(filtered, false);
+  wireBookingActions(c);
+}
+
+function bookingTable(rows, compact) {
+  return `<table class="a-table">
     <thead><tr>
-      <th>Date &amp; Time</th><th>Service</th><th>Name</th>
-      <th>Company</th><th>Contact</th><th>Status</th><th>Actions</th>
+      <th>Name</th><th>Service</th><th>Date &amp; Time</th>
+      ${compact ? '' : '<th>Company</th><th>Contact</th>'}
+      <th>Status</th><th>Actions</th>
     </tr></thead>
-    <tbody>${data.map(b => {
-      const date = b.slot?.date
-        ? new Date(b.slot.date + 'T00:00:00').toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'})
-        : '—';
-      const time = b.slot?.start_time ? b.slot.start_time.slice(0,5) : '—';
+    <tbody>${rows.map(b => {
+      const date = b.slot?.date ? fmtDate(b.slot.date) : '—';
+      const time = fmtTime(b.slot?.start_time);
       const actions = b.status === 'pending'
         ? `<div class="act-group">
-             <button class="act-btn confirm" data-id="${b.id}" data-action="confirmed">Confirm</button>
-             <button class="act-btn decline" data-id="${b.id}" data-action="declined">Decline</button>
+            <button class="act-btn confirm" data-id="${b.id}" data-action="confirmed">Confirm</button>
+            <button class="act-btn decline" data-id="${b.id}" data-action="declined">Decline</button>
            </div>`
-        : `<span class="mono-sm">—</span>`;
+        : `<span style="font-family:var(--font-m);font-size:.62rem;color:rgba(245,244,241,.25)">—</span>`;
       return `<tr>
-        <td><span style="white-space:nowrap">${date}<br><span class="mono-sm">${time}</span></span></td>
-        <td>${b.service?.name || '—'}</td>
-        <td>${b.full_name}</td>
-        <td>${b.company}</td>
-        <td style="font-size:.78rem">${b.email}<br>${b.phone}</td>
+        <td class="td-name">${b.full_name}</td>
+        <td style="color:rgba(245,244,241,.55);font-size:.76rem">${b.service?.name || '—'}</td>
+        <td><div class="td-stack"><span>${date}</span><span class="td-dim">${time}</span></div></td>
+        ${compact ? '' : `<td>${b.company}</td><td><div class="td-stack"><span style="font-size:.75rem">${b.email}</span><span class="td-dim">${b.phone}</span></div></td>`}
         <td><span class="badge badge-${b.status}">${b.status}</span></td>
         <td>${actions}</td>
       </tr>`;
     }).join('')}</tbody>
   </table>`;
+}
 
-  c.querySelectorAll('.act-btn[data-action]').forEach(btn => {
+function wireBookingActions(container) {
+  container.querySelectorAll('.act-btn[data-action]').forEach(btn => {
     btn.addEventListener('click', async () => {
       await sb.from('bookings').update({ status: btn.dataset.action }).eq('id', btn.dataset.id);
-      toast('Booking ' + btn.dataset.action + '.');
-      loadBookings();
+      toast(`Booking ${btn.dataset.action}.`);
+      await Promise.all([loadStats(), loadBookings()]);
     });
   });
 }
 
+/* Filter tabs */
+document.querySelectorAll('.f-tab[data-filter]').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.f-tab[data-filter]').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentFilter = tab.dataset.filter;
+    renderBookings();
+  });
+});
+
 /* ── Availability ── */
 async function loadSlots() {
   const c = $('slots-list');
-  const today = new Date().toISOString().split('T')[0];
-  const { data, error } = await sb.from('available_slots')
+  const { data } = await sb.from('available_slots')
     .select('id,date,start_time,is_booked')
-    .gte('date', today).order('date').order('start_time');
-  if (error || !data?.length) { c.innerHTML = '<div class="empty-state">No upcoming slots. Add some above.</div>'; return; }
-
+    .gte('date', todayStr()).order('date').order('start_time');
+  if (!data?.length) { c.innerHTML = emptyState('No upcoming slots', 'Add slots using the form.'); return; }
   const byDate = {};
   data.forEach(s => { (byDate[s.date] = byDate[s.date] || []).push(s); });
-
-  c.innerHTML = Object.entries(byDate).map(([date, slots]) => {
-    const label = new Date(date + 'T00:00:00').toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-    return `<div style="margin-bottom:1.25rem">
-      <div class="mono-sm" style="margin-bottom:.6rem;text-transform:uppercase;letter-spacing:.08em">${label}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:.5rem">
+  c.innerHTML = Object.entries(byDate).map(([date, slots]) => `
+    <div class="slots-day">
+      <div class="slots-day-lbl">${fmtDateLong(date)}</div>
+      <div class="slots-chips">
         ${slots.map(s => `
-          <div style="display:flex;align-items:center;gap:.4rem;border:1px solid rgba(245,244,241,.1);padding:.35rem .65rem">
-            <span class="mono-sm" style="color:${s.is_booked?'rgba(245,244,241,.3)':'var(--off-white)'}">${s.start_time.slice(0,5)}${s.is_booked?' · booked':''}</span>
-            ${!s.is_booked ? `<button class="act-btn delete" data-id="${s.id}" style="padding:.15rem .4rem;border:none">✕</button>` : ''}
+          <div class="slot-chip${s.is_booked ? ' booked' : ''}">
+            <span class="slot-chip-t">${fmtTime(s.start_time)}</span>
+            ${s.is_booked
+              ? '<span class="booked-lbl">Booked</span>'
+              : `<button class="btn-rm" data-id="${s.id}" title="Remove">✕</button>`}
           </div>`).join('')}
       </div>
-    </div>`;
-  }).join('');
-
-  c.querySelectorAll('.act-btn.delete').forEach(btn => {
+    </div>`).join('');
+  c.querySelectorAll('.btn-rm').forEach(btn => {
     btn.addEventListener('click', async () => {
       await sb.from('available_slots').delete().eq('id', btn.dataset.id);
       toast('Slot removed.');
-      loadSlots();
+      loadSlots(); loadStats();
     });
   });
 }
 
 $('add-slots-btn').addEventListener('click', async () => {
-  const date     = $('slot-date').value;
-  const timesRaw = $('slot-times').value;
-  if (!date || !timesRaw.trim()) { toast('Enter a date and at least one time.'); return; }
-  const times = timesRaw.split(',').map(t => t.trim()).filter(t => /^\d{2}:\d{2}$/.test(t));
+  const date = $('slot-date').value;
+  const raw  = $('slot-times').value;
+  if (!date || !raw.trim()) { toast('Enter a date and at least one time.'); return; }
+  const times = raw.split(',').map(t => t.trim()).filter(t => /^\d{2}:\d{2}$/.test(t));
   if (!times.length) { toast('Use HH:MM format — e.g. 09:00, 14:30'); return; }
   const { error } = await sb.from('available_slots').insert(times.map(t => ({ date, start_time: t, is_booked: false })));
   if (error) { toast('Error adding slots.'); return; }
   $('slot-date').value = ''; $('slot-times').value = '';
   toast(`${times.length} slot${times.length > 1 ? 's' : ''} added.`);
-  loadSlots();
+  loadSlots(); loadStats();
 });
+
+/* Quick add buttons */
+function quickAdd(times) {
+  const date = $('slot-date').value;
+  if (!date) { toast('Select a date first.'); return; }
+  $('slot-times').value = times;
+}
+$('qa-morning').addEventListener('click',   () => quickAdd('09:00, 10:00, 11:00, 12:00'));
+$('qa-afternoon').addEventListener('click', () => quickAdd('13:00, 14:00, 15:00, 16:00, 17:00'));
+$('qa-full').addEventListener('click',      () => quickAdd('09:00, 10:00, 11:00, 12:00, 13:00, 14:00, 15:00, 16:00'));
 
 /* ── Services ── */
 async function loadServices() {
-  const c = $('services-list');
-  const { data, error } = await sb.from('services')
-    .select('id,name,description,active,sort_order').order('sort_order');
-  if (error || !data?.length) { c.innerHTML = '<div class="empty-state">No services found.</div>'; return; }
-
-  c.innerHTML = `<table class="a-table">
-    <thead><tr><th>Name</th><th>Description</th><th>Visible in Booking</th><th>Actions</th></tr></thead>
-    <tbody>${data.map(s => `<tr>
-      <td style="font-weight:500">${s.name}</td>
-      <td style="color:rgba(245,244,241,.45);font-size:.78rem">${s.description || '—'}</td>
-      <td>
+  const c = $('services-grid');
+  const { data } = await sb.from('services').select('id,name,description,active,sort_order').order('sort_order');
+  if (!data?.length) { c.innerHTML = emptyState('No services found'); return; }
+  c.innerHTML = data.map(s => `
+    <div class="svc-card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.45rem">
+        <div class="svc-card-name">${s.name}</div>
+        <span class="badge ${s.active ? 'badge-confirmed' : 'badge-declined'}" style="margin-left:.5rem;flex-shrink:0">${s.active ? 'Active' : 'Hidden'}</span>
+      </div>
+      <div class="svc-card-desc">${s.description || 'No description.'}</div>
+      <div class="svc-card-footer">
         <div class="toggle" data-id="${s.id}" data-active="${s.active}">
           <div class="toggle-track ${s.active ? 'on' : ''}"><div class="toggle-thumb"></div></div>
-          <span class="toggle-label">${s.active ? 'Active' : 'Hidden'}</span>
+          <span class="toggle-lbl">${s.active ? 'Visible' : 'Hidden'}</span>
         </div>
-      </td>
-      <td><button class="act-btn delete" data-id="${s.id}">Delete</button></td>
-    </tr>`).join('')}</tbody>
-  </table>`;
+        <button class="act-btn delete" data-id="${s.id}">Delete</button>
+      </div>
+    </div>`).join('');
 
   c.querySelectorAll('.toggle').forEach(t => {
     t.addEventListener('click', async () => {
-      const nowActive = t.dataset.active === 'true';
-      await sb.from('services').update({ active: !nowActive }).eq('id', t.dataset.id);
-      toast(nowActive ? 'Service hidden from booking modal.' : 'Service activated.');
+      const isActive = t.dataset.active === 'true';
+      await sb.from('services').update({ active: !isActive }).eq('id', t.dataset.id);
+      toast(isActive ? 'Service hidden.' : 'Service activated.');
       loadServices();
     });
   });
@@ -382,6 +726,15 @@ $('add-svc-btn').addEventListener('click', async () => {
   toast('Service added.');
   loadServices();
 });
+
+/* ── Empty state helper ── */
+function emptyState(title, sub = '') {
+  return `<div class="empty-state">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <p style="margin-bottom:.3rem">${title}</p>
+    ${sub ? `<p style="font-size:.72rem;opacity:.6">${sub}</p>` : ''}
+  </div>`;
+}
 
 init();
 </script>
