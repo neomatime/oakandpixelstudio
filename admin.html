@@ -610,6 +610,7 @@ let allContacts = [];
 let allClients  = [];
 let contactFilter = 'all';
 let contactSearch = '';
+let clientSearch  = '';
 let datePicker;
 let statusChart, trendChart;
 
@@ -964,8 +965,10 @@ async function loadContacts() {
   renderContacts();
   const newCount = allContacts.filter(c => c.status === 'new').length;
   const badge = $('new-contact-badge');
-  if (newCount > 0) { badge.textContent = newCount; badge.classList.add('show'); }
-  else badge.classList.remove('show');
+  if (badge) {
+    if (newCount > 0) { badge.textContent = newCount; badge.classList.add('show'); }
+    else badge.classList.remove('show');
+  }
 }
 
 function renderContacts() {
@@ -1059,8 +1062,6 @@ async function loadClients() {
     else badge.classList.remove('show');
   }
 }
-
-let clientSearch = '';
 
 function renderClients() {
   const c = $('clients-table');
