@@ -942,7 +942,7 @@ $('qa-clear').addEventListener('click',     () => $('time-pills').querySelectorA
 
 /* ── Contacts ── */
 async function loadContacts() {
-  const { data } = await sb.from('contacts').select('*').order('created_at', { ascending: false });
+  const { data } = await sb.from('contacts').select('*').is('converted_at', null).order('created_at', { ascending: false });
   allContacts = data || [];
   renderContacts();
   const newCount = allContacts.filter(c => c.status === 'new').length;
@@ -962,7 +962,7 @@ function renderContacts() {
   if (!rows.length) { c.innerHTML = emptyState('No contacts found', 'Enquiries from the website will appear here.'); return; }
   c.innerHTML = `<table class="a-table">
     <thead><tr>
-      <th>Name</th><th>Company</th><th>Email</th><th>Budget</th><th>Project</th><th>Brief</th><th>Status</th><th>Date</th>
+      <th>Name</th><th>Company</th><th>Email</th><th>Budget</th><th>Project</th><th>Brief</th><th>Status</th><th>Date</th><th></th>
     </tr></thead>
     <tbody>${rows.map(r => `<tr>
       <td class="td-name">${r.full_name}</td>
@@ -982,6 +982,7 @@ function renderContacts() {
         </span>
       </td>
       <td class="td-dim">${fmtDate(r.created_at?.split('T')[0])}</td>
+      <td><button class="act-btn make-client" data-id="${r.id}" style="white-space:nowrap">Make Client</button></td>
     </tr>`).join('')}</tbody>
   </table>`;
 
@@ -993,6 +994,31 @@ function renderContacts() {
       loadContacts();
     });
   });
+
+  c.querySelectorAll('.act-btn.make-client').forEach(btn => {
+    btn.addEventListener('click', () => convertToClient(btn.dataset.id));
+  });
+}
+
+async function convertToClient(id) {
+  const contact = allContacts.find(c => c.id === id);
+  if (!contact) return;
+  const { error } = await sb.from('clients').insert({
+    full_name:         contact.full_name,
+    email:             contact.email,
+    company:           contact.company   || null,
+    phone:             contact.phone     || null,
+    website:           contact.website   || null,
+    project_type:      contact.project_type || null,
+    budget:            contact.budget    || null,
+    brief:             contact.brief     || null,
+    source_contact_id: contact.id,
+  });
+  if (error) { toast('Error converting contact. Please try again.'); return; }
+  await sb.from('contacts').update({ converted_at: new Date().toISOString() }).eq('id', id);
+  toast('Lead converted to client.');
+  loadContacts();
+  loadClients();
 }
 
 document.querySelectorAll('.f-tab[data-cfilter]').forEach(tab => {
