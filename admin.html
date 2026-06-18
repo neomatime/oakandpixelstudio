@@ -6,6 +6,8 @@
 <title>OPS — Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="icon" href="images/favicons/favicon_32.png" type="image/png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
 :root{
   --bg:#0A0A09;--sidebar:#0d0d0c;--card:#161614;
@@ -239,6 +241,83 @@ a{color:inherit;text-decoration:none;}
 .divider{height:1px;background:var(--border);margin:1rem 0;}
 .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--card);border:1px solid var(--border-hi);color:var(--off-white);font-family:var(--font-m);font-size:.62rem;letter-spacing:.05em;padding:.75rem 1.25rem;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;max-width:280px;}
 .toast.show{opacity:1;}
+
+/* ── THEME TOGGLE ─────────────────────────── */
+.theme-toggle{width:34px;height:34px;background:rgba(245,244,241,.06);border:1px solid var(--border-hi);display:flex;align-items:center;justify-content:center;transition:background .2s;}
+.theme-toggle:hover{background:rgba(245,244,241,.12);}
+.theme-toggle svg{width:15px;height:15px;stroke:var(--mist);fill:none;stroke-width:1.5;}
+
+/* ── LIGHT THEME ──────────────────────────── */
+[data-theme="light"]{
+  --bg:#F5F4F1;--sidebar:#EDECEA;--card:#FFFFFF;
+  --border:rgba(26,26,24,.1);--border-hi:rgba(26,26,24,.18);
+  --off-white:#1A1A18;--mist:#636360;
+}
+[data-theme="light"] .topbar{background:rgba(245,244,241,.92);}
+[data-theme="light"] .theme-toggle{background:rgba(26,26,24,.05);}
+[data-theme="light"] .theme-toggle:hover{background:rgba(26,26,24,.1);}
+[data-theme="light"] .nav-item{color:rgba(26,26,24,.5);}
+[data-theme="light"] .nav-item:hover{color:rgba(26,26,24,.8);background:rgba(26,26,24,.05);}
+[data-theme="light"] .nav-item.active{color:var(--emerald);background:rgba(26,92,58,.08);}
+[data-theme="light"] .nav-label{color:rgba(26,26,24,.3);}
+[data-theme="light"] .a-table th{color:rgba(26,26,24,.4);}
+[data-theme="light"] .a-table td{color:#1A1A18;}
+[data-theme="light"] .a-table tr:hover td{background:rgba(26,26,24,.025);}
+[data-theme="light"] .td-dim{color:rgba(26,26,24,.5);}
+[data-theme="light"] .stat-lbl{color:rgba(26,26,24,.5);}
+[data-theme="light"] .stat-num{color:#1A1A18;}
+[data-theme="light"] .si-muted{background:rgba(26,26,24,.07);color:rgba(26,26,24,.5);}
+[data-theme="light"] .card-title{color:#1A1A18;}
+[data-theme="light"] .f-tab{color:rgba(26,26,24,.5);}
+[data-theme="light"] .f-tab:hover{color:#1A1A18;border-color:rgba(26,26,24,.35);}
+[data-theme="light"] .f-tab.active{background:var(--emerald);color:#fff;border-color:var(--emerald);}
+[data-theme="light"] .act-btn{color:rgba(26,26,24,.45);}
+[data-theme="light"] .f-grp label{color:rgba(26,26,24,.45);}
+[data-theme="light"] .f-grp input,[data-theme="light"] .f-grp select{background:rgba(26,26,24,.05);color:#1A1A18;}
+[data-theme="light"] .time-pill{background:rgba(26,26,24,.05);color:rgba(26,26,24,.55);border-color:rgba(26,26,24,.12);}
+[data-theme="light"] .time-pill:hover:not(.selected){color:#1A1A18;border-color:rgba(26,26,24,.3);}
+[data-theme="light"] .slot-chip{border-color:rgba(26,26,24,.14);}
+[data-theme="light"] .slot-chip-t{color:rgba(26,26,24,.75);}
+[data-theme="light"] .btn-rm{color:rgba(26,26,24,.3);}
+[data-theme="light"] .slots-day-lbl{color:rgba(26,26,24,.5);}
+[data-theme="light"] .slots-day-lbl::after{background:rgba(26,26,24,.1);}
+[data-theme="light"] .svc-card-desc{color:rgba(26,26,24,.5);}
+[data-theme="light"] .svc-card-name{color:#1A1A18;}
+[data-theme="light"] .toggle-track{background:rgba(26,26,24,.15);}
+[data-theme="light"] .user-email-sm{color:rgba(26,26,24,.55);}
+[data-theme="light"] .user-role-sm{color:rgba(26,26,24,.3);}
+[data-theme="light"] .btn-signout{color:rgba(26,26,24,.4);}
+[data-theme="light"] .btn-link{color:rgba(26,26,24,.45);}
+[data-theme="light"] .btn-link:hover{color:#1A1A18;}
+[data-theme="light"] .loading-row{color:rgba(26,26,24,.4);}
+[data-theme="light"] .empty-state{color:rgba(26,26,24,.3);}
+[data-theme="light"] .empty-state svg{stroke:rgba(26,26,24,.12);}
+[data-theme="light"] .login-sub{color:rgba(26,26,24,.5);}
+[data-theme="light"] .page-date{color:rgba(26,26,24,.45);}
+[data-theme="light"] .page-title{color:#1A1A18;}
+
+/* ── FLATPICKR CUSTOM ─────────────────────── */
+.flatpickr-calendar{background:var(--card)!important;border:1px solid var(--border-hi)!important;border-radius:0!important;box-shadow:0 16px 48px rgba(0,0,0,.4)!important;font-family:var(--font-m)!important;padding:4px;}
+.flatpickr-months{padding:.4rem .2rem .2rem;}
+.flatpickr-month{background:transparent!important;height:30px;}
+.flatpickr-current-month{font-family:var(--font-d)!important;font-size:.95rem!important;font-weight:400;color:var(--off-white)!important;padding-top:.1rem;}
+.flatpickr-current-month .flatpickr-monthDropdown-months{background:var(--card)!important;color:var(--off-white);}
+.flatpickr-current-month input.cur-year{color:var(--off-white)!important;}
+.flatpickr-prev-month svg,.flatpickr-next-month svg{fill:var(--mist)!important;}
+.flatpickr-prev-month:hover svg,.flatpickr-next-month:hover svg{fill:var(--off-white)!important;}
+.flatpickr-weekday{font-family:var(--font-m)!important;font-size:.52rem!important;letter-spacing:.1em;color:rgba(155,155,148,.6)!important;background:transparent!important;}
+.flatpickr-day{color:rgba(245,244,241,.75)!important;border-radius:0!important;border:1px solid transparent!important;font-family:var(--font-m)!important;font-size:.63rem!important;height:33px;line-height:33px;max-width:38px;transition:all .15s;}
+.flatpickr-day:hover,.flatpickr-day:focus{background:var(--em-dim)!important;border-color:var(--em-mid)!important;color:var(--off-white)!important;}
+.flatpickr-day.selected,.flatpickr-day.selected:hover{background:var(--emerald)!important;border-color:var(--emerald)!important;color:#fff!important;}
+.flatpickr-day.today{border-color:var(--em-mid)!important;color:var(--emerald)!important;}
+.flatpickr-day.today:hover{background:var(--em-dim)!important;}
+.flatpickr-day.flatpickr-disabled,.flatpickr-day.prevMonthDay,.flatpickr-day.nextMonthDay{color:rgba(245,244,241,.15)!important;}
+.flatpickr-innerContainer,.flatpickr-rContainer{background:transparent!important;}
+[data-theme="light"] .flatpickr-day{color:rgba(26,26,24,.75)!important;}
+[data-theme="light"] .flatpickr-day:hover{background:var(--em-dim)!important;color:#1A1A18!important;}
+[data-theme="light"] .flatpickr-day.flatpickr-disabled,[data-theme="light"] .flatpickr-day.prevMonthDay,[data-theme="light"] .flatpickr-day.nextMonthDay{color:rgba(26,26,24,.18)!important;}
+[data-theme="light"] .flatpickr-weekday{color:rgba(26,26,24,.4)!important;}
+[data-theme="light"] .flatpickr-calendar{box-shadow:0 8px 28px rgba(0,0,0,.12)!important;}
 </style>
 </head>
 <body>
@@ -316,6 +395,9 @@ a{color:inherit;text-decoration:none;}
         <h1 class="page-title" id="page-title">Overview</h1>
         <p class="page-date" id="page-date"></p>
       </div>
+      <button class="theme-toggle" id="theme-toggle" title="Toggle theme">
+        <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"></svg>
+      </button>
     </header>
 
     <div class="page-content">
@@ -380,7 +462,7 @@ a{color:inherit;text-decoration:none;}
               <div class="form-stack">
                 <div class="f-grp">
                   <label>Date</label>
-                  <input type="date" id="slot-date">
+                  <input type="text" id="slot-date" placeholder="Select a date…" readonly style="cursor:pointer;">
                 </div>
                 <div>
                   <p style="font-family:var(--font-m);font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,244,241,.32);margin-bottom:.55rem;">Select Time Slots</p>
@@ -436,6 +518,7 @@ a{color:inherit;text-decoration:none;}
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
 'use strict';
 const SB_URL = 'https://wdbsmcxzhmdkfjoftulm.supabase.co';
@@ -445,6 +528,7 @@ const $ = id => document.getElementById(id);
 
 let currentFilter = 'all';
 let allBookings = [];
+let datePicker;
 
 /* ── Date helpers ── */
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -473,9 +557,31 @@ function toast(msg) {
 }
 
 /* ── Auth ── */
+/* ── Theme ── */
+function initTheme() {
+  applyTheme(localStorage.getItem('ops-theme') || 'dark');
+}
+function applyTheme(mode) {
+  document.documentElement.setAttribute('data-theme', mode);
+  $('theme-icon').innerHTML = mode === 'dark'
+    ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+    : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  localStorage.setItem('ops-theme', mode);
+}
+$('theme-toggle').addEventListener('click', () => {
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+});
+
 async function init() {
   $('page-date').textContent = new Date().toLocaleDateString('en-ZA', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  initTheme();
   buildTimePills();
+  datePicker = flatpickr('#slot-date', {
+    minDate: 'today',
+    disableMobile: true,
+    dateFormat: 'Y-m-d',
+    locale: { firstDayOfWeek: 1 },
+  });
 
   const { data: { session } } = await sb.auth.getSession();
   if (session) showApp(session.user);
@@ -691,7 +797,7 @@ $('add-slots-btn').addEventListener('click', async () => {
   if (!times.length) { toast('Select at least one time slot.'); return; }
   const { error } = await sb.from('available_slots').insert(times.map(t => ({ date, start_time: t, is_booked: false })));
   if (error) { toast('Error adding slots.'); return; }
-  $('slot-date').value = '';
+  datePicker.clear();
   $('time-pills').querySelectorAll('.time-pill').forEach(p => p.classList.remove('selected'));
   toast(`${times.length} slot${times.length > 1 ? 's' : ''} added.`);
   loadSlots(); loadStats();
