@@ -404,6 +404,12 @@ a{color:inherit;text-decoration:none;}
         Contacts
         <span class="nav-badge" id="new-contact-badge"></span>
       </button>
+
+      <button class="nav-item" data-page="clients">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M16 3.13a4 4 0 010 7.75"/><polyline points="17 21 19 23 23 19"/></svg>
+        Clients
+        <span class="nav-badge" id="clients-badge"></span>
+      </button>
     </nav>
 
     <div class="sidebar-footer">
@@ -572,6 +578,16 @@ a{color:inherit;text-decoration:none;}
         </div>
       </section>
 
+      <!-- ── CLIENTS ── -->
+      <section class="page" id="page-clients">
+        <div class="card">
+          <div class="contacts-toolbar">
+            <input type="text" class="search-input" id="client-search" placeholder="Search by name or email…">
+          </div>
+          <div id="clients-table"><p class="loading-row">Loading…</p></div>
+        </div>
+      </section>
+
     </div><!-- /page-content -->
   </main>
 
@@ -591,6 +607,7 @@ const $ = id => document.getElementById(id);
 let currentFilter = 'all';
 let allBookings = [];
 let allContacts = [];
+let allClients  = [];
 let contactFilter = 'all';
 let contactSearch = '';
 let datePicker;
@@ -684,7 +701,7 @@ $('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') $(
 $('logout-btn').addEventListener('click', () => sb.auth.signOut());
 
 /* ── Navigation ── */
-const PAGE_TITLES = { overview:'Overview', bookings:'Bookings', availability:'Availability', services:'Services', contacts:'Contacts' };
+const PAGE_TITLES = { overview:'Overview', bookings:'Bookings', availability:'Availability', services:'Services', contacts:'Contacts', clients:'Clients' };
 
 document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
   btn.addEventListener('click', () => switchPage(btn.dataset.page));
@@ -701,7 +718,7 @@ function switchPage(name) {
 
 /* ── Load all data ── */
 async function loadAll() {
-  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadContacts()]);
+  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadContacts(), loadClients()]);
 }
 
 /* ── Stats ── */
@@ -1030,6 +1047,52 @@ async function convertToClient(id) {
   loadContacts();
   if (typeof loadClients === 'function') loadClients();
 }
+
+/* ── Clients ── */
+async function loadClients() {
+  const { data } = await sb.from('clients').select('*').order('created_at', { ascending: false });
+  allClients = data || [];
+  renderClients();
+  const badge = $('clients-badge');
+  if (badge) {
+    if (allClients.length > 0) { badge.textContent = allClients.length; badge.classList.add('show'); }
+    else badge.classList.remove('show');
+  }
+}
+
+let clientSearch = '';
+
+function renderClients() {
+  const c = $('clients-table');
+  if (!c) return;
+  let rows = allClients;
+  if (clientSearch) {
+    const q = clientSearch.toLowerCase();
+    rows = rows.filter(r => r.full_name?.toLowerCase().includes(q) || r.email?.toLowerCase().includes(q));
+  }
+  if (!rows.length) {
+    c.innerHTML = emptyState('No clients yet', 'Convert a lead from the Contacts page.');
+    return;
+  }
+  c.innerHTML = `<table class="a-table">
+    <thead><tr>
+      <th>Name</th><th>Company</th><th>Email</th><th>Project Type</th><th>Budget</th><th>Date Converted</th>
+    </tr></thead>
+    <tbody>${rows.map(r => `<tr>
+      <td class="td-name">${r.full_name}</td>
+      <td style="font-size:.76rem;color:rgba(245,244,241,.5)">${r.company || '—'}</td>
+      <td class="td-dim">${r.email}</td>
+      <td style="font-size:.74rem;color:rgba(245,244,241,.45)">${r.project_type || '—'}</td>
+      <td class="td-dim">${r.budget || '—'}</td>
+      <td class="td-dim">${fmtDate(r.created_at?.split('T')[0])}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+$('client-search')?.addEventListener('input', e => {
+  clientSearch = e.target.value.trim();
+  renderClients();
+});
 
 document.querySelectorAll('.f-tab[data-cfilter]').forEach(tab => {
   tab.addEventListener('click', () => {
