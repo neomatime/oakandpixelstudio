@@ -3,11 +3,11 @@
     "name": "Oak & Pixel",
     "legalName": "Oak & Pixel Studio",
     "baseUrl": "https://www.oakandpixel.co.za",
-    "description": "Oak & Pixel is a premium digital studio in Randburg building high-end websites, lead generation systems, automation strategy, and digital infrastructure for ambitious brands.",
+    "description": "Oak & Pixel Studio is a boutique premium digital studio in Randburg building refined websites, booking experiences, client portals, integrations, and ongoing digital presence management.",
     "email": "info@oakandpixel.co.za",
     "phoneDisplay": "+27 (75) 089 0614",
     "phoneE164": "+27750890614",
-    "whatsappUrl": "https://wa.me/0750890614",
+    "whatsappUrl": "https://wa.me/27750890614",
     "location": {
       "locality": "Randburg",
       "region": "Gauteng",
@@ -15,7 +15,7 @@
     },
     "social": {
       "instagram": "https://www.instagram.com/oakandpixel_?igsh=MTc1cG05dHEzNjg2cQ%3D%3D&utm_source=qr",
-      "linkedin": "https://www.linkedin.com/company/113094222/admin/dashboard/"
+      "linkedin": "https://www.linkedin.com/company/oak-and-pixel-studio/"
     },
     "shareImage": "https://www.oakandpixel.co.za/images/oak-pixel-whatsapp-banner-v2.png"
   },
@@ -48,19 +48,19 @@
   "services": [
     {
       "name": "Signature Plan",
-      "summary": "A professional digital foundation with a website, booking system, appointment reminders, basic invoicing, and essential digital presence."
+      "summary": "A professional digital foundation with a premium website up to 5 pages, booking integration, lead capture, domain and hosting management, website maintenance, 2 monthly content updates, and email support. Pricing is R25,000 setup plus R4,499/month."
     },
     {
       "name": "Growth Plan",
-      "summary": "An operations and lead-management plan with online payments, CRM, KPI dashboards, automated communications, and LeadSense Core."
+      "summary": "The core OPS offering for growing businesses, with everything in Signature plus up to 10 pages, landing pages, onboarding journeys, document collection, CRM integration, payment integration, 5 monthly content updates, and priority support. Pricing is R40,000 setup plus R6,999/month."
     },
     {
-      "name": "Private Plan",
-      "summary": "A fully integrated growth ecosystem with Atlas AI, WhatsApp automation, client portal, advanced reporting, API integrations, process automation, and monthly optimisation consulting."
+      "name": "Premium Plan",
+      "summary": "A highly tailored digital ecosystem with everything in Growth plus bespoke digital experiences, interactive sections, advanced animations, client portal implementation, advanced integrations, monthly optimization reviews, and a dedicated account lead. Pricing is R65,000 setup plus R12,499/month."
     },
     {
-      "name": "Digital Advisory Session",
-      "summary": "A focused advisory engagement for strategy, technical direction, and prioritisation."
+      "name": "Digital Experience Scope",
+      "summary": "A focused scoping conversation for matching the right OPS plan to the client journey, website requirements, integrations, and support needs."
     }
   ],
   "validation": {

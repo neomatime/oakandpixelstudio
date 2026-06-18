@@ -3,17 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Oak & Pixel is a premium digital studio in Randburg building high-end websites, lead generation systems, automation strategy, and digital infrastructure for ambitious brands.">
+<meta name="description" content="Oak & Pixel Studio is a boutique premium digital studio in Randburg building refined websites, booking experiences, client portals, integrations, and ongoing digital presence management.">
 <link rel="canonical" href="https://www.oakandpixel.co.za/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Oak & Pixel">
 <meta property="og:title" content="Oak & Pixel - Digital Infrastructure, Designed with Distinction">
-<meta property="og:description" content="Oak & Pixel is a premium digital studio in Randburg building high-end websites, lead generation systems, automation strategy, and digital infrastructure for ambitious brands.">
+<meta property="og:description" content="Oak & Pixel Studio is a boutique premium digital studio in Randburg building refined websites, booking experiences, client portals, integrations, and ongoing digital presence management.">
 <meta property="og:url" content="https://www.oakandpixel.co.za/">
 <meta property="og:image" content="https://www.oakandpixel.co.za/images/oak-pixel-whatsapp-banner-v2.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Oak & Pixel - Digital Infrastructure, Designed with Distinction">
-<meta name="twitter:description" content="Oak & Pixel is a premium digital studio in Randburg building high-end websites, lead generation systems, automation strategy, and digital infrastructure for ambitious brands.">
+<meta name="twitter:description" content="Oak & Pixel Studio is a boutique premium digital studio in Randburg building refined websites, booking experiences, client portals, integrations, and ongoing digital presence management.">
 <meta name="twitter:image" content="https://www.oakandpixel.co.za/images/oak-pixel-whatsapp-banner-v2.png">
 <title>Oak & Pixel — Digital Infrastructure, Designed with Distinction</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -349,6 +349,65 @@ section{position:relative}
   transition:border-color .3s,color .3s,transform .3s;
 }
 .service-card:hover .service-arrow{border-color:var(--emerald-l);color:var(--emerald-l);transform:translate(2px,-2px)}
+
+/* Pricing */
+#pricing{
+  padding:10rem 0;background:var(--off-white);
+}
+.pricing-head{
+  display:grid;grid-template-columns:1fr 1fr;gap:5rem;
+  align-items:end;margin-bottom:4.5rem;
+}
+.pricing-headline{
+  font-family:var(--font-display);
+  font-size:clamp(2.4rem,4vw,3.8rem);
+  font-weight:300;line-height:1.1;
+}
+.pricing-sub{color:var(--slate);font-size:.98rem;line-height:1.8;max-width:520px}
+.pricing-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
+}
+.pricing-card{
+  background:var(--white);
+  border:1px solid var(--silk);
+  padding:2.4rem;
+  display:flex;flex-direction:column;
+  min-height:560px;
+}
+.pricing-card.featured{
+  border-color:rgba(26,92,58,.28);
+  box-shadow:0 20px 60px rgba(10,10,9,.06);
+}
+.pricing-kicker{
+  font-family:var(--font-mono);font-size:.62rem;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--emerald);
+  margin-bottom:1rem;
+}
+.pricing-name{
+  font-family:var(--font-display);font-size:2rem;font-weight:400;
+  line-height:1.1;margin-bottom:.75rem;color:var(--black);
+}
+.pricing-fit{font-size:.9rem;color:var(--slate);line-height:1.65;min-height:70px}
+.pricing-price{margin:2rem 0 1.8rem;padding-top:1.6rem;border-top:1px solid var(--silk)}
+.pricing-setup{
+  font-family:var(--font-display);font-size:2.25rem;font-weight:400;color:var(--black);
+  line-height:1;
+}
+.pricing-month{font-size:.86rem;color:var(--mist);margin-top:.65rem}
+.pricing-list{display:grid;gap:.85rem;margin-bottom:2rem}
+.pricing-list li{
+  display:flex;gap:.7rem;align-items:flex-start;
+  color:var(--slate);font-size:.9rem;line-height:1.55;
+}
+.pricing-list li::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--emerald);margin-top:.55rem;flex:0 0 6px;
+}
+.pricing-card .btn-primary{margin-top:auto;justify-content:center}
+.pricing-note{
+  margin-top:2rem;color:var(--mist);font-size:.78rem;line-height:1.7;
+  max-width:720px;
+}
 
 /* ─── WORK ───────────────────────────────────────────── */
 #work{
@@ -1076,6 +1135,11 @@ footer{
   /* Services */
   .services-grid { grid-template-columns: repeat(2, 1fr); }
 
+  /* Pricing */
+  .pricing-head { grid-template-columns: 1fr; gap: 1.5rem; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .pricing-card { min-height: auto; }
+
   /* Work */
   .work-grid { grid-template-columns: 1fr; }
   .work-item:first-child { grid-row: span 1; }
@@ -1104,7 +1168,7 @@ footer{
   .nav-hamburger { display: flex; }
 
   /* Sections */
-  #about, #services, #work, #standards { padding: 5rem 0; }
+  #about, #services, #pricing, #work, #standards { padding: 5rem 0; }
   #contact { padding: 6rem 0; }
   .container { padding: 0 1.5rem; }
 
@@ -1122,6 +1186,14 @@ footer{
 
   /* Services */
   .services-grid { grid-template-columns: 1fr; }
+  .service-card { padding: 2.25rem 1.6rem; min-height: 260px; }
+  .service-arrow { bottom: 1.75rem; right: 1.6rem; }
+
+  /* Pricing */
+  .pricing-head { margin-bottom: 2.5rem; }
+  .pricing-card { padding: 2rem 1.5rem; }
+  .pricing-fit { min-height: auto; }
+  .pricing-setup { font-size: 2rem; }
 
   /* Work */
   .work-grid    { grid-template-columns: 1fr; }
@@ -1164,6 +1236,10 @@ footer{
   #hero { padding-top: 60px; }
   .hero-inner { padding: 3rem 1.25rem 4rem; }
   .container  { padding: 0 1.25rem; }
+  .nav-logo { font-size: 1rem; gap: .55rem; }
+  .nav-logo-mark { width: 24px; height: 24px; }
+  .nav-cta { display: none; }
+  .pricing-card { padding: 1.7rem 1.25rem; }
   .about-stats { grid-template-columns: 1fr 1fr; }
   .stat-num    { font-size: 3rem; }
   footer { padding: 2rem 1.25rem; }
@@ -1210,7 +1286,7 @@ footer{
             "itemOffered": {
               "@type": "Service",
               "name": "Signature Plan",
-              "description": "A professional digital foundation with a website, booking system, appointment reminders, basic invoicing, and essential digital presence."
+              "description": "Premium website up to 5 pages, booking integration, lead capture, domain and hosting management, website maintenance, 2 monthly content updates, and email support. Pricing is R25,000 setup plus R4,499 per month."
             }
           },
           {
@@ -1218,23 +1294,23 @@ footer{
             "itemOffered": {
               "@type": "Service",
               "name": "Growth Plan",
-              "description": "An operations and lead-management plan with online payments, CRM, KPI dashboards, automated communications, and LeadSense Core."
+              "description": "Everything in Signature, plus up to 10 pages, dedicated landing pages, onboarding journeys, document collection, CRM integration, payment gateway integration, 5 monthly content updates, and priority support. Pricing is R40,000 setup plus R6,999 per month."
             }
           },
           {
             "@type": "Offer",
             "itemOffered": {
               "@type": "Service",
-              "name": "Private Plan",
-              "description": "A fully integrated growth ecosystem with Atlas AI, WhatsApp automation, client portal, advanced reporting, API integrations, and monthly optimisation consulting."
+              "name": "Premium Plan",
+              "description": "Everything in Growth, plus bespoke digital experiences, interactive sections, advanced animations, tailored user journeys, client portal implementation, advanced integrations, monthly optimization reviews, and a dedicated account lead. Pricing is R65,000 setup plus R12,499 per month."
             }
           },
           {
             "@type": "Offer",
             "itemOffered": {
               "@type": "Service",
-              "name": "Digital Advisory Session",
-              "description": "A focused advisory engagement for strategy, technical direction, and prioritisation."
+              "name": "Digital Experience Scope",
+              "description": "A focused scoping conversation for matching the right OPS plan to the client journey, website requirements, integrations, and support needs."
             }
           }
         ]
@@ -1254,7 +1330,7 @@ footer{
       "@id": "https://www.oakandpixel.co.za/#webpage",
       "url": "https://www.oakandpixel.co.za/",
       "name": "Oak & Pixel - Digital Infrastructure, Designed with Distinction",
-      "description": "Oak & Pixel is a premium digital studio in Randburg building high-end websites, lead generation systems, automation strategy, and digital infrastructure for ambitious brands.",
+      "description": "Oak & Pixel Studio is a boutique premium digital studio in Randburg building refined websites, booking experiences, client portals, integrations, and ongoing digital presence management.",
       "isPartOf": {
         "@id": "https://www.oakandpixel.co.za/#website"
       },
@@ -1291,6 +1367,7 @@ footer{
   <div class="nav-links">
     <a href="#about">Studio</a>
     <a href="#services">Services</a>
+    <a href="#pricing">Pricing</a>
     <a href="#work">Work</a>
     <a href="#standards">Standards</a>
     <a href="brochure.html">Brochure</a>
@@ -1324,13 +1401,14 @@ footer{
       </svg>
     </button>
   </div>
-  <nav class="mob-drawer-nav">
+  <div class="mob-drawer-nav">
     <a href="#about"        class="mob-link">Studio</a>
     <a href="#services"     class="mob-link">Services</a>
+    <a href="#pricing"      class="mob-link">Pricing</a>
     <a href="#work"         class="mob-link">Work</a>
     <a href="#standards"    class="mob-link">Standards</a>
     <a href="brochure.html" class="mob-link">Brochure</a>
-  </nav>
+  </div>
   <div class="mob-drawer-footer">
     <a href="#contact" class="mob-drawer-cta">Start a Project</a>
     <div class="mob-drawer-contact">
@@ -1443,7 +1521,7 @@ footer{
       Precision in every<br>layer of the stack
     </h2>
     <p class="services-sub reveal reveal-delay-2">
-      Six integrated disciplines. One obsession: digital experiences that perform as beautifully as they appear.
+      Six core capabilities. Each one engineered to elevate the way your clients experience your business online.
     </p>
     <div class="services-grid">
       <!-- Card 1 -->
@@ -1453,8 +1531,8 @@ footer{
           <rect x="4" y="8" width="32" height="24" rx="2"/>
           <path d="M14 20h12M10 16h4M26 16h4"/>
         </svg>
-        <div class="service-name">Web Design</div>
-        <p class="service-desc">High-fidelity digital compositions that balance visual authority with functional intelligence. Every pixel, considered.</p>
+        <div class="service-name">Premium Website</div>
+        <p class="service-desc">Custom-built, mobile-responsive websites designed for distinction and engineered for performance. Built to make your business feel exactly as premium as it is.</p>
         <div class="service-arrow">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
         </div>
@@ -1463,10 +1541,13 @@ footer{
       <div class="service-card reveal reveal-delay-1">
         <div class="service-num">02</div>
         <svg class="service-icon" viewBox="0 0 40 40" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2">
-          <path d="M8 14l6-6 6 6M14 8v16M22 26l6 6 6-6M28 32V16"/>
+          <rect x="6" y="8" width="28" height="24" rx="2"/>
+          <path d="M6 18h28M14 6v4M26 6v4"/>
+          <rect x="12" y="23" width="4" height="4" rx=".5"/>
+          <rect x="22" y="23" width="4" height="4" rx=".5"/>
         </svg>
-        <div class="service-name">Website Development</div>
-        <p class="service-desc">Production-grade engineering built for performance, longevity, and scale. Code that future-proofs your investment.</p>
+        <div class="service-name">Online Booking Experience</div>
+        <p class="service-desc">Seamless appointment booking integrated directly into your site — with calendar synchronisation and an experience that respects your clients' time and your brand.</p>
         <div class="service-arrow">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
         </div>
@@ -1475,13 +1556,13 @@ footer{
       <div class="service-card reveal reveal-delay-2">
         <div class="service-num">03</div>
         <svg class="service-icon" viewBox="0 0 40 40" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2">
-          <rect x="4" y="4" width="14" height="14" rx="1"/>
-          <rect x="22" y="4" width="14" height="14" rx="1"/>
-          <rect x="4" y="22" width="14" height="14" rx="1"/>
-          <rect x="22" y="22" width="14" height="14" rx="1"/>
+          <rect x="8" y="6" width="24" height="30" rx="2"/>
+          <path d="M14 15h12M14 21h12M14 27h8"/>
+          <circle cx="11" cy="15" r="1.5" fill="rgba(255,255,255,0.5)" stroke="none"/>
+          <circle cx="11" cy="21" r="1.5" fill="rgba(255,255,255,0.5)" stroke="none"/>
         </svg>
-        <div class="service-name">Digital Infrastructure</div>
-        <p class="service-desc">Robust backend architecture, CMS integration, and hosting strategy designed for institutional-grade reliability.</p>
+        <div class="service-name">Lead Capture Experience</div>
+        <p class="service-desc">Beautifully designed enquiry forms and contact workflows that qualify, route, and respond — so no opportunity leaves your site unconverted.</p>
         <div class="service-arrow">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
         </div>
@@ -1490,12 +1571,13 @@ footer{
       <div class="service-card reveal reveal-delay-1">
         <div class="service-num">04</div>
         <svg class="service-icon" viewBox="0 0 40 40" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2">
-          <circle cx="20" cy="20" r="14"/>
-          <path d="M20 6v4M20 30v4M6 20h4M30 20h4"/>
-          <circle cx="20" cy="20" r="5"/>
+          <circle cx="10" cy="12" r="4"/>
+          <circle cx="20" cy="20" r="4"/>
+          <circle cx="30" cy="28" r="4"/>
+          <path d="M13.5 14.5L16.5 17.5M23.5 22.5L26.5 25.5"/>
         </svg>
-        <div class="service-name">Brand Experience Systems</div>
-        <p class="service-desc">Digital design systems that carry brand DNA consistently across every touchpoint, channel, and device.</p>
+        <div class="service-name">Client Onboarding Experience</div>
+        <p class="service-desc">Structured digital journeys with multi-step forms and document collection. First impressions that set the tone for the entire client relationship.</p>
         <div class="service-arrow">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
         </div>
@@ -1504,14 +1586,15 @@ footer{
       <div class="service-card reveal reveal-delay-2">
         <div class="service-num">05</div>
         <svg class="service-icon" viewBox="0 0 40 40" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2">
-          <path d="M8 28l8-10 6 6 8-14"/>
-          <circle cx="8" cy="28" r="2" fill="rgba(255,255,255,0.5)"/>
-          <circle cx="16" cy="18" r="2" fill="rgba(255,255,255,0.5)"/>
-          <circle cx="22" cy="24" r="2" fill="rgba(255,255,255,0.5)"/>
-          <circle cx="30" cy="10" r="2" fill="rgba(255,255,255,0.5)"/>
+          <circle cx="20" cy="20" r="4"/>
+          <circle cx="8" cy="10" r="3"/>
+          <circle cx="32" cy="10" r="3"/>
+          <circle cx="8" cy="30" r="3"/>
+          <circle cx="32" cy="30" r="3"/>
+          <path d="M11 12L17 17M23 17L29 12M11 28L17 23M23 23L29 28"/>
         </svg>
-        <div class="service-name">UI/UX Strategy</div>
-        <p class="service-desc">Research-driven interaction design that removes friction and converts consideration into commitment.</p>
+        <div class="service-name">CRM &amp; Payment Integration</div>
+        <p class="service-desc">Your website connected to your business systems — HubSpot, Monday CRM, payment gateways — so your digital presence works in concert with your operations.</p>
         <div class="service-arrow">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
         </div>
@@ -1520,12 +1603,14 @@ footer{
       <div class="service-card reveal reveal-delay-3">
         <div class="service-num">06</div>
         <svg class="service-icon" viewBox="0 0 40 40" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2">
-          <path d="M12 20h4l3-8 4 16 3-8h4"/>
-          <circle cx="20" cy="10" r="3"/>
-          <path d="M17 32c0-1.7 1.3-3 3-3s3 1.3 3 3"/>
+          <rect x="6" y="8" width="28" height="8" rx="1"/>
+          <rect x="6" y="20" width="28" height="8" rx="1"/>
+          <circle cx="12" cy="12" r="1.5" fill="rgba(255,255,255,0.4)" stroke="none"/>
+          <circle cx="12" cy="24" r="1.5" fill="rgba(255,255,255,0.4)" stroke="none"/>
+          <path d="M18 32c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke-linecap="round"/>
         </svg>
-        <div class="service-name">Automation Ecosystems</div>
-        <p class="service-desc">Intelligent workflow integration that connects your digital presence to your operational reality seamlessly.</p>
+        <div class="service-name">Digital Presence Management</div>
+        <p class="service-desc">End-to-end stewardship of your domain, hosting, and website. Ongoing maintenance and content updates so your digital infrastructure stays sharp, always.</p>
         <div class="service-arrow">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
         </div>
@@ -1535,6 +1620,78 @@ footer{
 </section>
 
 <!-- ══════════════ WORK ══════════════ -->
+<section id="pricing">
+  <div class="container">
+    <div class="pricing-head">
+      <div>
+        <div class="label reveal">OPS Services &amp; Pricing</div>
+        <h2 class="pricing-headline reveal reveal-delay-1">
+          Three client slots.<br>Built for fit.
+        </h2>
+      </div>
+      <p class="pricing-sub reveal reveal-delay-2">
+        Oak &amp; Pixel Studio works with a maximum of seven active clients: two Signature, three Growth, and two Premium engagements. Each plan pairs a setup build with ongoing digital presence management.
+      </p>
+    </div>
+    <div class="pricing-grid">
+      <article class="pricing-card reveal">
+        <div class="pricing-kicker">2 client slots</div>
+        <h3 class="pricing-name">Signature</h3>
+        <p class="pricing-fit">Best for businesses establishing a premium digital presence.</p>
+        <div class="pricing-price">
+          <div class="pricing-setup">R25,000</div>
+          <div class="pricing-month">setup + R4,499/month</div>
+        </div>
+        <ul class="pricing-list">
+          <li>Premium website up to 5 pages</li>
+          <li>Online booking and calendar integration</li>
+          <li>Lead capture and contact workflows</li>
+          <li>Domain, hosting, maintenance, and 2 content updates/month</li>
+          <li>Email support</li>
+        </ul>
+        <a href="#contact" class="btn-primary">Apply for Signature</a>
+      </article>
+      <article class="pricing-card featured reveal reveal-delay-1">
+        <div class="pricing-kicker">3 client slots - Core offering</div>
+        <h3 class="pricing-name">Growth</h3>
+        <p class="pricing-fit">Best for growing businesses wanting a stronger customer journey.</p>
+        <div class="pricing-price">
+          <div class="pricing-setup">R40,000</div>
+          <div class="pricing-month">setup + R6,999/month</div>
+        </div>
+        <ul class="pricing-list">
+          <li>Everything in Signature</li>
+          <li>Expanded website up to 10 pages and dedicated landing pages</li>
+          <li>Client onboarding journeys with multi-step forms and document collection</li>
+          <li>Client-owned CRM and payment gateway integration</li>
+          <li>5 content updates/month and priority support</li>
+        </ul>
+        <a href="#contact" class="btn-primary">Apply for Growth</a>
+      </article>
+      <article class="pricing-card reveal reveal-delay-2">
+        <div class="pricing-kicker">2 client slots</div>
+        <h3 class="pricing-name">Premium</h3>
+        <p class="pricing-fit">Best for businesses seeking a highly tailored digital ecosystem.</p>
+        <div class="pricing-price">
+          <div class="pricing-setup">R65,000</div>
+          <div class="pricing-month">setup + R12,499/month</div>
+        </div>
+        <ul class="pricing-list">
+          <li>Everything in Growth</li>
+          <li>Bespoke interactive sections, advanced animations, and tailored user journeys</li>
+          <li>Client portal implementation for secure areas, documents, or status tracking</li>
+          <li>Multiple third-party integrations and workflow implementation</li>
+          <li>Monthly optimization reviews and dedicated account lead</li>
+        </ul>
+        <a href="#contact" class="btn-primary">Apply for Premium</a>
+      </article>
+    </div>
+    <p class="pricing-note reveal reveal-delay-3">
+      OPS is intentionally capacity constrained. Once all seven active client slots are occupied, applications close until capacity becomes available.
+    </p>
+  </div>
+</section>
+
 <section id="work">
   <div class="container">
     <div class="work-header">
@@ -1620,7 +1777,7 @@ footer{
           </div>
         </div>
         <div class="work-meta">
-          <div class="work-tag">Infrastructure · Automation</div>
+          <div class="work-tag">Portal · Integration</div>
           <div class="work-title">Obsidian Systems</div>
           <div class="work-year">2023</div>
         </div>
@@ -1773,9 +1930,8 @@ footer{
             <option value="" disabled selected>Select an engagement type</option>
             <option>Signature Plan</option>
             <option>Growth Plan</option>
-            <option>Private Plan</option>
-            <option>Digital Advisory Session</option>
-            <option>Full Digital Partnership</option>
+            <option>Premium Plan</option>
+            <option>Digital Experience Scope</option>
           </select>
         </div>
         <div class="form-group">
@@ -2641,13 +2797,13 @@ if(false)(function(){
   function voiceFallback(t){
     t = t.toLowerCase();
     if(t.match(/signature|basic|small/))
-      return 'The Signature Plan is ideal for businesses that need a professional digital foundation. It costs ten thousand rand setup and four thousand four hundred and ninety-nine rand per month, including a website, booking system, appointment reminders, basic invoicing, and essential digital presence.';
+      return 'The Signature Plan is ideal for businesses establishing a premium digital presence. It costs twenty-five thousand rand setup and four thousand four hundred and ninety-nine rand per month, including a premium website up to five pages, booking integration, lead capture, domain and hosting management, maintenance, and two content updates per month.';
     if(t.match(/growth|lead|generat/))
-      return 'The Growth Plan is for businesses ready to automate operations and improve lead management. Setup is eighteen thousand rand and six thousand nine hundred and ninety-nine rand per month, including everything in Signature plus online payments, CRM, KPI dashboards, automated communications, and LeadSense Core.';
-    if(t.match(/private|premium|automat|strateg|enterprise/))
-      return 'The Private Plan is built for a fully integrated growth ecosystem. Setup is thirty thousand rand and twelve thousand four hundred and ninety-nine rand per month, including Atlas AI, WhatsApp automation, client portal, advanced reporting, API integrations, process automation, and monthly optimisation consulting.';
+      return 'The Growth Plan is the core offering for growing businesses wanting a stronger customer journey. Setup is forty thousand rand and six thousand nine hundred and ninety-nine rand per month, including everything in Signature plus up to ten pages, landing pages, client onboarding journeys, CRM integration, payment integration, and priority support.';
+    if(t.match(/private|premium|portal|enterprise/))
+      return 'The Premium Plan is built for highly tailored digital ecosystems. Setup is sixty-five thousand rand and twelve thousand four hundred and ninety-nine rand per month, including everything in Growth plus bespoke interactive sections, client portal implementation, advanced integrations, monthly optimization reviews, and a dedicated account lead.';
     if(t.match(/plan|price|cost|package|how much/))
-      return 'Oak and Pixel offers three plans. Signature at ten thousand rand setup and four thousand four hundred and ninety-nine a month. Growth at eighteen thousand rand setup and six thousand nine hundred and ninety-nine a month. And Private at thirty thousand rand setup and twelve thousand four hundred and ninety-nine a month. Which would you like to hear more about?';
+      return 'Oak and Pixel offers three OPS plans. Signature at twenty-five thousand rand setup and four thousand four hundred and ninety-nine a month. Growth at forty thousand rand setup and six thousand nine hundred and ninety-nine a month. Premium at sixty-five thousand rand setup and twelve thousand four hundred and ninety-nine a month. Which would you like to hear more about?';
     if(t.match(/privacy|data|cookie/))
       return 'Oak and Pixel takes your privacy seriously. We only collect what is necessary and never sell your data. You can request access or deletion at any time by emailing info at oakandpixel dot co dot za.';
     if(t.match(/contact|email|phone|reach|speak|talk|consult/))
@@ -2731,7 +2887,7 @@ document.querySelectorAll('.service-card').forEach(card => {
 </script>
 
 
-<!-- Hidden Cal trigger element — clicked programmatically when dropdown selects "Digital Advisory Session" -->
+<!-- Hidden Cal trigger element - clicked programmatically when dropdown selects "Digital Experience Scope" -->
 <button id="cal-advisory-trigger" aria-hidden="true" tabindex="-1"
   data-cal-link="oakandpixel/digital-advisory"
   data-cal-namespace="digital-advisory"
@@ -2789,7 +2945,7 @@ document.querySelectorAll('.service-card').forEach(card => {
     }
 
     select.addEventListener('change', async function () {
-      if (this.value === 'Digital Advisory Session') {
+      if (this.value === 'Digital Experience Scope') {
         try {
           await loadCal();
           trigger.click();

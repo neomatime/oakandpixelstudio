@@ -6,31 +6,31 @@
   "contact": {
     "email": "info@oakandpixel.co.za",
     "phone": "+27 (75) 089 0614",
-    "whatsapp": "https://wa.me/0750890614"
+    "whatsapp": "https://wa.me/27750890614"
   },
-  "summary": "Oak & Pixel builds high-end websites, lead-generation systems, automation strategy, and digital infrastructure for ambitious brands.",
+  "summary": "Oak & Pixel Studio builds refined websites, booking experiences, client portals, integrations, and ongoing digital presence management for trust-driven businesses.",
   "services": [
     {
       "name": "Signature Plan",
-      "answer": "A professional digital foundation with a website, booking system, appointment reminders, basic invoicing, and essential digital presence. Pricing is R10,000 setup plus R4,499/month."
+      "answer": "A professional digital foundation with a premium website up to 5 pages, booking integration, lead capture, domain and hosting management, maintenance, 2 monthly content updates, and email support. Pricing is R25,000 setup plus R4,499/month."
     },
     {
       "name": "Growth Plan",
-      "answer": "An operations and lead-management plan with online payments, CRM, KPI dashboards, automated communications, and LeadSense Core. Pricing is R18,000 setup plus R6,999/month."
+      "answer": "The core OPS offering for growing businesses, with everything in Signature plus up to 10 pages, landing pages, onboarding journeys, document collection, CRM integration, payment integration, 5 monthly content updates, and priority support. Pricing is R40,000 setup plus R6,999/month."
     },
     {
-      "name": "Private Plan",
-      "answer": "A fully integrated growth ecosystem with Atlas AI chatbot, WhatsApp automation, client portal, advanced reporting, API integrations, process automation, and monthly optimisation consulting. Pricing is R30,000 setup plus R12,499/month."
+      "name": "Premium Plan",
+      "answer": "A highly tailored digital ecosystem with everything in Growth plus bespoke digital experiences, advanced animations, tailored journeys, client portal implementation, advanced integrations, monthly optimization reviews, and a dedicated account lead. Pricing is R65,000 setup plus R12,499/month."
     },
     {
-      "name": "Digital Advisory Session",
-      "answer": "A focused strategy session for prioritising digital systems, technical direction, automation opportunities, and next steps."
+      "name": "Digital Experience Scope",
+      "answer": "A focused scoping conversation for matching the right OPS plan to the client journey, website requirements, integrations, and support needs."
     }
   ],
   "questions": [
     {
       "question": "What does Oak & Pixel do?",
-      "answer": "Oak & Pixel designs and builds premium websites, lead-generation systems, automation strategy, and digital infrastructure."
+      "answer": "Oak & Pixel Studio designs, builds, and maintains premium websites, booking experiences, client portals, integrations, and digital presence systems."
     },
     {
       "question": "Where is Oak & Pixel based?",
@@ -38,7 +38,7 @@
     },
     {
       "question": "How do I contact Oak & Pixel?",
-      "answer": "Email info@oakandpixel.co.za, call +27 (75) 089 0614, use WhatsApp at https://wa.me/0750890614, or submit the contact form on the website."
+      "answer": "Email info@oakandpixel.co.za, call +27 (75) 089 0614, use WhatsApp at https://wa.me/27750890614, or submit the contact form on the website."
     }
   ]
 }
