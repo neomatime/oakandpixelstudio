@@ -549,6 +549,57 @@ a{color:inherit;text-decoration:none;}
   .profile-grid,.activity-grid{grid-template-columns:1fr;}
   .profile-actions{justify-content:flex-start;}
 }
+
+/* ── PREMIUM LOADING ─────────────────────────── */
+#page-loader{position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--emerald),var(--emerald-l),var(--gold));z-index:9998;transform-origin:left center;transform:scaleX(0);opacity:0;transition:opacity .4s;pointer-events:none;}
+#page-loader.loading{opacity:1;animation:load-bar 2s cubic-bezier(.4,0,.2,1) infinite;}
+@keyframes load-bar{0%{transform:scaleX(0);opacity:1}75%{transform:scaleX(.85);opacity:1}100%{transform:scaleX(1);opacity:0}}
+
+/* Skeleton shimmer */
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel{background:linear-gradient(90deg,rgba(245,244,241,.04) 25%,rgba(245,244,241,.09) 50%,rgba(245,244,241,.04) 75%);background-size:200% 100%;animation:shimmer 1.8s ease-in-out infinite;}
+.skel-line{height:11px;border-radius:2px;display:block;}
+.skel-circle{border-radius:50%;flex-shrink:0;display:inline-block;}
+[data-theme="light"] .skel{background:linear-gradient(90deg,rgba(26,26,24,.05) 25%,rgba(26,26,24,.11) 50%,rgba(26,26,24,.05) 75%);background-size:200% 100%;animation:shimmer 1.8s ease-in-out infinite;}
+
+/* Button loading */
+.btn-loading{opacity:.55!important;cursor:default!important;pointer-events:none!important;}
+.btn-spin{display:inline-block;width:10px;height:10px;border:1.5px solid rgba(255,255,255,.3);border-top-color:rgba(255,255,255,.9);border-radius:50%;animation:btn-rotate .65s linear infinite;vertical-align:middle;margin-right:5px;}
+@keyframes btn-rotate{to{transform:rotate(360deg)}}
+
+/* Page section entrance */
+@keyframes section-fade-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.page.active{display:block;animation:section-fade-in .22s ease both;}
+
+/* Modal entrance */
+.modal-box.modal-entering{animation:modal-enter .2s cubic-bezier(.3,1.2,.55,1) both;}
+@keyframes modal-enter{from{opacity:0;transform:scale(.97) translateY(6px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+/* Toast: slide up on appear */
+.toast{transform:translateY(8px);transition:opacity .28s ease,transform .28s ease;}
+.toast.show{transform:translateY(0);}
+
+/* Improved hover states */
+.stat-card{transition:border-color .2s,transform .18s;}
+.stat-card:hover{border-color:var(--border-hi);transform:translateY(-1px);}
+.svc-card{transition:border-color .2s,transform .18s,box-shadow .18s;}
+.svc-card:hover{border-color:var(--border-hi);transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,0,0,.15);}
+.project-card{transition:border-color .18s,transform .18s,box-shadow .18s;}
+.project-card:hover{border-color:var(--border-hi);box-shadow:0 4px 16px rgba(0,0,0,.12);}
+.nav-item{transition:color .18s,background .18s,transform .12s;}
+.nav-item:hover{transform:translateX(2px);}
+.nav-item.active{transform:none;}
+.act-btn{transition:all .18s,transform .12s;}
+.act-btn:hover{transform:translateY(-1px);}
+.f-tab{transition:all .18s,transform .1s;}
+.f-tab:hover{transform:translateY(-1px);}
+.f-tab.active{transform:none;}
+.btn-add{transition:opacity .18s,transform .15s,box-shadow .15s;}
+.btn-add:hover:not(.btn-loading){opacity:.88;transform:translateY(-1px);box-shadow:0 4px 14px rgba(26,92,58,.25);}
+.btn-ghost{transition:opacity .2s,transform .15s;}
+.btn-ghost:hover:not(.btn-loading){transform:translateY(-1px);}
+.kanban-add-task{transition:all .18s,transform .12s;}
+.kanban-add-task:hover{transform:translateY(-1px);}
 </style>
 </head>
 <body>
@@ -883,6 +934,7 @@ a{color:inherit;text-decoration:none;}
 
 </div><!-- /app -->
 
+<div id="page-loader"></div>
 <div class="toast" id="toast"></div>
 <div id="modal-overlay" class="modal-overlay" style="display:none">
   <div id="modal-box" class="modal-box" role="dialog" aria-modal="true"></div>
@@ -935,6 +987,116 @@ const SERVICE_STATUSES = ['Active','Pending','Completed','Archived'];
 const DOC_STATUSES = ['Draft','Sent','Accepted','Declined'];
 const INVOICE_STATUSES = ['Draft','Sent','Paid','Overdue','Cancelled'];
 const PAYMENT_STATUSES = ['Paid','Pending','Overdue','Failed'];
+
+/* ── Premium loading helpers ── */
+const _loader = document.getElementById('page-loader');
+let _loadCount = 0;
+function startLoad() {
+  _loadCount++;
+  if (_loader) { _loader.classList.remove('loading'); void _loader.offsetWidth; _loader.classList.add('loading'); }
+}
+function endLoad() {
+  if (--_loadCount <= 0) { _loadCount = 0; setTimeout(() => { if (!_loadCount && _loader) _loader.classList.remove('loading'); }, 400); }
+}
+function _skelCols(cols) {
+  const ws = [55,38,65,42,70,45,58,62];
+  return Array.from({length:cols},(_,i)=>`<td><span class="skel skel-line" style="width:${ws[i%ws.length]}%"></span></td>`).join('');
+}
+function skelTable(rows, cols) {
+  return `<table class="a-table"><tbody>${Array.from({length:rows},()=>`<tr style="pointer-events:none">${_skelCols(cols)}</tr>`).join('')}</tbody></table>`;
+}
+function skelActivityRows(n) {
+  return `<div style="padding:0 1.5rem">${Array.from({length:n},()=>`
+    <div class="activity-row">
+      <span class="skel skel-circle" style="width:26px;height:26px;margin-top:.1rem"></span>
+      <div class="activity-body" style="display:flex;flex-direction:column;gap:6px">
+        <span class="skel skel-line" style="width:62%"></span>
+        <span class="skel skel-line" style="width:34%"></span>
+      </div>
+      <span class="skel skel-line" style="width:36px;flex-shrink:0"></span>
+    </div>`).join('')}</div>`;
+}
+function skelServiceCards(n) {
+  return Array.from({length:n},()=>`
+    <div class="svc-card" style="pointer-events:none">
+      <div style="display:flex;justify-content:space-between;margin-bottom:.45rem">
+        <span class="skel skel-line" style="width:55%"></span>
+        <span class="skel skel-line" style="width:46px"></span>
+      </div>
+      <span class="skel skel-line" style="width:30%;margin:.35rem 0 .65rem"></span>
+      <span class="skel skel-line" style="width:92%;margin-bottom:.3rem"></span>
+      <span class="skel skel-line" style="width:72%"></span>
+    </div>`).join('');
+}
+function skelKanban() {
+  const cols = [['Backlog',3],['To Do',2],['In Progress',2],['Review',1],['Done',1]];
+  return cols.map(([label,n])=>`
+    <section class="kanban-col">
+      <div class="kanban-col-head" style="pointer-events:none">
+        <span class="skel skel-line" style="width:60px"></span>
+        <span class="skel skel-line" style="width:18px;height:18px;border-radius:2px"></span>
+      </div>
+      <div class="kanban-list">${Array.from({length:n},()=>`
+        <div class="project-card" style="pointer-events:none">
+          <span class="skel skel-line" style="width:72%;height:14px;margin-bottom:.5rem"></span>
+          <span class="skel skel-line" style="width:92%;margin-bottom:.28rem"></span>
+          <span class="skel skel-line" style="width:58%"></span>
+        </div>`).join('')}</div>
+    </section>`).join('');
+}
+function skelClientProfile() {
+  const infoRows = Array.from({length:5},()=>`
+    <div class="info-row">
+      <span class="skel skel-line" style="width:75px"></span>
+      <span class="skel skel-line" style="width:115px"></span>
+    </div>`).join('');
+  return `
+    <div class="profile-hero">
+      <div class="profile-id">
+        <span class="skel skel-circle" style="width:84px;height:84px"></span>
+        <div style="display:flex;flex-direction:column;gap:.55rem;min-width:0">
+          <span class="skel skel-line" style="width:190px;height:22px"></span>
+          <span class="skel skel-line" style="width:130px;height:13px"></span>
+          <span class="skel skel-line" style="width:90px;height:11px"></span>
+        </div>
+      </div>
+    </div>
+    <div class="profile-grid">
+      <div style="display:flex;flex-direction:column;gap:1rem">
+        <div class="mini-panel">
+          <div class="mini-panel-head"><span class="skel skel-line" style="width:100px"></span></div>
+          <div class="mini-panel-body"><div class="info-list">${infoRows}</div></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1rem">
+        <div class="mini-panel">
+          <div class="mini-panel-head"><span class="skel skel-line" style="width:80px"></span></div>
+          <div class="mini-panel-body">
+            <span class="skel skel-line" style="width:90%;margin-bottom:6px"></span>
+            <span class="skel skel-line" style="width:70%"></span>
+          </div>
+        </div>
+        <div class="mini-panel">
+          <div class="mini-panel-head"><span class="skel skel-line" style="width:70px"></span></div>
+          <div class="mini-panel-body"><span class="skel skel-line" style="width:55%"></span></div>
+        </div>
+      </div>
+    </div>`;
+}
+function btnLoad(el, loading, text) {
+  if (!el) return;
+  if (loading) {
+    el.dataset.origHtml = el.innerHTML;
+    el.innerHTML = `<span class="btn-spin"></span>${text || 'Saving…'}`;
+    el.disabled = true;
+    el.classList.add('btn-loading');
+  } else {
+    el.innerHTML = el.dataset.origHtml || el.innerHTML;
+    el.disabled = false;
+    el.classList.remove('btn-loading');
+    delete el.dataset.origHtml;
+  }
+}
 
 /* ── Date helpers ── */
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -1084,6 +1246,8 @@ function switchPage(name) {
 function showModal(html) {
   $('modal-box').innerHTML = html;
   $('modal-overlay').style.display = 'flex';
+  $('modal-box').classList.remove('modal-entering');
+  requestAnimationFrame(() => $('modal-box').classList.add('modal-entering'));
 }
 function closeModal() {
   $('modal-overlay').style.display = 'none';
@@ -1099,11 +1263,17 @@ document.addEventListener('keydown', e => {
 
 /* ── Load all data ── */
 async function loadAll() {
+  startLoad();
   await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadContacts(), loadClients(), loadProjects(), loadRecentActivity(), loadRetainerOverview()]);
+  endLoad();
 }
 
 /* ── Stats ── */
 async function loadStats() {
+  ['stat-total','stat-pending','stat-confirmed','stat-slots'].forEach(id => {
+    const el = $(id);
+    if (el) el.innerHTML = `<span class="skel skel-line" style="width:44px;height:26px;display:inline-block"></span>`;
+  });
   const [bRes, sRes, leadsRes, clientsRes] = await Promise.all([
     sb.from('bookings').select('status'),
     sb.from('available_slots').select('is_booked').eq('is_booked', false).gte('date', todayStr()),
@@ -1167,6 +1337,8 @@ async function loadRetainerOverview() {
 }
 
 async function loadRecentActivity() {
+  const c = $('activity-feed');
+  if (c) c.innerHTML = skelActivityRows(5);
   const [leadsRes, clientsRes, bookingsRes] = await Promise.all([
     sb.from('contacts').select('id,full_name,project_type,created_at').is('converted_at', null).order('created_at', { ascending: false }).limit(8),
     sb.from('clients').select('id,full_name,created_at').order('created_at', { ascending: false }).limit(8),
@@ -1216,6 +1388,7 @@ async function loadRecentActivity() {
 
 /* ── Bookings ── */
 async function loadBookings() {
+  $('bookings-table').innerHTML = skelTable(6, 7);
   const { data } = await sb.from('bookings')
     .select('id,full_name,company,email,phone,status,created_at,service_id,slot_id,service:service_id(name),slot:slot_id(date,start_time)')
     .order('created_at', { ascending: false });
@@ -1332,6 +1505,8 @@ async function openEditBookingModal(id) {
 }
 
 async function saveEditBooking(bookingId, oldSlotId) {
+  const saveBtn = document.querySelector('#modal-box .btn-add');
+  btnLoad(saveBtn, true, 'Saving…');
   const newSlotId  = $('eb-slot')?.value  || null;
   const prevSlotId = oldSlotId             || null;
   const update = {
@@ -1345,7 +1520,7 @@ async function saveEditBooking(bookingId, oldSlotId) {
   };
 
   const { error } = await sb.from('bookings').update(update).eq('id', bookingId);
-  if (error) { toast('Error saving changes.'); return; }
+  if (error) { btnLoad(saveBtn, false); toast('Error saving changes.'); return; }
 
   if (newSlotId !== prevSlotId) {
     if (prevSlotId) await sb.from('available_slots').update({ is_booked: false }).eq('id', prevSlotId);
@@ -1589,6 +1764,7 @@ $('qa-clear').addEventListener('click',     () => $('time-pills').querySelectorA
 
 /* ── Contacts ── */
 async function loadContacts() {
+  $('contacts-table').innerHTML = skelTable(5, 6);
   const { data } = await sb.from('contacts').select('*').is('converted_at', null).order('created_at', { ascending: false });
   allContacts = data || [];
   renderContacts();
@@ -1682,6 +1858,8 @@ async function convertToClient(id) {
 
 /* ── Clients ── */
 async function loadClients() {
+  const ct = $('clients-table');
+  if (ct) ct.innerHTML = skelTable(5, 5);
   const { data } = await sb.from('clients').select('*').order('created_at', { ascending: false });
   allClients = data || [];
   renderClients();
@@ -1826,6 +2004,8 @@ function syncOnboarding() {
 }
 
 async function saveClient(id = '') {
+  const saveBtn = $('onboarding-save');
+  btnLoad(saveBtn, true, id ? 'Saving…' : 'Creating…');
   const notes = $('oc-notes').value.trim();
   const payload = {
     company:            $('oc-company').value.trim(),
@@ -1846,6 +2026,7 @@ async function saveClient(id = '') {
     brief:              notes || null,
   };
   if (!payload.company || !payload.full_name || !payload.email) {
+    btnLoad(saveBtn, false);
     toast('Company, primary contact, and email are required.');
     return;
   }
@@ -1858,7 +2039,7 @@ async function saveClient(id = '') {
     query = id ? sb.from('clients').update(fallback).eq('id', id) : sb.from('clients').insert(fallback);
     ({ error } = await query);
   }
-  if (error) { toast('Error saving client. Apply the client schema migration first.'); return; }
+  if (error) { btnLoad(saveBtn, false); toast('Error saving client. Apply the client schema migration first.'); return; }
   closeModal();
   toast(id ? 'Client updated.' : 'Client created.');
   await Promise.all([loadClients(), loadStats(), loadRecentActivity()]);
@@ -1883,6 +2064,7 @@ async function renderClientProfile() {
   const root = $('client-profile-root');
   const client = clientById(selectedClientId);
   if (!root || !client) { if (root) root.innerHTML = emptyState('Client not found'); return; }
+  root.innerHTML = skelClientProfile();
   const [quotesRes, invoicesRes, retRes, bookingsRichRes] = await Promise.all([
     financeSchemaReady ? sb.from('quotes').select('*').eq('client_id', client.id).order('created_at', { ascending: false }).limit(8) : Promise.resolve({ data: [], error: null }),
     financeSchemaReady ? sb.from('invoices').select('*').eq('client_id', client.id).order('created_at', { ascending: false }).limit(8) : Promise.resolve({ data: [], error: null }),
@@ -2086,6 +2268,8 @@ async function openRetainerModal(clientId) {
 }
 
 async function saveRetainer(clientId, retainerId = '') {
+  const saveBtn = document.querySelector('#modal-box .btn-add');
+  btnLoad(saveBtn, true, 'Saving…');
   const payload = {
     client_id: clientId,
     assigned_plan: $('rt-plan').value.trim() || null,
@@ -2101,6 +2285,7 @@ async function saveRetainer(clientId, retainerId = '') {
   const { error } = await query;
   if (error) {
     if (isSchemaError(error)) financeSchemaReady = false;
+    btnLoad(saveBtn, false);
     toast('Error saving retainer. Apply migration 003 first.');
     return;
   }
@@ -2133,12 +2318,13 @@ $('contact-search').addEventListener('input', e => {
 
 /* ── Projects ── */
 async function loadProjects() {
+  const board = $('projects-board');
+  if (board) board.innerHTML = skelKanban();
   const { data, error } = await sb.from('projects')
     .select('*,client:client_id(company,full_name)')
     .order('sort_order')
     .order('created_at', { ascending: false });
   if (error) {
-    const board = $('projects-board');
     if (board) board.innerHTML = emptyState('Projects unavailable', 'Apply the projects schema migration to enable the Kanban board.');
     return;
   }
@@ -2279,6 +2465,8 @@ function openProjectModal(id = null, defaultStatus = 'backlog', defaultClientId 
 }
 
 async function saveProject(id = '') {
+  const saveBtn = document.querySelector('#modal-box .btn-add');
+  btnLoad(saveBtn, true, id ? 'Saving…' : 'Creating…');
   const payload = {
     title:       $('pr-title').value.trim(),
     description: $('pr-desc').value.trim() || null,
@@ -2290,10 +2478,10 @@ async function saveProject(id = '') {
     tags:        $('pr-tags').value.split(',').map(t => t.trim()).filter(Boolean),
     sort_order:  99
   };
-  if (!payload.title) { toast('Task title is required.'); return; }
+  if (!payload.title) { btnLoad(saveBtn, false); toast('Task title is required.'); return; }
   const query = id ? sb.from('projects').update(payload).eq('id', id) : sb.from('projects').insert(payload);
   const { error } = await query;
-  if (error) { toast('Error saving task. Apply the projects schema migration first.'); return; }
+  if (error) { btnLoad(saveBtn, false); toast('Error saving task. Apply the projects schema migration first.'); return; }
   closeModal();
   toast(id ? 'Task updated.' : 'Task created.');
   loadProjects();
@@ -2327,6 +2515,7 @@ $('add-project-btn')?.addEventListener('click', () => openProjectModal(null, pro
 
 async function loadServices() {
   const c = $('services-grid');
+  if (c) c.innerHTML = skelServiceCards(6);
   let { data, error } = await sb.from('services').select('id,name,description,price,category,setup_fee,monthly_retainer,status,notes,active,sort_order').order('sort_order');
   serviceFinanceReady = !error;
   if (error) {
@@ -2553,14 +2742,16 @@ function openServiceEditModal(id) {
 }
 
 async function saveBasicService(id) {
+  const saveBtn = document.querySelector('#modal-box .btn-add');
+  btnLoad(saveBtn, true, 'Saving…');
   const payload = {
     name: $('sd-name').value.trim(),
     description: $('sd-desc').value.trim() || null,
     price: Math.max(0, parseInt($('sd-price').value) || 0)
   };
-  if (!payload.name) { toast('Service name is required.'); return; }
+  if (!payload.name) { btnLoad(saveBtn, false); toast('Service name is required.'); return; }
   const { error } = await sb.from('services').update(payload).eq('id', id);
-  if (error) { toast('Error saving service.'); return; }
+  if (error) { btnLoad(saveBtn, false); toast('Error saving service.'); return; }
   closeModal();
   toast('Service updated.');
   await loadServices();
@@ -2568,6 +2759,8 @@ async function saveBasicService(id) {
 }
 
 async function saveServiceDetails(id) {
+  const saveBtn = document.querySelector('#modal-box .btn-add');
+  btnLoad(saveBtn, true, 'Saving…');
   const payload = {
     name: $('sd-name').value.trim(),
     category: $('sd-category').value.trim() || 'General',
@@ -2578,9 +2771,9 @@ async function saveServiceDetails(id) {
     description: $('sd-desc').value.trim() || null,
     notes: $('sd-notes').value.trim() || null
   };
-  if (!payload.name) { toast('Service name is required.'); return; }
+  if (!payload.name) { btnLoad(saveBtn, false); toast('Service name is required.'); return; }
   const { error } = await sb.from('services').update(payload).eq('id', id);
-  if (error) { toast('Error saving service. Apply the service delivery migration first.'); return; }
+  if (error) { btnLoad(saveBtn, false); toast('Error saving service. Apply the service delivery migration first.'); return; }
   closeModal();
   toast('Service updated.');
   await loadServices();
@@ -2678,8 +2871,10 @@ async function saveDocument(type, serviceId) {
 }
 
 async function saveDocumentWithClient(type, serviceId, clientId) {
+  const saveBtn = document.querySelector('#modal-box .btn-add');
+  btnLoad(saveBtn, true, type === 'quote' ? 'Generating…' : 'Generating…');
   const service = serviceById(serviceId) || {};
-  if (!serviceId || !service.id) { toast('Select a service first.'); return; }
+  if (!serviceId || !service.id) { btnLoad(saveBtn, false); toast('Select a service first.'); return; }
   const setup = Math.max(0, parseInt($('doc-setup').value) || 0);
   const retainer = Math.max(0, parseInt($('doc-retainer').value) || 0);
   const extraAmount = Math.max(0, parseInt($('doc-extra-amount').value) || 0);
@@ -2717,6 +2912,7 @@ async function saveDocumentWithClient(type, serviceId, clientId) {
   const { error } = await sb.from(isQuote ? 'quotes' : 'invoices').insert(payload);
   if (error) {
     if (isSchemaError(error)) financeSchemaReady = false;
+    btnLoad(saveBtn, false);
     toast(`Error creating ${isQuote ? 'quote' : 'invoice'}. Apply migration 003 first.`);
     return;
   }
