@@ -30,31 +30,33 @@ button{cursor:pointer;}
 a{color:inherit;text-decoration:none;}
 
 /* ── LOGIN ────────────────────────────────── */
-#login-screen{
-  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;position:relative;overflow:hidden;
-  background:
-    linear-gradient(135deg,rgba(10,10,9,.96) 0%,rgba(18,18,16,.94) 46%,rgba(10,10,9,.98) 100%),
-    url('images/oak-pixel-mark-hires-transparent.png') center/360px no-repeat;
+#login-screen{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;}
+.login-panel-img{
+  position:relative;overflow:hidden;
+  background:#0a0a09 url('images/login-bg.jpg') center/cover no-repeat;
+  display:flex;flex-direction:column;justify-content:space-between;padding:2.5rem 3rem;
 }
-#login-screen::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(184,149,90,.08),transparent 24%,transparent 76%,rgba(26,92,58,.1));pointer-events:none;}
-#login-screen::after{content:'';position:absolute;inset:1.2rem;border:1px solid rgba(184,149,90,.12);pointer-events:none;}
-.login-card{width:min(430px,100%);position:relative;z-index:1;background:linear-gradient(180deg,rgba(22,22,20,.92),rgba(14,14,13,.96));border:1px solid rgba(184,149,90,.22);padding:3.25rem 2.7rem 2.45rem;box-shadow:0 28px 80px rgba(0,0,0,.52),inset 0 1px 0 rgba(245,244,241,.06);backdrop-filter:blur(18px);}
-.login-card::before{content:'';position:absolute;left:1rem;right:1rem;top:1rem;height:1px;background:linear-gradient(90deg,transparent,rgba(184,149,90,.55),transparent);}
-.login-logo{font-family:var(--font-d);font-size:1.6rem;font-weight:400;letter-spacing:.03em;margin-bottom:.25rem;}
-.login-brand{font-family:var(--font-d);font-size:2.05rem;font-weight:400;text-align:center;line-height:1;color:var(--off-white);margin-bottom:.35rem;}
-.login-kicker{font-family:var(--font-m);font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:1.65rem;}
-.login-sub{font-family:var(--font-m);font-size:.56rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mist);margin-bottom:2.5rem;display:flex;align-items:center;justify-content:center;gap:.6rem;}
-.login-sub::before,.login-sub::after{content:'';width:28px;height:1px;background:linear-gradient(90deg,transparent,var(--gold));display:block;}
-.login-sub::after{background:linear-gradient(90deg,var(--gold),transparent);}
-.f-label{display:block;font-family:var(--font-m);font-size:.57rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,244,241,.46);margin-bottom:.45rem;}
-.f-input{width:100%;background:rgba(245,244,241,.035);border:1px solid rgba(245,244,241,.13);color:var(--off-white);font-family:var(--font-b);font-size:.9rem;padding:.86rem 1rem;outline:none;margin-bottom:1rem;transition:border-color .2s,background .2s,box-shadow .2s;}
-.f-input:focus{border-color:rgba(184,149,90,.62);background:rgba(245,244,241,.055);box-shadow:0 0 0 3px rgba(184,149,90,.08);}
-.btn-login{width:100%;background:linear-gradient(135deg,var(--emerald),#24764d);color:#fff;border:1px solid rgba(245,244,241,.08);font-family:var(--font-m);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;padding:1rem;transition:opacity .2s,transform .2s,box-shadow .2s;margin-top:.6rem;box-shadow:0 12px 28px rgba(26,92,58,.24);}
-.btn-login:hover{opacity:.95;transform:translateY(-1px);box-shadow:0 16px 36px rgba(26,92,58,.32);}
-.btn-login:disabled{opacity:.4;cursor:default;}
+.login-panel-img::before{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.12) 0%,rgba(0,0,0,.55) 100%);pointer-events:none;}
+.login-img-logo{position:relative;z-index:1;width:42px;height:42px;object-fit:contain;filter:brightness(0) invert(1);opacity:.55;}
+.login-img-brand{position:relative;z-index:1;}
+.login-img-mark{font-family:var(--font-d);font-size:1.45rem;font-weight:400;letter-spacing:.04em;color:rgba(255,255,255,.9);margin-bottom:.35rem;}
+.login-img-tagline{font-family:var(--font-m);font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.38);}
+.login-panel-form{background:#fff;display:flex;align-items:center;justify-content:center;padding:3rem 2.5rem;}
+.login-card{width:min(380px,100%);}
+.login-logo-img{display:block;width:56px;height:56px;object-fit:contain;margin:0 0 1.5rem;filter:brightness(0);opacity:.65;}
+.login-brand{font-family:var(--font-d);font-size:2rem;font-weight:400;line-height:1;color:#1a1a18;margin-bottom:.3rem;}
+.login-kicker{font-family:var(--font-m);font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.85rem;}
+.login-sub{font-family:var(--font-m);font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(26,26,24,.35);margin-bottom:2.4rem;display:flex;align-items:center;gap:.65rem;}
+.login-sub::before,.login-sub::after{content:'';width:22px;height:1px;background:#ddd8d1;display:block;}
+.f-label{display:block;font-family:var(--font-m);font-size:.57rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(26,26,24,.45);margin-bottom:.45rem;}
+.f-input{width:100%;background:#fff;border:1px solid #e2ddd7;color:#1a1a18;font-family:var(--font-b);font-size:.9rem;padding:.86rem 1rem;outline:none;margin-bottom:1rem;transition:border-color .2s,box-shadow .2s;}
+.f-input:focus{border-color:var(--emerald);box-shadow:0 0 0 3px rgba(26,92,58,.07);}
+.f-input::placeholder{color:rgba(26,26,24,.22);}
+.btn-login{width:100%;background:#1a1a18;color:#fff;border:none;font-family:var(--font-m);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;padding:1rem;transition:opacity .2s,transform .2s;margin-top:.6rem;cursor:pointer;}
+.btn-login:hover{opacity:.8;transform:translateY(-1px);}
+.btn-login:disabled{opacity:.35;cursor:default;}
 .login-err{font-size:.75rem;color:var(--err);min-height:1rem;margin-top:.85rem;text-align:center;}
-.login-logo-img{display:block;width:92px;height:92px;object-fit:contain;margin:0 auto 1.15rem;filter:drop-shadow(0 14px 22px rgba(0,0,0,.38));}
-.login-footnote{font-size:.72rem;color:rgba(245,244,241,.32);text-align:center;margin-top:1.45rem;}
+.login-footnote{font-size:.7rem;color:rgba(26,26,24,.28);margin-top:1.4rem;text-align:center;line-height:1.65;}
 
 /* ── APP SHELL ────────────────────────────── */
 .app{display:none;min-height:100vh;}
@@ -374,7 +376,6 @@ a{color:inherit;text-decoration:none;}
 [data-theme="light"] .loading-row{color:rgba(26,26,24,.4);}
 [data-theme="light"] .empty-state{color:rgba(26,26,24,.3);}
 [data-theme="light"] .empty-state svg{stroke:rgba(26,26,24,.12);}
-[data-theme="light"] .login-sub{color:rgba(26,26,24,.5);}
 [data-theme="light"] .page-date{color:rgba(26,26,24,.45);}
 [data-theme="light"] .page-title{color:#1A1A18;}
   [data-theme="light"] .modal-box{background:var(--card);border-color:var(--border-hi);}
@@ -534,9 +535,9 @@ a{color:inherit;text-decoration:none;}
 [data-theme="light"] .project-pill{color:rgba(26,26,24,.55);}
 
 @media(max-width:900px){
-  #login-screen{padding:1rem;}
-  #login-screen::after{inset:.7rem;}
-  .login-card{padding:2.4rem 1.4rem 1.8rem;}
+  #login-screen{grid-template-columns:1fr;}
+  .login-panel-img{display:none;}
+  .login-panel-form{padding:2.5rem 1.5rem;}
   .login-brand{font-size:1.7rem;}
   .onboarding-steps{grid-template-columns:1fr;}
   .onboarding-panel.active{grid-template-columns:1fr;}
@@ -554,18 +555,27 @@ a{color:inherit;text-decoration:none;}
 
 <!-- ── LOGIN ───────────────────────────────── -->
 <div id="login-screen">
-  <div class="login-card">
-    <img src="images/oak-pixel-mark-hires-transparent.png" class="login-logo-img" alt="Oak &amp; Pixel Studio">
-    <div class="login-brand">Oak &amp; Pixel</div>
-    <div class="login-kicker">Studio Command</div>
-    <div class="login-sub">Admin Portal</div>
-    <label class="f-label">Email Address</label>
-    <input type="email" class="f-input" id="login-email" placeholder="admin@oakandpixel.co.za" autocomplete="email">
-    <label class="f-label">Password</label>
-    <input type="password" class="f-input" id="login-password" placeholder="••••••••" autocomplete="current-password">
-    <button class="btn-login" id="login-btn">Sign In</button>
-    <p class="login-err" id="login-err"></p>
-    <p class="login-footnote">Private workspace for bookings, clients, projects, and retainers.</p>
+  <div class="login-panel-img">
+    <img src="images/oak-pixel-mark-hires-transparent.png" class="login-img-logo" alt="">
+    <div class="login-img-brand">
+      <div class="login-img-mark">Oak &amp; Pixel Studio</div>
+      <div class="login-img-tagline">Private Admin Workspace</div>
+    </div>
+  </div>
+  <div class="login-panel-form">
+    <div class="login-card">
+      <img src="images/oak-pixel-mark-hires-transparent.png" class="login-logo-img" alt="Oak &amp; Pixel Studio">
+      <div class="login-brand">Oak &amp; Pixel</div>
+      <div class="login-kicker">Studio Command</div>
+      <div class="login-sub">Admin Portal</div>
+      <label class="f-label">Email Address</label>
+      <input type="email" class="f-input" id="login-email" placeholder="admin@oakandpixel.co.za" autocomplete="email">
+      <label class="f-label">Password</label>
+      <input type="password" class="f-input" id="login-password" placeholder="••••••••" autocomplete="current-password">
+      <button class="btn-login" id="login-btn">Sign In</button>
+      <p class="login-err" id="login-err"></p>
+      <p class="login-footnote">Private workspace for bookings, clients, projects, and retainers.</p>
+    </div>
   </div>
 </div>
 
@@ -1685,33 +1695,6 @@ async function loadClients() {
   }
 }
 
-function renderClients() {
-  const c = $('clients-table');
-  if (!c) return;
-  let rows = allClients;
-  if (clientSearch) {
-    const q = clientSearch.toLowerCase();
-    rows = rows.filter(r => r.full_name?.toLowerCase().includes(q) || r.email?.toLowerCase().includes(q));
-  }
-  if (!rows.length) {
-    c.innerHTML = emptyState('No clients yet', 'Convert a lead from the Contacts page.');
-    return;
-  }
-  c.innerHTML = `<table class="a-table">
-    <thead><tr>
-      <th>Name</th><th>Company</th><th>Email</th><th>Project Type</th><th>Budget</th><th>Date Converted</th>
-    </tr></thead>
-    <tbody>${rows.map(r => `<tr>
-      <td class="td-name">${r.full_name}</td>
-      <td style="font-size:.76rem;color:rgba(245,244,241,.5)">${r.company || '—'}</td>
-      <td class="td-dim">${r.email}</td>
-      <td style="font-size:.74rem;color:rgba(245,244,241,.45)">${r.project_type || '—'}</td>
-      <td class="td-dim">${r.budget || '—'}</td>
-      <td class="td-dim">${fmtDate(r.created_at?.split('T')[0])}</td>
-    </tr>`).join('')}</tbody>
-  </table>`;
-}
-
 $('client-search')?.addEventListener('input', e => {
   clientSearch = e.target.value.trim();
   renderClients();
@@ -1994,7 +1977,7 @@ function openClientLogoModal(clientId) {
   showModal(`
     <div class="modal-hdr">
       <span class="modal-title">Client Logo</span>
-      <button class="modal-close" onclick="closeModal()">Ã—</button>
+      <button class="modal-close" onclick="closeModal()">×</button>
     </div>
     <div class="modal-body">
       <div class="modal-field full" style="align-items:center">${clientAvatar(client, 'lg')}</div>
@@ -2070,7 +2053,7 @@ async function openRetainerModal(clientId) {
   showModal(`
     <div class="modal-hdr">
       <span class="modal-title">Client Retainer</span>
-      <button class="modal-close" onclick="closeModal()">Ã—</button>
+      <button class="modal-close" onclick="closeModal()">×</button>
     </div>
     <div class="modal-body">
       <div class="modal-field full" style="align-items:center">${clientAvatar(client, 'lg')}</div>
@@ -2148,7 +2131,7 @@ $('contact-search').addEventListener('input', e => {
   renderContacts();
 });
 
-/* ── Services ── */
+/* ── Projects ── */
 async function loadProjects() {
   const { data, error } = await sb.from('projects')
     .select('*,client:client_id(company,full_name)')
@@ -2530,7 +2513,7 @@ function openServiceEditModal(id) {
     showModal(`
       <div class="modal-hdr">
         <span class="modal-title">Edit Service</span>
-        <button class="modal-close" onclick="closeModal()">Ã—</button>
+        <button class="modal-close" onclick="closeModal()">×</button>
       </div>
       <div class="modal-body">
         <div class="modal-field full"><label>Service Name</label><input id="sd-name" value="${esc(s.name)}"></div>
@@ -2549,7 +2532,7 @@ function openServiceEditModal(id) {
   showModal(`
     <div class="modal-hdr">
       <span class="modal-title">Edit Service</span>
-      <button class="modal-close" onclick="closeModal()">Ã—</button>
+      <button class="modal-close" onclick="closeModal()">×</button>
     </div>
     <div class="modal-body">
       <div class="modal-field full"><label>Service Name</label><input id="sd-name" value="${esc(s.name)}"></div>
@@ -2627,7 +2610,7 @@ function openClientDocumentModal(type, clientId) {
   showModal(`
     <div class="modal-hdr">
       <span class="modal-title">${isQuote ? 'Generate Quote' : 'Generate Invoice'}</span>
-      <button class="modal-close" onclick="closeModal()">Ã—</button>
+      <button class="modal-close" onclick="closeModal()">×</button>
     </div>
     <div class="modal-body">
       <div class="modal-field full" style="align-items:center">${clientAvatar(client, 'lg')}</div>
@@ -2666,7 +2649,7 @@ function showDocumentModal(type, service) {
   showModal(`
     <div class="modal-hdr">
       <span class="modal-title">${isQuote ? 'Generate Quote' : 'Generate Invoice'}</span>
-      <button class="modal-close" onclick="closeModal()">Ã—</button>
+      <button class="modal-close" onclick="closeModal()">×</button>
     </div>
     <div class="modal-body">
       <div class="modal-field full"><label>Service</label><input readonly value="${esc(service.name)}"></div>
