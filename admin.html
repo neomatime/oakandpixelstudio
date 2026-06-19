@@ -903,7 +903,7 @@ async function loadRecentActivity() {
 /* ── Bookings ── */
 async function loadBookings() {
   const { data } = await sb.from('bookings')
-    .select('id,full_name,company,email,phone,status,created_at,service:service_id(name),slot:slot_id(date,start_time)')
+    .select('id,full_name,company,email,phone,status,created_at,service_id,slot_id,service:service_id(name),slot:slot_id(date,start_time)')
     .order('created_at', { ascending: false });
   allBookings = data || [];
   renderBookings();
@@ -932,22 +932,107 @@ function bookingTable(rows, compact) {
     <tbody>${rows.map(b => {
       const date = b.slot?.date ? fmtDate(b.slot.date) : '—';
       const time = fmtTime(b.slot?.start_time);
-      const actions = b.status === 'pending'
-        ? `<div class="act-group">
-            <button class="act-btn confirm" data-id="${b.id}" data-action="confirmed">Confirm</button>
-            <button class="act-btn decline" data-id="${b.id}" data-action="declined">Decline</button>
-           </div>`
-        : `<span style="font-family:var(--font-m);font-size:.62rem;color:rgba(245,244,241,.25)">—</span>`;
+      const pendingActions = b.status === 'pending'
+        ? `<button class="act-btn confirm" data-id="${b.id}" data-action="confirmed">Confirm</button>
+           <button class="act-btn decline" data-id="${b.id}" data-action="declined">Decline</button>`
+        : '';
+      const actions = `<div class="act-group">
+        ${pendingActions}
+        <button class="act-btn edit-booking" data-id="${b.id}">Edit</button>
+        <button class="act-btn delete-booking" data-id="${b.id}" data-slot="${b.slot_id || ''}">Delete</button>
+      </div>`;
       return `<tr>
         <td class="td-name">${b.full_name}</td>
         <td style="color:rgba(245,244,241,.55);font-size:.76rem">${b.service?.name || '—'}</td>
         <td><div class="td-stack"><span>${date}</span><span class="td-dim">${time}</span></div></td>
-        ${compact ? '' : `<td>${b.company}</td><td><div class="td-stack"><span style="font-size:.75rem">${b.email}</span><span class="td-dim">${b.phone}</span></div></td>`}
+        ${compact ? '' : `<td>${b.company || '—'}</td><td><div class="td-stack"><span style="font-size:.75rem">${b.email}</span><span class="td-dim">${b.phone || '—'}</span></div></td>`}
         <td><span class="badge badge-${b.status}">${b.status}</span></td>
         <td>${actions}</td>
       </tr>`;
     }).join('')}</tbody>
   </table>`;
+}
+
+async function openEditBookingModal(id) {
+  const booking = allBookings.find(b => b.id === id);
+  if (!booking) return;
+
+  const [{ data: openSlots }, { data: currSlot }] = await Promise.all([
+    sb.from('available_slots').select('id,date,start_time').eq('is_booked', false).order('date').order('start_time'),
+    booking.slot_id
+      ? sb.from('available_slots').select('id,date,start_time').eq('id', booking.slot_id).single()
+      : Promise.resolve({ data: null })
+  ]);
+
+  const slotList = openSlots || [];
+  if (currSlot && !slotList.find(s => s.id === currSlot.id)) slotList.unshift(currSlot);
+
+  const noSlotOpt = booking.slot_id ? '' : '<option value="">— No slot assigned —</option>';
+  const slotOptions = noSlotOpt + slotList.map(s => {
+    const isCurrent = s.id === booking.slot_id;
+    return `<option value="${s.id}"${isCurrent ? ' selected' : ''}>${fmtDate(s.date)} — ${fmtTime(s.start_time)}${isCurrent ? ' (current)' : ''}</option>`;
+  }).join('');
+
+  const serviceOptions = allServices.map(s =>
+    `<option value="${s.id}"${s.id === booking.service_id ? ' selected' : ''}>${s.name}</option>`
+  ).join('');
+
+  const esc = v => (v || '').replace(/"/g, '&quot;');
+  showModal(`
+    <div class="modal-hdr">
+      <span class="modal-title">Edit Booking</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-field"><label>Full Name</label><input id="eb-name" value="${esc(booking.full_name)}"></div>
+      <div class="modal-field"><label>Company</label><input id="eb-company" value="${esc(booking.company)}"></div>
+      <div class="modal-field"><label>Email</label><input id="eb-email" value="${esc(booking.email)}"></div>
+      <div class="modal-field"><label>Phone</label><input id="eb-phone" value="${esc(booking.phone)}"></div>
+      <hr class="modal-divider">
+      <div class="modal-field"><label>Service</label><select id="eb-service">${serviceOptions}</select></div>
+      <div class="modal-field"><label>Status</label>
+        <select id="eb-status">
+          <option value="pending"${booking.status==='pending'?' selected':''}>Pending</option>
+          <option value="confirmed"${booking.status==='confirmed'?' selected':''}>Confirmed</option>
+          <option value="declined"${booking.status==='declined'?' selected':''}>Declined</option>
+        </select>
+      </div>
+      <div class="modal-field full"><label>Date &amp; Time Slot</label><select id="eb-slot">${slotOptions}</select></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-danger" onclick="deleteBooking('${booking.id}','${booking.slot_id||''}')">Delete booking</button>
+      <div class="modal-foot-right">
+        <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn-add" onclick="saveEditBooking('${booking.id}','${booking.slot_id||''}')">Save Changes</button>
+      </div>
+    </div>
+  `);
+}
+
+async function saveEditBooking(bookingId, oldSlotId) {
+  const newSlotId  = $('eb-slot')?.value  || null;
+  const prevSlotId = oldSlotId             || null;
+  const update = {
+    full_name:  ($('eb-name').value  || '').trim(),
+    company:    ($('eb-company').value || '').trim() || null,
+    email:      ($('eb-email').value  || '').trim(),
+    phone:      ($('eb-phone').value  || '').trim() || null,
+    service_id: $('eb-service').value || null,
+    status:     $('eb-status').value,
+    slot_id:    newSlotId,
+  };
+
+  if (newSlotId !== prevSlotId) {
+    if (prevSlotId) await sb.from('available_slots').update({ is_booked: false }).eq('id', prevSlotId);
+    if (newSlotId)  await sb.from('available_slots').update({ is_booked: true  }).eq('id', newSlotId);
+  }
+
+  const { error } = await sb.from('bookings').update(update).eq('id', bookingId);
+  if (error) { toast('Error saving changes.'); return; }
+
+  closeModal();
+  toast('Booking updated.');
+  await Promise.all([loadStats(), loadBookings(), loadRecentActivity()]);
 }
 
 function wireBookingActions(container) {
@@ -957,6 +1042,9 @@ function wireBookingActions(container) {
       toast(`Booking ${btn.dataset.action}.`);
       await Promise.all([loadStats(), loadBookings()]);
     });
+  });
+  container.querySelectorAll('.edit-booking').forEach(btn => {
+    btn.addEventListener('click', () => openEditBookingModal(btn.dataset.id));
   });
 }
 
