@@ -1350,8 +1350,6 @@ async function loadRecentActivity() {
   const all = [...leads, ...clients, ...bookings]
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
     .slice(0, 8);
-
-  const c = $('activity-feed');
   if (!c) return;
   if (!all.length) {
     c.innerHTML = emptyState('No activity yet', 'Activity will appear as leads, clients, and bookings come in.');
