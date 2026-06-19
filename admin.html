@@ -1276,7 +1276,7 @@ async function openEditBookingModal(id) {
 
   if (slotsResult.error) { toast('Could not load available slots.'); return; }
   const openSlots = slotsResult.data;
-  const currSlot  = currSlotResult.data;
+  const currSlot  = currSlotResult.error ? null : currSlotResult.data;
 
   const slotList = openSlots || [];
   if (currSlot && !slotList.find(s => s.id === currSlot.id)) slotList.unshift(currSlot);
