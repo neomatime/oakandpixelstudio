@@ -355,6 +355,11 @@ section{position:relative}
   font-weight:400;color:var(--white);margin-bottom:1rem;
   line-height:1.2;
 }
+.service-price{
+  font-family:var(--font-body);font-size:.85rem;
+  color:var(--emerald-l);letter-spacing:.04em;
+  margin-top:-.5rem;margin-bottom:1rem;
+}
 .service-desc{font-size:.88rem;color:rgba(255,255,255,.4);line-height:1.75;transition:color .35s;}
 .service-card:hover .service-desc{color:rgba(255,255,255,.6);}
 .service-arrow{
@@ -1545,7 +1550,7 @@ footer{
     </p>
     <div class="services-grid">
       <!-- Card 1 -->
-      <div class="service-card reveal">
+      <div class="service-card reveal" data-service="Premium Website">
         <div class="service-num">01</div>
         <svg class="service-icon" viewBox="0 0 40 40" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2">
           <rect x="4" y="8" width="32" height="24" rx="2"/>
@@ -1558,7 +1563,7 @@ footer{
         </div>
       </div>
       <!-- Card 2 -->
-      <div class="service-card reveal reveal-delay-1">
+      <div class="service-card reveal reveal-delay-1" data-service="Online Booking Experience">
         <div class="service-num">02</div>
         <svg class="service-icon" viewBox="0 0 40 40" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2">
           <rect x="6" y="8" width="28" height="24" rx="2"/>
@@ -1573,7 +1578,7 @@ footer{
         </div>
       </div>
       <!-- Card 3 -->
-      <div class="service-card reveal reveal-delay-2">
+      <div class="service-card reveal reveal-delay-2" data-service="Lead Capture Experience">
         <div class="service-num">03</div>
         <svg class="service-icon" viewBox="0 0 40 40" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2">
           <rect x="8" y="6" width="24" height="30" rx="2"/>
@@ -1588,7 +1593,7 @@ footer{
         </div>
       </div>
       <!-- Card 4 -->
-      <div class="service-card reveal reveal-delay-1">
+      <div class="service-card reveal reveal-delay-1" data-service="Client Onboarding Experience">
         <div class="service-num">04</div>
         <svg class="service-icon" viewBox="0 0 40 40" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2">
           <circle cx="10" cy="12" r="4"/>
@@ -1603,7 +1608,7 @@ footer{
         </div>
       </div>
       <!-- Card 5 -->
-      <div class="service-card reveal reveal-delay-2">
+      <div class="service-card reveal reveal-delay-2" data-service="CRM &amp; Payment Integration">
         <div class="service-num">05</div>
         <svg class="service-icon" viewBox="0 0 40 40" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2">
           <circle cx="20" cy="20" r="4"/>
@@ -1620,7 +1625,7 @@ footer{
         </div>
       </div>
       <!-- Card 6 -->
-      <div class="service-card reveal reveal-delay-3">
+      <div class="service-card reveal reveal-delay-3" data-service="Digital Presence Management">
         <div class="service-num">06</div>
         <svg class="service-icon" viewBox="0 0 40 40" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2">
           <rect x="6" y="8" width="28" height="8" rx="1"/>
@@ -3275,6 +3280,24 @@ document.querySelectorAll('.service-card').forEach(card => {
 </script>
 
 
+<script>
+(async () => {
+  const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkYnNtY3h6aG1ka2Zqb2Z0dWxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDEwMTQsImV4cCI6MjA5NzM3NzAxNH0.xo9x29q_QVmDl81soUI3OMDzJBKmqEme-I6v5IZmeN0';
+  const data = await fetch(
+    'https://wdbsmcxzhmdkfjoftulm.supabase.co/rest/v1/services?select=name,price&active=eq.true',
+    { headers: { apikey: ANON } }
+  ).then(r => r.json()).catch(() => []);
+  (data || []).forEach(({ name, price }) => {
+    if (!price) return;
+    const card = document.querySelector(`[data-service="${name}"]`);
+    if (!card) return;
+    const el = document.createElement('p');
+    el.className = 'service-price';
+    el.textContent = `R ${price.toLocaleString('en-ZA')}`;
+    card.querySelector('.service-name').after(el);
+  });
+})();
+</script>
 
 </body>
 </html>
