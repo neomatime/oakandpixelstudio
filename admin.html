@@ -954,30 +954,38 @@ function bookingTable(rows, compact) {
 }
 
 async function openEditBookingModal(id) {
+  const esc = v => (v || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
   const booking = allBookings.find(b => b.id === id);
   if (!booking) return;
 
-  const [{ data: openSlots }, { data: currSlot }] = await Promise.all([
+  const [slotsResult, currSlotResult] = await Promise.all([
     sb.from('available_slots').select('id,date,start_time').eq('is_booked', false).order('date').order('start_time'),
     booking.slot_id
       ? sb.from('available_slots').select('id,date,start_time').eq('id', booking.slot_id).single()
       : Promise.resolve({ data: null })
   ]);
 
+  if (slotsResult.error) { toast('Could not load available slots.'); return; }
+  const openSlots = slotsResult.data;
+  const currSlot  = currSlotResult.data;
+
   const slotList = openSlots || [];
   if (currSlot && !slotList.find(s => s.id === currSlot.id)) slotList.unshift(currSlot);
 
-  const noSlotOpt = booking.slot_id ? '' : '<option value="">— No slot assigned —</option>';
+  const noSlotOpt = `<option value=""${!booking.slot_id ? ' selected' : ''}>— No slot assigned —</option>`;
   const slotOptions = noSlotOpt + slotList.map(s => {
     const isCurrent = s.id === booking.slot_id;
-    return `<option value="${s.id}"${isCurrent ? ' selected' : ''}>${fmtDate(s.date)} — ${fmtTime(s.start_time)}${isCurrent ? ' (current)' : ''}</option>`;
+    return `<option value="${s.id}"${isCurrent ? ' selected' : ''}>${esc(fmtDate(s.date))} — ${esc(fmtTime(s.start_time))}${isCurrent ? ' (current)' : ''}</option>`;
   }).join('');
 
   const serviceOptions = allServices.map(s =>
-    `<option value="${s.id}"${s.id === booking.service_id ? ' selected' : ''}>${s.name}</option>`
+    `<option value="${s.id}"${s.id === booking.service_id ? ' selected' : ''}>${esc(s.name)}</option>`
   ).join('');
-
-  const esc = v => (v || '').replace(/"/g, '&quot;');
   showModal(`
     <div class="modal-hdr">
       <span class="modal-title">Edit Booking</span>
@@ -1022,13 +1030,13 @@ async function saveEditBooking(bookingId, oldSlotId) {
     slot_id:    newSlotId,
   };
 
+  const { error } = await sb.from('bookings').update(update).eq('id', bookingId);
+  if (error) { toast('Error saving changes.'); return; }
+
   if (newSlotId !== prevSlotId) {
     if (prevSlotId) await sb.from('available_slots').update({ is_booked: false }).eq('id', prevSlotId);
     if (newSlotId)  await sb.from('available_slots').update({ is_booked: true  }).eq('id', newSlotId);
   }
-
-  const { error } = await sb.from('bookings').update(update).eq('id', bookingId);
-  if (error) { toast('Error saving changes.'); return; }
 
   closeModal();
   toast('Booking updated.');
