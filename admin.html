@@ -237,6 +237,8 @@ a{color:inherit;text-decoration:none;}
 .slot-chip .booked-lbl{font-family:var(--font-m);font-size:.5rem;letter-spacing:.06em;color:rgba(245,244,241,.22);text-transform:uppercase;}
 .btn-rm{background:none;border:none;color:rgba(245,244,241,.25);font-size:.85rem;line-height:1;padding:.1rem;transition:color .18s;}
 .btn-rm:hover{color:var(--err);}
+.slot-chip .btn-edit-slot{background:none;border:none;border-left:1px solid var(--border);color:rgba(245,244,241,.28);font-size:.68rem;cursor:pointer;padding:0 .25rem 0 .3rem;margin-left:.2rem;line-height:1;transition:color .15s;}
+.slot-chip .btn-edit-slot:hover{color:var(--off-white);}
 
 /* ── TIME PILLS ───────────────────────────── */
 .time-pill-grid{display:flex;flex-wrap:wrap;gap:.35rem;}
@@ -1053,6 +1055,67 @@ async function deleteBooking(id, slotId) {
   await Promise.all([loadStats(), loadBookings(), loadRecentActivity()]);
 }
 
+function openEditSlotModal(slotId, date, currentTime) {
+  const times = [];
+  for (let h = 7; h <= 19; h++) {
+    times.push(`${String(h).padStart(2,'0')}:00`);
+    if (h < 19) times.push(`${String(h).padStart(2,'0')}:30`);
+  }
+  const pills = times.map(t =>
+    `<button class="time-pill${t === currentTime ? ' selected' : ''}" data-time="${t}" type="button">${fmtTime(t)}</button>`
+  ).join('');
+
+  showModal(`
+    <div class="modal-hdr">
+      <span class="modal-title">Edit Slot Time</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" style="grid-template-columns:1fr">
+      <div class="modal-field full">
+        <label>Date (locked)</label>
+        <input value="${fmtDateLong(date)}" readonly>
+      </div>
+      <div class="modal-field full">
+        <label>New Time</label>
+        <div class="time-pill-grid" id="edit-slot-pills">${pills}</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <div></div>
+      <div class="modal-foot-right">
+        <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn-add" onclick="saveEditSlot('${slotId}','${date}')">Update Slot</button>
+      </div>
+    </div>
+  `);
+
+  $('edit-slot-pills').querySelectorAll('.time-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      $('edit-slot-pills').querySelectorAll('.time-pill').forEach(p => p.classList.remove('selected'));
+      pill.classList.add('selected');
+    });
+  });
+}
+
+async function saveEditSlot(slotId, date) {
+  const selected = $('edit-slot-pills')?.querySelector('.time-pill.selected');
+  if (!selected) { toast('Select a time.'); return; }
+  const newTime = selected.dataset.time;
+
+  const { data: conflict } = await sb.from('available_slots')
+    .select('id').eq('date', date).eq('start_time', newTime).neq('id', slotId)
+    .maybeSingle();
+  if (conflict) { toast('A slot already exists at that time on this date.'); return; }
+
+  const { error } = await sb.from('available_slots').update({ start_time: newTime }).eq('id', slotId);
+  if (error) { toast('Error updating slot.'); return; }
+
+  closeModal();
+  toast('Slot updated.');
+  loadSlots();
+  loadStats();
+}
+
 function wireBookingActions(container) {
   container.querySelectorAll('.act-btn[data-action]').forEach(btn => {
     btn.addEventListener('click', async () => {
@@ -1139,10 +1202,13 @@ async function loadSlots() {
             <span class="slot-chip-t">${fmtTime(s.start_time)}</span>
             ${s.is_booked
               ? '<span class="booked-lbl">Booked</span>'
-              : `<button class="btn-rm" data-id="${s.id}" title="Remove">✕</button>`}
+              : `<button class="btn-edit-slot" data-id="${s.id}" data-date="${s.date}" data-time="${s.start_time}" title="Edit time">✎</button><button class="btn-rm" data-id="${s.id}" title="Remove">✕</button>`}
           </div>`).join('')}
       </div>
     </div>`).join('');
+  c.querySelectorAll('.btn-edit-slot').forEach(btn => {
+    btn.addEventListener('click', () => openEditSlotModal(btn.dataset.id, btn.dataset.date, btn.dataset.time));
+  });
   c.querySelectorAll('.btn-rm').forEach(btn => {
     btn.addEventListener('click', async () => {
       await sb.from('available_slots').delete().eq('id', btn.dataset.id);
