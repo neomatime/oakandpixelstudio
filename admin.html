@@ -30,18 +30,18 @@ button{cursor:pointer;}
 a{color:inherit;text-decoration:none;}
 
 /* ── LOGIN ────────────────────────────────── */
-#login-screen{min-height:100vh;display:grid;grid-template-columns:260px 1fr;}
+#login-screen{min-height:100vh;position:relative;background:#f5f4f1;}
 .login-panel-img{
-  position:relative;overflow:hidden;
+  position:absolute;left:0;top:0;width:260px;height:100%;overflow:hidden;
   background:#0a0a09 url('images/login-bg.jpg') center/cover no-repeat;
-  display:flex;flex-direction:column;justify-content:space-between;padding:2.5rem 3rem;
+  display:flex;flex-direction:column;justify-content:space-between;padding:2.5rem 1.75rem;
 }
 .login-panel-img::before{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.12) 0%,rgba(0,0,0,.55) 100%);pointer-events:none;}
 .login-img-logo{position:relative;z-index:1;width:42px;height:42px;object-fit:contain;filter:brightness(0) invert(1);opacity:.55;}
 .login-img-brand{position:relative;z-index:1;}
-.login-img-mark{font-family:var(--font-d);font-size:1.45rem;font-weight:400;letter-spacing:.04em;color:rgba(255,255,255,.9);margin-bottom:.35rem;}
-.login-img-tagline{font-family:var(--font-m);font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.38);}
-.login-panel-form{background:#f5f4f1;display:flex;align-items:center;justify-content:center;padding:3rem 2.5rem;}
+.login-img-mark{font-family:var(--font-d);font-size:1.3rem;font-weight:400;letter-spacing:.04em;color:rgba(255,255,255,.9);margin-bottom:.35rem;}
+.login-img-tagline{font-family:var(--font-m);font-size:.48rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.38);}
+.login-panel-form{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:3rem 2.5rem;}
 .login-card{width:min(430px,100%);position:relative;background:#fff;border:1px solid #e5e0d9;padding:3.25rem 2.7rem 2.45rem;box-shadow:0 4px 24px rgba(0,0,0,.07),0 1px 4px rgba(0,0,0,.04);}
 .login-logo-img{display:block;width:80px;height:80px;object-fit:contain;margin:0 auto 1.15rem;border-radius:6px;}
 .login-brand{font-family:var(--font-d);font-size:2.05rem;font-weight:400;text-align:center;line-height:1;color:#1a1a18;margin-bottom:.35rem;}
