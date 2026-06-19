@@ -655,6 +655,16 @@ function fmtTime(t) {
   const [h, m] = t.slice(0, 5).split(':').map(Number);
   return `${h === 0 ? 12 : h > 12 ? h - 12 : h}:${String(m).padStart(2,'0')} ${h >= 12 ? 'PM' : 'AM'}`;
 }
+function timeAgo(iso) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 60)  return `${Math.max(1, m)}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24)  return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 7)   return `${d}d ago`;
+  return fmtDate(iso.split('T')[0]);
+}
 function todayStr() { return new Date().toISOString().split('T')[0]; }
 
 /* ── Toast ── */
@@ -744,7 +754,7 @@ function switchPage(name) {
 
 /* ── Load all data ── */
 async function loadAll() {
-  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadContacts(), loadClients()]);
+  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadContacts(), loadClients(), loadRecentActivity()]);
 }
 
 /* ── Stats ── */
@@ -786,6 +796,54 @@ function renderPipeline(leads, clients, confirmed) {
   `;
 }
 
+async function loadRecentActivity() {
+  const [leadsRes, clientsRes, bookingsRes] = await Promise.all([
+    sb.from('contacts').select('id,full_name,project_type,created_at').is('converted_at', null).order('created_at', { ascending: false }).limit(8),
+    sb.from('clients').select('id,full_name,created_at').order('created_at', { ascending: false }).limit(8),
+    sb.from('bookings').select('id,full_name,status,created_at,slot:slot_id(date,start_time)').order('created_at', { ascending: false }).limit(8)
+  ]);
+  const leads    = (leadsRes.data    || []).map(r => ({ ...r, _type: 'lead'    }));
+  const clients  = (clientsRes.data  || []).map(r => ({ ...r, _type: 'client'  }));
+  const bookings = (bookingsRes.data || []).map(r => ({ ...r, _type: 'booking' }));
+  const all = [...leads, ...clients, ...bookings]
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, 8);
+
+  const c = $('activity-feed');
+  if (!c) return;
+  if (!all.length) {
+    c.innerHTML = emptyState('No activity yet', 'Activity will appear as leads, clients, and bookings come in.');
+    return;
+  }
+  c.innerHTML = all.map(r => {
+    let icon, primary, secondary;
+    if (r._type === 'lead') {
+      icon      = `<div class="activity-icon ai-lead">L</div>`;
+      primary   = `New lead — <strong>${r.full_name}</strong>`;
+      secondary = r.project_type || '—';
+    } else if (r._type === 'client') {
+      icon      = `<div class="activity-icon ai-client">C</div>`;
+      primary   = `Converted to client — <strong>${r.full_name}</strong>`;
+      secondary = 'via Contacts';
+    } else {
+      const ok  = r.status === 'confirmed';
+      icon      = `<div class="activity-icon ${ok ? 'ai-booking-ok' : 'ai-booking-pen'}">B</div>`;
+      const ds  = r.slot?.date ? fmtDate(r.slot.date) : '—';
+      const ts  = fmtTime(r.slot?.start_time);
+      primary   = `Booking ${r.status} — <strong>${ds}</strong>`;
+      secondary = `${ts} · ${r.status}`;
+    }
+    return `<div class="activity-row">
+      ${icon}
+      <div class="activity-body">
+        <div class="activity-name">${primary}</div>
+        <div class="activity-sub">${secondary}</div>
+      </div>
+      <div class="activity-time">${timeAgo(r.created_at)}</div>
+    </div>`;
+  }).join('');
+}
+
 /* ── Bookings ── */
 async function loadBookings() {
   const { data } = await sb.from('bookings')
@@ -793,16 +851,7 @@ async function loadBookings() {
     .order('created_at', { ascending: false });
   allBookings = data || [];
   renderBookings();
-  renderRecent();
   renderCharts();
-}
-
-function renderRecent() {
-  const c = $('recent-list');
-  const recent = allBookings.slice(0, 5);
-  if (!recent.length) { c.innerHTML = emptyState('No bookings yet'); return; }
-  c.innerHTML = bookingTable(recent, true);
-  wireBookingActions(c);
 }
 
 function renderBookings() {
@@ -866,33 +915,6 @@ function renderCharts() {
   const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
   const textColor = isDark ? 'rgba(245,244,241,.45)' : 'rgba(26,26,24,.45)';
   const gridColor = isDark ? 'rgba(245,244,241,.05)' : 'rgba(26,26,24,.06)';
-
-  const pending   = allBookings.filter(b => b.status === 'pending').length;
-  const confirmed = allBookings.filter(b => b.status === 'confirmed').length;
-  const declined  = allBookings.filter(b => b.status === 'declined').length;
-
-  const ctx1 = document.getElementById('chart-status')?.getContext('2d');
-  if (ctx1) {
-    if (statusChart) statusChart.destroy();
-    statusChart = new Chart(ctx1, {
-      type: 'doughnut',
-      data: {
-        labels: ['Pending', 'Confirmed', 'Declined'],
-        datasets: [{ data: [pending || 0, confirmed || 0, declined || 0],
-          backgroundColor: ['#B8955A','#5a9e6f','#e07070'],
-          borderWidth: 0, hoverOffset: 4 }]
-      },
-      options: {
-        cutout: '70%', responsive: true, maintainAspectRatio: true,
-        plugins: {
-          legend: { position: 'bottom', labels: {
-            color: textColor, boxWidth: 10, padding: 14,
-            font: { family: "'DM Mono', monospace", size: 10 }
-          }}
-        }
-      }
-    });
-  }
 
   const today = new Date();
   const days = Array.from({length:7}, (_,i) => {
