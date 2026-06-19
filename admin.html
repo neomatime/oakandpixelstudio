@@ -383,6 +383,10 @@ a{color:inherit;text-decoration:none;}
 .chart-wrap{padding:1rem 1.5rem 1.5rem;position:relative;min-height:180px;}
 #chart-trend{max-height:200px;}
 
+/* ── BOOKING TOOLBAR ─────────────────────── */
+.booking-toolbar{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.booking-toolbar .filter-row{margin:0;gap:.3rem;}
+
 /* ── CONTACTS ─────────────────────────────── */
 .contacts-toolbar{display:flex;align-items:center;gap:.75rem;padding:1rem 1.5rem;border-bottom:1px solid var(--border);}
 .search-input{flex:1;background:rgba(245,244,241,.04);border:1px solid var(--border-hi);color:var(--off-white);font-family:var(--font-b);font-size:.8rem;padding:.55rem .9rem;outline:none;transition:border-color .2s;max-width:260px;}
@@ -541,11 +545,14 @@ a{color:inherit;text-decoration:none;}
 
       <!-- ── BOOKINGS ── -->
       <section class="page" id="page-bookings">
-        <div class="filter-row">
-          <button class="f-tab active" data-filter="all">All</button>
-          <button class="f-tab" data-filter="pending">Pending</button>
-          <button class="f-tab" data-filter="confirmed">Confirmed</button>
-          <button class="f-tab" data-filter="declined">Declined</button>
+        <div class="booking-toolbar">
+          <input type="text" class="search-input" id="booking-search" placeholder="Search by name or email…">
+          <div class="filter-row" style="margin:0;gap:.3rem;">
+            <button class="f-tab active" data-filter="all">All</button>
+            <button class="f-tab" data-filter="pending">Pending</button>
+            <button class="f-tab" data-filter="confirmed">Confirmed</button>
+            <button class="f-tab" data-filter="declined">Declined</button>
+          </div>
         </div>
         <div class="card">
           <div id="bookings-table"><p class="loading-row">Loading…</p></div>
@@ -663,6 +670,8 @@ let currentFilter = 'all';
 let allBookings = [];
 let allContacts = [];
 let allClients  = [];
+let allServices = [];
+let bookingSearch = '';
 let contactFilter = 'all';
 let contactSearch = '';
 let clientSearch  = '';
@@ -903,7 +912,11 @@ async function loadBookings() {
 
 function renderBookings() {
   const c = $('bookings-table');
-  const filtered = currentFilter === 'all' ? allBookings : allBookings.filter(b => b.status === currentFilter);
+  let filtered = currentFilter === 'all' ? allBookings : allBookings.filter(b => b.status === currentFilter);
+  if (bookingSearch) {
+    const q = bookingSearch.toLowerCase();
+    filtered = filtered.filter(b => b.full_name?.toLowerCase().includes(q) || b.email?.toLowerCase().includes(q));
+  }
   if (!filtered.length) { c.innerHTML = emptyState('No bookings found'); return; }
   c.innerHTML = bookingTable(filtered, false);
   wireBookingActions(c);
@@ -955,6 +968,11 @@ document.querySelectorAll('.f-tab[data-filter]').forEach(tab => {
     currentFilter = tab.dataset.filter;
     renderBookings();
   });
+});
+
+$('booking-search')?.addEventListener('input', e => {
+  bookingSearch = e.target.value.trim();
+  renderBookings();
 });
 
 /* ── Charts ── */
@@ -1224,6 +1242,7 @@ $('contact-search').addEventListener('input', e => {
 async function loadServices() {
   const c = $('services-grid');
   const { data } = await sb.from('services').select('id,name,description,price,active,sort_order').order('sort_order');
+  allServices = data || [];
   if (!data?.length) { c.innerHTML = emptyState('No services found'); return; }
   c.innerHTML = data.map(s => {
     const priceLabel = s.price > 0
