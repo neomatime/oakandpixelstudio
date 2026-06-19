@@ -404,6 +404,71 @@ a{color:inherit;text-decoration:none;}
 .status-select option{background:var(--card);color:var(--off-white);}
 .contact-brief-cell{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(245,244,241,.38);font-size:.74rem;}
 [data-theme="light"] .contact-brief-cell{color:rgba(26,26,24,.4);}
+
+/* --- CLIENT MANAGEMENT --- */
+.section-toolbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 1.5rem;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.toolbar-left,.toolbar-right{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;}
+.client-filter{min-width:150px;background:rgba(245,244,241,.04);border:1px solid var(--border-hi);color:var(--off-white);font-family:var(--font-b);font-size:.8rem;padding:.55rem .8rem;outline:none;}
+.client-filter option{background:var(--card);}
+.client-name-block{display:flex;flex-direction:column;gap:.1rem;}
+.client-company{font-family:var(--font-d);font-size:1rem;color:var(--off-white);font-weight:400;}
+.client-contact{font-size:.72rem;color:rgba(245,244,241,.4);}
+.client-actions{display:flex;gap:.35rem;justify-content:flex-end;flex-wrap:wrap;}
+.onboarding-shell{padding:1.35rem 1.5rem 1.5rem;}
+.onboarding-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:1.25rem;}
+.onboarding-step{border:1px solid var(--border);background:rgba(245,244,241,.025);padding:.75rem;}
+.onboarding-step.active{border-color:var(--emerald);background:var(--em-dim);}
+.onboarding-step-num{font-family:var(--font-m);font-size:.52rem;color:var(--emerald-l);letter-spacing:.12em;text-transform:uppercase;margin-bottom:.25rem;}
+.onboarding-step-title{font-family:var(--font-d);font-size:1rem;font-weight:400;}
+.onboarding-panel{display:none;grid-template-columns:1fr 1fr;gap:.85rem;}
+.onboarding-panel.active{display:grid;}
+.onboarding-field{display:flex;flex-direction:column;gap:.3rem;}
+.onboarding-field.full{grid-column:1/-1;}
+.onboarding-field label{font-family:var(--font-m);font-size:.54rem;letter-spacing:.11em;text-transform:uppercase;color:rgba(245,244,241,.32);}
+.onboarding-field input,.onboarding-field select,.onboarding-field textarea{background:rgba(245,244,241,.04);border:1px solid var(--border-hi);color:var(--off-white);font-family:var(--font-b);font-size:.84rem;padding:.62rem .8rem;outline:none;transition:border-color .2s;width:100%;}
+.onboarding-field textarea{min-height:96px;resize:vertical;line-height:1.5;}
+.onboarding-field input:focus,.onboarding-field select:focus,.onboarding-field textarea:focus{border-color:var(--emerald);}
+.onboarding-field select option{background:var(--card);}
+.onboarding-foot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);margin-top:1.2rem;padding-top:1rem;}
+.onboarding-hint{font-size:.72rem;color:rgba(245,244,241,.34);max-width:320px;}
+.onboarding-actions{display:flex;gap:.5rem;}
+.modal-box.wide{width:min(760px,94vw);}
+
+/* --- PROJECTS KANBAN --- */
+.kanban-toolbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;}
+.kanban-board{display:grid;grid-template-columns:repeat(5,minmax(220px,1fr));gap:.75rem;align-items:start;overflow-x:auto;padding-bottom:.5rem;}
+.kanban-col{min-height:520px;background:rgba(245,244,241,.025);border:1px solid var(--border);}
+.kanban-col-head{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1rem;border-bottom:1px solid var(--border);}
+.kanban-title{font-family:var(--font-m);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,244,241,.46);}
+.kanban-count{font-family:var(--font-m);font-size:.55rem;color:var(--mist);background:rgba(245,244,241,.05);padding:.15rem .4rem;}
+.kanban-list{min-height:455px;padding:.75rem;display:flex;flex-direction:column;gap:.65rem;}
+.project-card{background:var(--card);border:1px solid var(--border-hi);padding:.9rem;cursor:grab;transition:border-color .18s,transform .18s;}
+.project-card:active{cursor:grabbing;}
+.project-card.dragging{opacity:.45;transform:scale(.98);}
+.kanban-col.drag-over{border-color:var(--emerald);}
+.project-title{font-family:var(--font-d);font-size:1.05rem;line-height:1.15;margin-bottom:.35rem;}
+.project-desc{font-size:.75rem;color:rgba(245,244,241,.45);line-height:1.45;margin-bottom:.75rem;}
+.project-meta{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.65rem;}
+.project-pill{font-family:var(--font-m);font-size:.5rem;letter-spacing:.07em;text-transform:uppercase;color:rgba(245,244,241,.5);border:1px solid var(--border);padding:.18rem .42rem;}
+.priority-high{color:var(--err);border-color:rgba(224,112,112,.25);background:var(--err-dim);}
+.priority-medium{color:var(--amber);border-color:rgba(196,150,58,.25);background:var(--amber-dim);}
+.priority-low{color:var(--ok);border-color:rgba(90,158,111,.25);background:var(--ok-dim);}
+.project-tags{display:flex;flex-wrap:wrap;gap:.28rem;margin-top:.5rem;}
+.project-tag{font-size:.62rem;color:rgba(245,244,241,.38);background:rgba(245,244,241,.045);padding:.14rem .38rem;}
+.project-actions{display:flex;gap:.35rem;margin-top:.75rem;}
+[data-theme="light"] .client-filter,[data-theme="light"] .onboarding-field input,[data-theme="light"] .onboarding-field select,[data-theme="light"] .onboarding-field textarea{background:rgba(26,26,24,.05);color:#1A1A18;}
+[data-theme="light"] .client-company,[data-theme="light"] .project-title{color:#1A1A18;}
+[data-theme="light"] .client-contact,[data-theme="light"] .project-desc{color:rgba(26,26,24,.5);}
+[data-theme="light"] .onboarding-field label{color:rgba(26,26,24,.45);}
+[data-theme="light"] .onboarding-step{background:rgba(26,26,24,.025);}
+[data-theme="light"] .project-card{background:#fff;}
+[data-theme="light"] .project-pill{color:rgba(26,26,24,.55);}
+
+@media(max-width:900px){
+  .onboarding-steps{grid-template-columns:1fr;}
+  .onboarding-panel.active{grid-template-columns:1fr;}
+  .kanban-board{grid-template-columns:repeat(5,240px);}
+}
 </style>
 </head>
 <body>
@@ -454,6 +519,11 @@ a{color:inherit;text-decoration:none;}
       <button class="nav-item" data-page="availability">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Availability
+      </button>
+
+      <button class="nav-item" data-page="projects">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="8" y1="4" x2="8" y2="20"/><line x1="16" y1="4" x2="16" y2="20"/></svg>
+        Projects
       </button>
 
       <button class="nav-item" data-page="services">
@@ -592,7 +662,15 @@ a{color:inherit;text-decoration:none;}
           </div>
           <div>
             <div class="card" style="margin-bottom:0">
-              <div class="card-header"><span class="card-title">Upcoming Slots</span></div>
+              <div class="card-header">
+                <span class="card-title">Availability Slots</span>
+                <div class="filter-row" style="margin:0;gap:.3rem;">
+                  <button class="f-tab active" data-afilter="all">All</button>
+                  <button class="f-tab" data-afilter="upcoming">Upcoming</button>
+                  <button class="f-tab" data-afilter="open">Open</button>
+                  <button class="f-tab" data-afilter="booked">Booked</button>
+                </div>
+              </div>
               <div class="slots-section" id="slots-list"><p class="loading-row">Loading…</p></div>
             </div>
           </div>
@@ -600,6 +678,19 @@ a{color:inherit;text-decoration:none;}
       </section>
 
       <!-- ── SERVICES ── -->
+      <section class="page" id="page-projects">
+        <div class="kanban-toolbar">
+          <div class="toolbar-left">
+            <input type="text" class="search-input" id="project-search" placeholder="Search projects...">
+            <select class="client-filter" id="project-client-filter">
+              <option value="all">All clients</option>
+            </select>
+          </div>
+          <button class="btn-add" id="add-project-btn">Add Project</button>
+        </div>
+        <div class="kanban-board" id="projects-board"><p class="loading-row">Loading...</p></div>
+      </section>
+
       <section class="page" id="page-services">
         <div class="card" style="margin-bottom:1.5rem">
           <div class="card-header"><span class="card-title">Add Service</span></div>
@@ -644,8 +735,17 @@ a{color:inherit;text-decoration:none;}
       <!-- ── CLIENTS ── -->
       <section class="page" id="page-clients">
         <div class="card">
-          <div class="contacts-toolbar">
-            <input type="text" class="search-input" id="client-search" placeholder="Search by name or email…">
+          <div class="section-toolbar">
+            <div class="toolbar-left">
+              <input type="text" class="search-input" id="client-search" placeholder="Search by name or email...">
+              <select class="client-filter" id="client-plan-filter">
+                <option value="all">All plans</option>
+                <option value="Signature">Signature</option>
+                <option value="Growth">Growth</option>
+                <option value="Premium">Premium</option>
+              </select>
+            </div>
+            <button class="btn-add" id="add-client-btn">Add Client</button>
           </div>
           <div id="clients-table"><p class="loading-row">Loading…</p></div>
         </div>
@@ -675,13 +775,26 @@ let allBookings = [];
 let allContacts = [];
 let allClients  = [];
 let allServices = [];
+let allProjects = [];
 let bookingSearch = '';
 let contactFilter = 'all';
 let contactSearch = '';
 let clientSearch  = '';
+let clientPlanFilter = 'all';
+let projectSearch = '';
+let projectClientFilter = 'all';
+let onboardingStep = 0;
+let availabilityFilter = 'all';
 let datePicker;
 let trendChart;
 let confirmedCount = 0;
+const PROJECT_COLUMNS = [
+  ['backlog', 'Backlog'],
+  ['todo', 'To Do'],
+  ['in_progress', 'In Progress'],
+  ['review', 'Review'],
+  ['done', 'Done']
+];
 
 /* ── Date helpers ── */
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -710,6 +823,17 @@ function timeAgo(iso) {
   return fmtDate(iso.split('T')[0]);
 }
 function todayStr() { return new Date().toISOString().split('T')[0]; }
+function esc(v) {
+  return String(v ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+function compactDate(ds) {
+  return ds ? fmtDate(ds) : '—';
+}
 
 /* ── Toast ── */
 function toast(msg) {
@@ -781,7 +905,7 @@ $('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') $(
 $('logout-btn').addEventListener('click', () => sb.auth.signOut());
 
 /* ── Navigation ── */
-const PAGE_TITLES = { overview:'Overview', bookings:'Bookings', availability:'Availability', services:'Services', contacts:'Contacts', clients:'Clients' };
+const PAGE_TITLES = { overview:'Overview', bookings:'Bookings', availability:'Availability', projects:'Projects', services:'Services', contacts:'Contacts', clients:'Clients' };
 
 document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
   btn.addEventListener('click', () => switchPage(btn.dataset.page));
@@ -804,6 +928,7 @@ function showModal(html) {
 function closeModal() {
   $('modal-overlay').style.display = 'none';
   $('modal-box').innerHTML = '';
+  $('modal-box').classList.remove('wide');
 }
 $('modal-overlay').addEventListener('click', e => {
   if (e.target === $('modal-overlay')) closeModal();
@@ -814,7 +939,7 @@ document.addEventListener('keydown', e => {
 
 /* ── Load all data ── */
 async function loadAll() {
-  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadContacts(), loadClients(), loadRecentActivity()]);
+  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadContacts(), loadClients(), loadProjects(), loadRecentActivity()]);
 }
 
 /* ── Stats ── */
@@ -1191,10 +1316,14 @@ async function loadSlots() {
   const c = $('slots-list');
   const { data } = await sb.from('available_slots')
     .select('id,date,start_time,is_booked')
-    .gte('date', todayStr()).order('date').order('start_time');
-  if (!data?.length) { c.innerHTML = emptyState('No upcoming slots', 'Add slots using the form.'); return; }
+    .order('date').order('start_time');
+  let slots = data || [];
+  if (availabilityFilter === 'upcoming') slots = slots.filter(s => s.date >= todayStr());
+  if (availabilityFilter === 'open') slots = slots.filter(s => !s.is_booked);
+  if (availabilityFilter === 'booked') slots = slots.filter(s => s.is_booked);
+  if (!slots.length) { c.innerHTML = emptyState('No slots found', 'Add slots using the form or change the filter.'); return; }
   const byDate = {};
-  data.forEach(s => { (byDate[s.date] = byDate[s.date] || []).push(s); });
+  slots.forEach(s => { (byDate[s.date] = byDate[s.date] || []).push(s); });
   c.innerHTML = Object.entries(byDate).map(([date, slots]) => `
     <div class="slots-day">
       <div class="slots-day-lbl">${fmtDateLong(date)}</div>
@@ -1219,6 +1348,15 @@ async function loadSlots() {
     });
   });
 }
+
+document.querySelectorAll('.f-tab[data-afilter]').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.f-tab[data-afilter]').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    availabilityFilter = tab.dataset.afilter;
+    loadSlots();
+  });
+});
 
 /* ── Time pill picker ── */
 function buildTimePills() {
@@ -1362,6 +1500,7 @@ async function loadClients() {
   const { data } = await sb.from('clients').select('*').order('created_at', { ascending: false });
   allClients = data || [];
   renderClients();
+  renderProjectClientFilter();
   const badge = $('clients-badge');
   if (badge) {
     if (allClients.length > 0) { badge.textContent = allClients.length; badge.classList.add('show'); }
@@ -1400,6 +1539,150 @@ $('client-search')?.addEventListener('input', e => {
   clientSearch = e.target.value.trim();
   renderClients();
 });
+$('client-plan-filter')?.addEventListener('change', e => {
+  clientPlanFilter = e.target.value;
+  renderClients();
+});
+$('add-client-btn')?.addEventListener('click', () => openClientOnboarding());
+
+function clientById(id) {
+  return allClients.find(c => c.id === id);
+}
+
+function renderClients() {
+  const c = $('clients-table');
+  if (!c) return;
+  let rows = allClients;
+  if (clientSearch) {
+    const q = clientSearch.toLowerCase();
+    rows = rows.filter(r =>
+      r.full_name?.toLowerCase().includes(q) ||
+      r.email?.toLowerCase().includes(q) ||
+      r.company?.toLowerCase().includes(q) ||
+      r.company_email?.toLowerCase().includes(q)
+    );
+  }
+  if (clientPlanFilter !== 'all') {
+    rows = rows.filter(r => (r.selected_plan || r.project_type || '').toLowerCase() === clientPlanFilter.toLowerCase());
+  }
+  if (!rows.length) {
+    c.innerHTML = emptyState('No clients found', 'Add a client or convert a lead from the Contacts page.');
+    return;
+  }
+  c.innerHTML = `<table class="a-table">
+    <thead><tr>
+      <th>Client</th><th>Business</th><th>Plan</th><th>Start</th><th>Contact</th><th>Actions</th>
+    </tr></thead>
+    <tbody>${rows.map(r => `<tr>
+      <td><div class="client-name-block"><span class="client-company">${esc(r.company || 'Independent Client')}</span><span class="client-contact">${esc(r.full_name || 'No primary contact')}${r.position ? ' · ' + esc(r.position) : ''}</span></div></td>
+      <td><div class="td-stack"><span>${esc(r.industry || '—')}</span><span class="td-dim">${esc(r.website || r.company_email || '—')}</span></div></td>
+      <td><span class="badge badge-confirmed">${esc(r.selected_plan || r.project_type || 'Unassigned')}</span></td>
+      <td class="td-dim">${compactDate(r.project_start_date)}</td>
+      <td><div class="td-stack"><span style="font-size:.75rem">${esc(r.email || r.company_email || '—')}</span><span class="td-dim">${esc(r.phone || r.company_phone || '—')}</span></div></td>
+      <td><div class="client-actions"><button class="act-btn edit-client" data-id="${r.id}">Edit</button><button class="act-btn delete delete-client" data-id="${r.id}">Delete</button></div></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+  c.querySelectorAll('.edit-client').forEach(btn => btn.addEventListener('click', () => openClientOnboarding(btn.dataset.id)));
+  c.querySelectorAll('.delete-client').forEach(btn => btn.addEventListener('click', () => deleteClient(btn.dataset.id)));
+}
+
+function openClientOnboarding(id = null) {
+  onboardingStep = 0;
+  const client = id ? clientById(id) : {};
+  const isEdit = Boolean(id);
+  showModal(`
+    <div class="modal-hdr">
+      <span class="modal-title">${isEdit ? 'Edit Client' : 'New Client Onboarding'}</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="onboarding-shell">
+      <div class="onboarding-steps">
+        <div class="onboarding-step active" data-step="0"><div class="onboarding-step-num">Step 01</div><div class="onboarding-step-title">Business</div></div>
+        <div class="onboarding-step" data-step="1"><div class="onboarding-step-num">Step 02</div><div class="onboarding-step-title">Contact</div></div>
+        <div class="onboarding-step" data-step="2"><div class="onboarding-step-num">Step 03</div><div class="onboarding-step-title">OPS</div></div>
+      </div>
+      <div class="onboarding-panel active" data-panel="0">
+        <div class="onboarding-field full"><label>Company Name</label><input id="oc-company" value="${esc(client.company)}"></div>
+        <div class="onboarding-field"><label>Industry</label><input id="oc-industry" value="${esc(client.industry)}"></div>
+        <div class="onboarding-field"><label>Website</label><input id="oc-website" value="${esc(client.website)}" placeholder="https://"></div>
+        <div class="onboarding-field"><label>Company Email</label><input id="oc-company-email" type="email" value="${esc(client.company_email || client.email)}"></div>
+        <div class="onboarding-field"><label>Company Phone</label><input id="oc-company-phone" value="${esc(client.company_phone || client.phone)}"></div>
+      </div>
+      <div class="onboarding-panel" data-panel="1">
+        <div class="onboarding-field full"><label>Full Name</label><input id="oc-name" value="${esc(client.full_name)}"></div>
+        <div class="onboarding-field"><label>Position / Role</label><input id="oc-position" value="${esc(client.position)}"></div>
+        <div class="onboarding-field"><label>Email Address</label><input id="oc-email" type="email" value="${esc(client.email || client.company_email)}"></div>
+        <div class="onboarding-field"><label>Phone Number</label><input id="oc-phone" value="${esc(client.phone || client.company_phone)}"></div>
+      </div>
+      <div class="onboarding-panel" data-panel="2">
+        <div class="onboarding-field"><label>Selected Plan</label><select id="oc-plan">${['Signature','Growth','Premium'].map(p => `<option value="${p}"${(client.selected_plan || client.project_type) === p ? ' selected' : ''}>${p}</option>`).join('')}</select></div>
+        <div class="onboarding-field"><label>Project Start Date</label><input id="oc-start" type="date" value="${esc(client.project_start_date)}"></div>
+        <div class="onboarding-field full"><label>Notes</label><textarea id="oc-notes">${esc(client.notes || client.brief)}</textarea></div>
+      </div>
+      <div class="onboarding-foot">
+        <p class="onboarding-hint">Capture the essentials now. You can refine the client record as the engagement develops.</p>
+        <div class="onboarding-actions">
+          <button class="btn-ghost" id="onboarding-prev" onclick="moveOnboarding(-1)">Back</button>
+          <button class="btn-add" id="onboarding-next" onclick="moveOnboarding(1)">Next</button>
+          <button class="btn-add" id="onboarding-save" onclick="saveClient('${id || ''}')" style="display:none">${isEdit ? 'Save Client' : 'Create Client'}</button>
+        </div>
+      </div>
+    </div>
+  `);
+  $('modal-box').classList.add('wide');
+  syncOnboarding();
+}
+
+function moveOnboarding(delta) {
+  onboardingStep = Math.max(0, Math.min(2, onboardingStep + delta));
+  syncOnboarding();
+}
+
+function syncOnboarding() {
+  document.querySelectorAll('.onboarding-step').forEach(s => s.classList.toggle('active', Number(s.dataset.step) === onboardingStep));
+  document.querySelectorAll('.onboarding-panel').forEach(p => p.classList.toggle('active', Number(p.dataset.panel) === onboardingStep));
+  $('onboarding-prev').style.visibility = onboardingStep === 0 ? 'hidden' : 'visible';
+  $('onboarding-next').style.display = onboardingStep === 2 ? 'none' : 'inline-block';
+  $('onboarding-save').style.display = onboardingStep === 2 ? 'inline-block' : 'none';
+}
+
+async function saveClient(id = '') {
+  const notes = $('oc-notes').value.trim();
+  const payload = {
+    company:            $('oc-company').value.trim(),
+    industry:           $('oc-industry').value.trim() || null,
+    website:            $('oc-website').value.trim() || null,
+    company_email:      $('oc-company-email').value.trim() || null,
+    company_phone:      $('oc-company-phone').value.trim() || null,
+    full_name:          $('oc-name').value.trim(),
+    position:           $('oc-position').value.trim() || null,
+    email:              $('oc-email').value.trim(),
+    phone:              $('oc-phone').value.trim() || null,
+    selected_plan:      $('oc-plan').value,
+    project_type:       $('oc-plan').value,
+    project_start_date: $('oc-start').value || null,
+    notes:              notes || null,
+    brief:              notes || null,
+  };
+  if (!payload.company || !payload.full_name || !payload.email) {
+    toast('Company, primary contact, and email are required.');
+    return;
+  }
+  const query = id ? sb.from('clients').update(payload).eq('id', id) : sb.from('clients').insert(payload);
+  const { error } = await query;
+  if (error) { toast('Error saving client. Apply the client schema migration first.'); return; }
+  closeModal();
+  toast(id ? 'Client updated.' : 'Client created.');
+  await Promise.all([loadClients(), loadStats(), loadRecentActivity()]);
+}
+
+async function deleteClient(id) {
+  if (!confirm('Delete this client? Projects linked to this client will remain but lose their client reference.')) return;
+  const { error } = await sb.from('clients').delete().eq('id', id);
+  if (error) { toast('Error deleting client.'); return; }
+  toast('Client deleted.');
+  await Promise.all([loadClients(), loadStats(), loadRecentActivity(), loadProjects()]);
+}
 
 document.querySelectorAll('.f-tab[data-cfilter]').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -1416,6 +1699,175 @@ $('contact-search').addEventListener('input', e => {
 });
 
 /* ── Services ── */
+async function loadProjects() {
+  const { data, error } = await sb.from('projects')
+    .select('*,client:client_id(company,full_name)')
+    .order('sort_order')
+    .order('created_at', { ascending: false });
+  if (error) {
+    const board = $('projects-board');
+    if (board) board.innerHTML = emptyState('Projects unavailable', 'Apply the projects schema migration to enable the Kanban board.');
+    return;
+  }
+  allProjects = data || [];
+  renderProjects();
+}
+
+function renderProjectClientFilter() {
+  const select = $('project-client-filter');
+  if (!select) return;
+  const current = select.value || 'all';
+  select.innerHTML = '<option value="all">All clients</option>' + allClients.map(c =>
+    `<option value="${c.id}">${esc(c.company || c.full_name || 'Unnamed client')}</option>`
+  ).join('');
+  select.value = [...select.options].some(o => o.value === current) ? current : 'all';
+}
+
+function projectClientName(project) {
+  return project.client?.company || project.client?.full_name || allClients.find(c => c.id === project.client_id)?.company || 'No client';
+}
+
+function renderProjects() {
+  const board = $('projects-board');
+  if (!board) return;
+  let projects = allProjects;
+  if (projectSearch) {
+    const q = projectSearch.toLowerCase();
+    projects = projects.filter(p =>
+      p.title?.toLowerCase().includes(q) ||
+      p.description?.toLowerCase().includes(q) ||
+      projectClientName(p).toLowerCase().includes(q) ||
+      (p.tags || []).join(' ').toLowerCase().includes(q)
+    );
+  }
+  if (projectClientFilter !== 'all') projects = projects.filter(p => p.client_id === projectClientFilter);
+
+  board.innerHTML = PROJECT_COLUMNS.map(([status, label]) => {
+    const items = projects.filter(p => (p.status || 'backlog') === status);
+    return `<section class="kanban-col" data-status="${status}">
+      <div class="kanban-col-head"><span class="kanban-title">${label}</span><span class="kanban-count">${items.length}</span></div>
+      <div class="kanban-list" data-status="${status}">
+        ${items.map(projectCard).join('') || `<div class="empty-state" style="padding:1.5rem .5rem">No projects</div>`}
+      </div>
+    </section>`;
+  }).join('');
+  wireProjectCards();
+}
+
+function projectCard(p) {
+  const tags = Array.isArray(p.tags) ? p.tags : String(p.tags || '').split(',').map(t => t.trim()).filter(Boolean);
+  const pri = (p.priority || 'medium').toLowerCase();
+  return `<article class="project-card" draggable="true" data-id="${p.id}">
+    <div class="project-title">${esc(p.title)}</div>
+    <div class="project-desc">${esc(p.description || 'No description.')}</div>
+    <div class="project-meta">
+      <span class="project-pill priority-${pri}">${esc(p.priority || 'Medium')}</span>
+      <span class="project-pill">${esc(projectClientName(p))}</span>
+      <span class="project-pill">${p.due_date ? compactDate(p.due_date) : 'No due date'}</span>
+      <span class="project-pill">${esc(p.owner || 'Unassigned')}</span>
+    </div>
+    ${tags.length ? `<div class="project-tags">${tags.map(t => `<span class="project-tag">${esc(t)}</span>`).join('')}</div>` : ''}
+    <div class="project-actions">
+      <button class="act-btn edit-project" data-id="${p.id}">Edit</button>
+      <button class="act-btn delete delete-project" data-id="${p.id}">Delete</button>
+    </div>
+  </article>`;
+}
+
+function wireProjectCards() {
+  document.querySelectorAll('.project-card').forEach(card => {
+    card.addEventListener('dragstart', e => {
+      card.classList.add('dragging');
+      e.dataTransfer.setData('text/plain', card.dataset.id);
+    });
+    card.addEventListener('dragend', () => card.classList.remove('dragging'));
+  });
+  document.querySelectorAll('.kanban-col').forEach(col => {
+    col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drag-over'); });
+    col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+    col.addEventListener('drop', async e => {
+      e.preventDefault();
+      col.classList.remove('drag-over');
+      const id = e.dataTransfer.getData('text/plain');
+      const status = col.dataset.status;
+      const { error } = await sb.from('projects').update({ status }).eq('id', id);
+      if (error) { toast('Error moving project.'); return; }
+      toast('Project moved.');
+      loadProjects();
+    });
+  });
+  document.querySelectorAll('.edit-project').forEach(btn => btn.addEventListener('click', () => openProjectModal(btn.dataset.id)));
+  document.querySelectorAll('.delete-project').forEach(btn => btn.addEventListener('click', () => deleteProject(btn.dataset.id)));
+}
+
+function openProjectModal(id = null) {
+  const p = id ? allProjects.find(project => project.id === id) : {};
+  const tags = Array.isArray(p?.tags) ? p.tags.join(', ') : (p?.tags || '');
+  showModal(`
+    <div class="modal-hdr">
+      <span class="modal-title">${id ? 'Edit Project' : 'Add Project'}</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-field full"><label>Project Title</label><input id="pr-title" value="${esc(p?.title)}"></div>
+      <div class="modal-field full"><label>Description</label><input id="pr-desc" value="${esc(p?.description)}"></div>
+      <div class="modal-field"><label>Associated Client</label><select id="pr-client"><option value="">No client</option>${allClients.map(c => `<option value="${c.id}"${p?.client_id === c.id ? ' selected' : ''}>${esc(c.company || c.full_name)}</option>`).join('')}</select></div>
+      <div class="modal-field"><label>Status</label><select id="pr-status">${PROJECT_COLUMNS.map(([value,label]) => `<option value="${value}"${(p?.status || 'backlog') === value ? ' selected' : ''}>${label}</option>`).join('')}</select></div>
+      <div class="modal-field"><label>Priority</label><select id="pr-priority">${['Low','Medium','High'].map(v => `<option value="${v}"${(p?.priority || 'Medium') === v ? ' selected' : ''}>${v}</option>`).join('')}</select></div>
+      <div class="modal-field"><label>Due Date</label><input id="pr-due" type="date" value="${esc(p?.due_date)}"></div>
+      <div class="modal-field"><label>Assigned Owner</label><input id="pr-owner" value="${esc(p?.owner)}" placeholder="Neo"></div>
+      <div class="modal-field"><label>Tags / Categories</label><input id="pr-tags" value="${esc(tags)}" placeholder="website, portal"></div>
+    </div>
+    <div class="modal-foot">
+      <div></div>
+      <div class="modal-foot-right">
+        <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn-add" onclick="saveProject('${id || ''}')">${id ? 'Save Project' : 'Create Project'}</button>
+      </div>
+    </div>
+  `);
+  $('modal-box').classList.add('wide');
+}
+
+async function saveProject(id = '') {
+  const payload = {
+    title:       $('pr-title').value.trim(),
+    description: $('pr-desc').value.trim() || null,
+    client_id:   $('pr-client').value || null,
+    status:      $('pr-status').value,
+    priority:    $('pr-priority').value,
+    due_date:    $('pr-due').value || null,
+    owner:       $('pr-owner').value.trim() || null,
+    tags:        $('pr-tags').value.split(',').map(t => t.trim()).filter(Boolean),
+    sort_order:  99
+  };
+  if (!payload.title) { toast('Project title is required.'); return; }
+  const query = id ? sb.from('projects').update(payload).eq('id', id) : sb.from('projects').insert(payload);
+  const { error } = await query;
+  if (error) { toast('Error saving project. Apply the projects schema migration first.'); return; }
+  closeModal();
+  toast(id ? 'Project updated.' : 'Project created.');
+  loadProjects();
+}
+
+async function deleteProject(id) {
+  if (!confirm('Delete this project?')) return;
+  const { error } = await sb.from('projects').delete().eq('id', id);
+  if (error) { toast('Error deleting project.'); return; }
+  toast('Project deleted.');
+  loadProjects();
+}
+
+$('project-search')?.addEventListener('input', e => {
+  projectSearch = e.target.value.trim();
+  renderProjects();
+});
+$('project-client-filter')?.addEventListener('change', e => {
+  projectClientFilter = e.target.value;
+  renderProjects();
+});
+$('add-project-btn')?.addEventListener('click', () => openProjectModal());
+
 async function loadServices() {
   const c = $('services-grid');
   const { data } = await sb.from('services').select('id,name,description,price,active,sort_order').order('sort_order');
