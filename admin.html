@@ -857,6 +857,7 @@ let allProjects = [];
 let allQuotes = [];
 let allInvoices = [];
 let selectedServiceId = null;
+let serviceFinanceReady = true;
 let bookingSearch = '';
 let contactFilter = 'all';
 let contactSearch = '';
@@ -2082,8 +2083,14 @@ $('add-project-btn')?.addEventListener('click', () => openProjectModal(null, pro
 
 async function loadServices() {
   const c = $('services-grid');
-  const { data, error } = await sb.from('services').select('id,name,description,price,category,setup_fee,monthly_retainer,status,notes,active,sort_order').order('sort_order');
-  if (error) { c.innerHTML = emptyState('Services unavailable', 'Apply the service delivery schema migration to enable service details.'); return; }
+  let { data, error } = await sb.from('services').select('id,name,description,price,category,setup_fee,monthly_retainer,status,notes,active,sort_order').order('sort_order');
+  serviceFinanceReady = !error;
+  if (error) {
+    const fallback = await sb.from('services').select('id,name,description,price,active,sort_order').order('sort_order');
+    data = fallback.data;
+    error = fallback.error;
+  }
+  if (error) { c.innerHTML = emptyState('Services unavailable', 'Check the services table permissions and schema.'); return; }
   allServices = data || [];
   if (!data?.length) { c.innerHTML = emptyState('No services found'); return; }
   c.innerHTML = data.map(s => {
@@ -2210,6 +2217,7 @@ async function renderServiceDetail() {
       </div>
     </div>
     <div class="service-detail-grid">
+      ${serviceFinanceReady ? '' : '<div class="mini-panel" style="grid-column:1/-1"><div class="mini-panel-body td-dim">Basic service management is active. Apply migration 003 to enable setup fees, retainers, quotes, and invoices.</div></div>'}
       <div class="detail-hero">
         <div class="detail-eyebrow">${esc(service.category || 'General Service')}</div>
         <h2 class="detail-title">${esc(service.name)}</h2>
@@ -2259,6 +2267,26 @@ function documentRows(rows, type) {
 
 function openServiceEditModal(id) {
   const s = serviceById(id) || {};
+  if (!serviceFinanceReady) {
+    showModal(`
+      <div class="modal-hdr">
+        <span class="modal-title">Edit Service</span>
+        <button class="modal-close" onclick="closeModal()">Ã—</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-field full"><label>Service Name</label><input id="sd-name" value="${esc(s.name)}"></div>
+        <div class="modal-field full"><label>Description</label><input id="sd-desc" value="${esc(s.description)}"></div>
+        <div class="modal-field"><label>Price (R)</label><input id="sd-price" type="number" min="0" step="1" value="${Number(s.price) || 0}"></div>
+        <div class="modal-field full"><label>Finance Fields</label><input readonly value="Apply migration 003 to enable full service delivery fields."></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn-add" onclick="saveBasicService('${id}')">Save Service</button>
+      </div>
+    `);
+    $('modal-box').classList.add('wide');
+    return;
+  }
   showModal(`
     <div class="modal-hdr">
       <span class="modal-title">Edit Service</span>
@@ -2280,6 +2308,21 @@ function openServiceEditModal(id) {
     </div>
   `);
   $('modal-box').classList.add('wide');
+}
+
+async function saveBasicService(id) {
+  const payload = {
+    name: $('sd-name').value.trim(),
+    description: $('sd-desc').value.trim() || null,
+    price: Math.max(0, parseInt($('sd-price').value) || 0)
+  };
+  if (!payload.name) { toast('Service name is required.'); return; }
+  const { error } = await sb.from('services').update(payload).eq('id', id);
+  if (error) { toast('Error saving service.'); return; }
+  closeModal();
+  toast('Service updated.');
+  await loadServices();
+  await renderServiceDetail();
 }
 
 async function saveServiceDetails(id) {
@@ -2393,8 +2436,13 @@ $('add-svc-btn').addEventListener('click', async () => {
   const desc  = $('svc-desc').value.trim();
   const price = Math.max(0, parseInt($('svc-price').value) || 0);
   if (!name) { toast('Service name is required.'); return; }
-  const { error } = await sb.from('services').insert({ name, description: desc || null, price, active: true, sort_order: 99 });
-  if (error) { toast('Error adding service.'); return; }
+  const payload = { name, description: desc || null, price, active: true, sort_order: 99 };
+  let { error } = await sb.from('services').insert(serviceFinanceReady ? { ...payload, category: 'General', status: 'Active', setup_fee: 0, monthly_retainer: 0 } : payload);
+  if (error && serviceFinanceReady) {
+    const fallback = await sb.from('services').insert(payload);
+    error = fallback.error;
+  }
+  if (error) { toast('Error adding service. Check services table permissions.'); return; }
   $('svc-name').value = ''; $('svc-desc').value = ''; $('svc-price').value = '';
   toast('Service added.');
   loadServices();
