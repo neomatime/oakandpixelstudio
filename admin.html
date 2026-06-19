@@ -637,6 +637,7 @@ let contactSearch = '';
 let clientSearch  = '';
 let datePicker;
 let statusChart, trendChart;
+let confirmedCount = 0;
 
 /* ── Date helpers ── */
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -748,24 +749,41 @@ async function loadAll() {
 
 /* ── Stats ── */
 async function loadStats() {
-  const [bRes, sRes] = await Promise.all([
+  const [bRes, sRes, leadsRes, clientsRes] = await Promise.all([
     sb.from('bookings').select('status'),
-    sb.from('available_slots').select('is_booked').eq('is_booked', false).gte('date', todayStr())
+    sb.from('available_slots').select('is_booked').eq('is_booked', false).gte('date', todayStr()),
+    sb.from('contacts').select('*', { count: 'exact', head: true }).is('converted_at', null),
+    sb.from('clients').select('*', { count: 'exact', head: true })
   ]);
-  const bookings = bRes.data || [];
-  const total     = bookings.length;
-  const pending   = bookings.filter(b => b.status === 'pending').length;
-  const confirmed = bookings.filter(b => b.status === 'confirmed').length;
-  const slots     = (sRes.data || []).length;
+  const bookings      = bRes.data || [];
+  const pending       = bookings.filter(b => b.status === 'pending').length;
+  confirmedCount      = bookings.filter(b => b.status === 'confirmed').length;
+  const slots         = (sRes.data || []).length;
+  const leads         = leadsRes.count  ?? 0;
+  const clients       = clientsRes.count ?? 0;
 
-  $('stat-total').textContent     = total;
-  $('stat-pending').textContent   = pending;
-  $('stat-confirmed').textContent = confirmed;
+  $('stat-total').textContent     = leads;
+  $('stat-pending').textContent   = clients;
+  $('stat-confirmed').textContent = pending;
   $('stat-slots').textContent     = slots;
 
   const badge = $('pending-badge');
   if (pending > 0) { badge.textContent = pending; badge.classList.add('show'); }
   else badge.classList.remove('show');
+
+  renderPipeline(leads, clients, confirmedCount);
+}
+
+function renderPipeline(leads, clients, confirmed) {
+  const c = $('pipeline-row');
+  if (!c) return;
+  c.innerHTML = `
+    <div class="pipe-step"><div class="pipe-num" style="color:var(--emerald-l)">${leads}</div><div class="pipe-lbl">Leads</div></div>
+    <div class="pipe-arrow">›</div>
+    <div class="pipe-step"><div class="pipe-num" style="color:var(--gold)">${clients}</div><div class="pipe-lbl">Clients</div></div>
+    <div class="pipe-arrow">›</div>
+    <div class="pipe-step"><div class="pipe-num" style="color:var(--ok)">${confirmed}</div><div class="pipe-lbl">Confirmed</div></div>
+  `;
 }
 
 /* ── Bookings ── */
