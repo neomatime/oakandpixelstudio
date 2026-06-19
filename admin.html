@@ -311,6 +311,8 @@ a{color:inherit;text-decoration:none;}
 [data-theme="light"] .slot-chip{border-color:rgba(26,26,24,.14);}
 [data-theme="light"] .slot-chip-t{color:rgba(26,26,24,.75);}
 [data-theme="light"] .btn-rm{color:rgba(26,26,24,.3);}
+[data-theme="light"] .slot-chip .btn-edit-slot{color:rgba(26,26,24,.3);border-left-color:rgba(26,26,24,.12);}
+[data-theme="light"] .slot-chip .btn-edit-slot:hover{color:#1A1A18;}
 [data-theme="light"] .slots-day-lbl{color:rgba(26,26,24,.5);}
 [data-theme="light"] .slots-day-lbl::after{background:rgba(26,26,24,.1);}
 [data-theme="light"] .svc-card-desc{color:rgba(26,26,24,.5);}
@@ -1202,7 +1204,7 @@ async function loadSlots() {
             <span class="slot-chip-t">${fmtTime(s.start_time)}</span>
             ${s.is_booked
               ? '<span class="booked-lbl">Booked</span>'
-              : `<button class="btn-edit-slot" data-id="${s.id}" data-date="${s.date}" data-time="${s.start_time}" title="Edit time">✎</button><button class="btn-rm" data-id="${s.id}" title="Remove">✕</button>`}
+              : `<button class="btn-edit-slot" data-id="${s.id}" data-date="${s.date}" data-time="${s.start_time.slice(0, 5)}" title="Edit time">✎</button><button class="btn-rm" data-id="${s.id}" title="Remove">✕</button>`}
           </div>`).join('')}
       </div>
     </div>`).join('');
