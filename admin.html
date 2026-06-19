@@ -1037,7 +1037,7 @@ async function convertToClient(id) {
     brief:             contact.brief     || null,
     source_contact_id: contact.id,
   });
-  if (error) { toast('Error converting contact. Please try again.'); return; }
+  if (error) { toast('Error converting contact. Please try again.'); loadContacts(); return; }
   const { error: updateError } = await sb.from('contacts')
     .update({ converted_at: new Date().toISOString() })
     .eq('id', id);
