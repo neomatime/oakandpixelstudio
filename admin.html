@@ -451,9 +451,26 @@ a{color:inherit;text-decoration:none;}
 .client-filter{min-width:150px;background:rgba(245,244,241,.04);border:1px solid var(--border-hi);color:var(--off-white);font-family:var(--font-b);font-size:.8rem;padding:.55rem .8rem;outline:none;}
 .client-filter option{background:var(--card);}
 .client-name-block{display:flex;flex-direction:column;gap:.1rem;}
+.client-cell{display:flex;align-items:center;gap:.75rem;}
+.client-avatar{width:38px;height:38px;border:1px solid var(--border-hi);background:var(--em-dim);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-family:var(--font-m);font-size:.72rem;letter-spacing:.08em;color:var(--emerald-l);text-transform:uppercase;}
+.client-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+.client-avatar.lg{width:84px;height:84px;font-size:1.25rem;}
 .client-company{font-family:var(--font-d);font-size:1rem;color:var(--off-white);font-weight:400;}
 .client-contact{font-size:.72rem;color:rgba(245,244,241,.4);}
+.client-row{cursor:pointer;}
 .client-actions{display:flex;gap:.35rem;justify-content:flex-end;flex-wrap:wrap;}
+.profile-hero{background:var(--card);border:1px solid var(--border);padding:1.35rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;}
+.profile-id{display:flex;align-items:center;gap:1rem;min-width:0;}
+.profile-title{font-family:var(--font-d);font-size:1.8rem;line-height:1.1;color:var(--off-white);}
+.profile-sub{font-size:.78rem;color:rgba(245,244,241,.45);margin-top:.25rem;}
+.profile-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:1rem;align-items:start;}
+.profile-actions{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:flex-end;}
+.profile-sections{display:grid;gap:1rem;}
+.activity-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;}
+.linked-list{display:grid;gap:.5rem;}
+.linked-row{border:1px solid var(--border);padding:.65rem .75rem;display:flex;justify-content:space-between;gap:1rem;align-items:center;}
+.linked-title{font-family:var(--font-m);font-size:.68rem;color:var(--off-white);}
+.linked-meta{font-size:.66rem;color:rgba(245,244,241,.42);margin-top:.14rem;}
 .onboarding-shell{padding:1.35rem 1.5rem 1.5rem;}
 .onboarding-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:1.25rem;}
 .onboarding-step{border:1px solid var(--border);background:rgba(245,244,241,.025);padding:.75rem;}
@@ -501,7 +518,8 @@ a{color:inherit;text-decoration:none;}
 .kanban-add-task:hover{border-color:var(--emerald);color:var(--emerald-l);}
 [data-theme="light"] .client-filter,[data-theme="light"] .onboarding-field input,[data-theme="light"] .onboarding-field select,[data-theme="light"] .onboarding-field textarea{background:rgba(26,26,24,.05);color:#1A1A18;}
 [data-theme="light"] .client-company,[data-theme="light"] .project-title{color:#1A1A18;}
-[data-theme="light"] .client-contact,[data-theme="light"] .project-desc{color:rgba(26,26,24,.5);}
+[data-theme="light"] .client-contact,[data-theme="light"] .project-desc,[data-theme="light"] .profile-sub,[data-theme="light"] .linked-meta{color:rgba(26,26,24,.5);}
+[data-theme="light"] .profile-title,[data-theme="light"] .linked-title{color:#1A1A18;}
 [data-theme="light"] .onboarding-field label{color:rgba(26,26,24,.45);}
 [data-theme="light"] .onboarding-step{background:rgba(26,26,24,.025);}
 [data-theme="light"] .project-card{background:#fff;}
@@ -515,6 +533,8 @@ a{color:inherit;text-decoration:none;}
   .detail-metrics{grid-template-columns:1fr;}
   .retainer-overview{grid-template-columns:1fr 1fr;}
   .retainer-overview-title-wrap{grid-column:1/-1;}
+  .profile-grid,.activity-grid{grid-template-columns:1fr;}
+  .profile-actions{justify-content:flex-start;}
 }
 </style>
 </head>
@@ -829,6 +849,10 @@ a{color:inherit;text-decoration:none;}
         </div>
       </section>
 
+      <section class="page" id="page-client-profile">
+        <div id="client-profile-root"><p class="loading-row">Select a client to view their profile.</p></div>
+      </section>
+
     </div><!-- /page-content -->
   </main>
 
@@ -858,6 +882,7 @@ let allQuotes = [];
 let allInvoices = [];
 let selectedServiceId = null;
 let serviceFinanceReady = true;
+let selectedClientId = null;
 let bookingSearch = '';
 let contactFilter = 'all';
 let contactSearch = '';
@@ -1006,7 +1031,7 @@ $('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') $(
 $('logout-btn').addEventListener('click', () => sb.auth.signOut());
 
 /* ── Navigation ── */
-const PAGE_TITLES = { overview:'Overview', bookings:'Bookings', availability:'Availability', projects:'Projects', services:'Services', 'service-detail':'Service Details', contacts:'Contacts', clients:'Clients' };
+const PAGE_TITLES = { overview:'Overview', bookings:'Bookings', availability:'Availability', projects:'Projects', services:'Services', 'service-detail':'Service Details', contacts:'Contacts', clients:'Clients', 'client-profile':'Client Profile' };
 
 document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
   btn.addEventListener('click', () => switchPage(btn.dataset.page));
@@ -1626,6 +1651,8 @@ async function loadClients() {
   allClients = data || [];
   renderClients();
   renderProjectClientFilter();
+  if (allProjects.length) renderProjects();
+  if (selectedClientId && $('page-client-profile')?.classList.contains('active')) renderClientProfile();
   const badge = $('clients-badge');
   if (badge) {
     if (allClients.length > 0) { badge.textContent = allClients.length; badge.classList.add('show'); }
@@ -1674,6 +1701,21 @@ function clientById(id) {
   return allClients.find(c => c.id === id);
 }
 
+function clientInitials(client = {}) {
+  const name = client.company || client.full_name || 'Client';
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  return (parts.length > 1 ? parts[0][0] + parts[1][0] : name.slice(0, 2)).toUpperCase();
+}
+
+function clientAvatar(client = {}, size = '') {
+  const cls = `client-avatar${size ? ' ' + size : ''}`;
+  return `<div class="${cls}">${client.logo_url ? `<img src="${esc(client.logo_url)}" alt="${esc(client.company || client.full_name || 'Client')} logo">` : esc(clientInitials(client))}</div>`;
+}
+
+function clientDisplayName(client = {}) {
+  return client.company || client.full_name || 'Unnamed client';
+}
+
 function renderClients() {
   const c = $('clients-table');
   if (!c) return;
@@ -1698,8 +1740,8 @@ function renderClients() {
     <thead><tr>
       <th>Client</th><th>Business</th><th>Plan</th><th>Start</th><th>Contact</th><th>Actions</th>
     </tr></thead>
-    <tbody>${rows.map(r => `<tr>
-      <td><div class="client-name-block"><span class="client-company">${esc(r.company || 'Independent Client')}</span><span class="client-contact">${esc(r.full_name || 'No primary contact')}${r.position ? ' · ' + esc(r.position) : ''}</span></div></td>
+    <tbody>${rows.map(r => `<tr class="client-row" data-id="${r.id}">
+      <td><div class="client-cell">${clientAvatar(r)}<div class="client-name-block"><span class="client-company">${esc(r.company || 'Independent Client')}</span><span class="client-contact">${esc(r.full_name || 'No primary contact')}${r.position ? ' · ' + esc(r.position) : ''}</span></div></div></td>
       <td><div class="td-stack"><span>${esc(r.industry || '—')}</span><span class="td-dim">${esc(r.website || r.company_email || '—')}</span></div></td>
       <td><span class="badge badge-confirmed">${esc(r.selected_plan || r.project_type || 'Unassigned')}</span></td>
       <td class="td-dim">${compactDate(r.project_start_date)}</td>
@@ -1707,9 +1749,10 @@ function renderClients() {
       <td><div class="client-actions"><button class="act-btn retainer-client" data-id="${r.id}">Retainer</button><button class="act-btn edit-client" data-id="${r.id}">Edit</button><button class="act-btn delete delete-client" data-id="${r.id}">Delete</button></div></td>
     </tr>`).join('')}</tbody>
   </table>`;
-  c.querySelectorAll('.retainer-client').forEach(btn => btn.addEventListener('click', () => openRetainerModal(btn.dataset.id)));
-  c.querySelectorAll('.edit-client').forEach(btn => btn.addEventListener('click', () => openClientOnboarding(btn.dataset.id)));
-  c.querySelectorAll('.delete-client').forEach(btn => btn.addEventListener('click', () => deleteClient(btn.dataset.id)));
+  c.querySelectorAll('.client-row').forEach(row => row.addEventListener('click', () => openClientProfile(row.dataset.id)));
+  c.querySelectorAll('.retainer-client').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); openRetainerModal(btn.dataset.id); }));
+  c.querySelectorAll('.edit-client').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); openClientOnboarding(btn.dataset.id); }));
+  c.querySelectorAll('.delete-client').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); deleteClient(btn.dataset.id); }));
 }
 
 function openClientOnboarding(id = null) {
@@ -1733,6 +1776,7 @@ function openClientOnboarding(id = null) {
         <div class="onboarding-field"><label>Website</label><input id="oc-website" value="${esc(client.website)}" placeholder="https://"></div>
         <div class="onboarding-field"><label>Company Email</label><input id="oc-company-email" type="email" value="${esc(client.company_email || client.email)}"></div>
         <div class="onboarding-field"><label>Company Phone</label><input id="oc-company-phone" value="${esc(client.company_phone || client.phone)}"></div>
+        <div class="onboarding-field full"><label>Company Address</label><input id="oc-address" value="${esc(client.company_address)}"></div>
       </div>
       <div class="onboarding-panel" data-panel="1">
         <div class="onboarding-field full"><label>Full Name</label><input id="oc-name" value="${esc(client.full_name)}"></div>
@@ -1742,6 +1786,7 @@ function openClientOnboarding(id = null) {
       </div>
       <div class="onboarding-panel" data-panel="2">
         <div class="onboarding-field"><label>Selected Plan</label><select id="oc-plan">${['Signature','Growth','Premium'].map(p => `<option value="${p}"${(client.selected_plan || client.project_type) === p ? ' selected' : ''}>${p}</option>`).join('')}</select></div>
+        <div class="onboarding-field"><label>Client Status</label><select id="oc-status">${['Active','Pending','Paused','Archived'].map(s => `<option value="${s}"${(client.client_status || 'Active') === s ? ' selected' : ''}>${s}</option>`).join('')}</select></div>
         <div class="onboarding-field"><label>Project Start Date</label><input id="oc-start" type="date" value="${esc(client.project_start_date)}"></div>
         <div class="onboarding-field full"><label>Notes</label><textarea id="oc-notes">${esc(client.notes || client.brief)}</textarea></div>
       </div>
@@ -1780,11 +1825,13 @@ async function saveClient(id = '') {
     website:            $('oc-website').value.trim() || null,
     company_email:      $('oc-company-email').value.trim() || null,
     company_phone:      $('oc-company-phone').value.trim() || null,
+    company_address:    $('oc-address').value.trim() || null,
     full_name:          $('oc-name').value.trim(),
     position:           $('oc-position').value.trim() || null,
     email:              $('oc-email').value.trim(),
     phone:              $('oc-phone').value.trim() || null,
     selected_plan:      $('oc-plan').value,
+    client_status:      $('oc-status').value,
     project_type:       $('oc-plan').value,
     project_start_date: $('oc-start').value || null,
     notes:              notes || null,
@@ -1794,12 +1841,171 @@ async function saveClient(id = '') {
     toast('Company, primary contact, and email are required.');
     return;
   }
-  const query = id ? sb.from('clients').update(payload).eq('id', id) : sb.from('clients').insert(payload);
-  const { error } = await query;
+  let query = id ? sb.from('clients').update(payload).eq('id', id) : sb.from('clients').insert(payload);
+  let { error } = await query;
+  if (error) {
+    const fallback = { ...payload };
+    delete fallback.company_address;
+    delete fallback.client_status;
+    query = id ? sb.from('clients').update(fallback).eq('id', id) : sb.from('clients').insert(fallback);
+    ({ error } = await query);
+  }
   if (error) { toast('Error saving client. Apply the client schema migration first.'); return; }
   closeModal();
   toast(id ? 'Client updated.' : 'Client created.');
   await Promise.all([loadClients(), loadStats(), loadRecentActivity()]);
+  if (selectedClientId === id) renderClientProfile();
+}
+
+async function openClientProfile(id) {
+  selectedClientId = id;
+  switchPage('client-profile');
+  await renderClientProfile();
+}
+
+function linkedRows(rows, emptyText) {
+  if (!rows?.length) return `<p class="td-dim">${emptyText}</p>`;
+  return rows.map(r => `<div class="linked-row">
+    <div><div class="linked-title">${esc(r.title)}</div><div class="linked-meta">${esc(r.meta || '')}</div></div>
+    <div class="linked-title">${esc(r.side || '')}</div>
+  </div>`).join('');
+}
+
+async function renderClientProfile() {
+  const root = $('client-profile-root');
+  const client = clientById(selectedClientId);
+  if (!root || !client) { if (root) root.innerHTML = emptyState('Client not found'); return; }
+  const [quotesRes, invoicesRes, retRes, bookingsRes] = await Promise.all([
+    sb.from('quotes').select('*,service:service_id(name)').eq('client_id', client.id).order('created_at', { ascending: false }).limit(8),
+    sb.from('invoices').select('*,service:service_id(name)').eq('client_id', client.id).order('created_at', { ascending: false }).limit(8),
+    sb.from('retainers').select('*').eq('client_id', client.id).maybeSingle(),
+    sb.from('bookings').select('full_name,company,email,service,date:slot_id(date,start_time),status,created_at').order('created_at', { ascending: false }).limit(50)
+  ]);
+  const quotes = quotesRes.data || [];
+  const invoices = invoicesRes.data || [];
+  const retainer = retRes.data;
+  const paymentsRes = retainer?.id
+    ? await sb.from('retainer_payments').select('*').eq('retainer_id', retainer.id).order('created_at', { ascending: false }).limit(8)
+    : { data: [] };
+  const clientProjects = allProjects.filter(p => p.client_id === client.id);
+  const clientServices = [...new Set([...quotes.map(q => q.service?.name || q.service_name), ...invoices.map(i => i.service?.name || i.service_name)].filter(Boolean))];
+  const bookings = (bookingsRes.data || []).filter(b =>
+    [b.email, b.company, b.full_name].some(v => v && [client.email, client.company_email, client.company, client.full_name].includes(v))
+  ).slice(0, 6);
+  root.innerHTML = `
+    <div class="detail-toolbar">
+      <button class="btn-ghost" onclick="switchPage('clients')">Back to Clients</button>
+      <div class="profile-actions">
+        <button class="btn-ghost" onclick="openClientOnboarding('${client.id}')">Edit Details</button>
+        <button class="btn-ghost" onclick="openClientLogoModal('${client.id}')">Logo</button>
+        <button class="btn-add" onclick="openClientDocumentModal('quote','${client.id}')">Generate Quote</button>
+        <button class="btn-add" onclick="openClientDocumentModal('invoice','${client.id}')">Generate Invoice</button>
+        <button class="btn-add" onclick="openProjectModal(null,'backlog','${client.id}')">New Task</button>
+      </div>
+    </div>
+    <div class="profile-hero">
+      <div class="profile-id">
+        ${clientAvatar(client, 'lg')}
+        <div>
+          <div class="profile-title">${esc(clientDisplayName(client))}</div>
+          <div class="profile-sub">${esc(client.industry || 'Industry not set')} · ${esc(client.client_status || 'Active')} · ${esc(client.selected_plan || client.project_type || 'No plan assigned')}</div>
+        </div>
+      </div>
+      <span class="badge badge-confirmed">${esc(client.client_status || 'Active')}</span>
+    </div>
+    <div class="profile-grid">
+      <div class="profile-sections">
+        <div class="mini-panel">
+          <div class="mini-panel-head"><span class="mini-panel-title">Company</span></div>
+          <div class="mini-panel-body info-list">
+            <div class="info-row"><span>Website</span><span>${esc(client.website || 'Not set')}</span></div>
+            <div class="info-row"><span>Company Email</span><span>${esc(client.company_email || client.email || 'Not set')}</span></div>
+            <div class="info-row"><span>Company Phone</span><span>${esc(client.company_phone || client.phone || 'Not set')}</span></div>
+            <div class="info-row"><span>Address</span><span>${esc(client.company_address || 'Not set')}</span></div>
+            <div class="info-row"><span>Start Date</span><span>${compactDate(client.project_start_date)}</span></div>
+          </div>
+        </div>
+        <div class="mini-panel">
+          <div class="mini-panel-head"><span class="mini-panel-title">Primary Contact</span></div>
+          <div class="mini-panel-body info-list">
+            <div class="info-row"><span>Name</span><span>${esc(client.full_name || 'Not set')}</span></div>
+            <div class="info-row"><span>Role</span><span>${esc(client.position || 'Not set')}</span></div>
+            <div class="info-row"><span>Email</span><span>${esc(client.email || 'Not set')}</span></div>
+            <div class="info-row"><span>Phone</span><span>${esc(client.phone || 'Not set')}</span></div>
+            <div class="info-row"><span>Notes</span><span>${esc(client.notes || client.brief || 'No notes')}</span></div>
+          </div>
+        </div>
+        <div class="mini-panel">
+          <div class="mini-panel-head"><span class="mini-panel-title">Retainer</span><button class="act-btn" onclick="openRetainerModal('${client.id}')">Payment History</button></div>
+          <div class="mini-panel-body info-list">
+            <div class="info-row"><span>Plan</span><span>${esc(retainer?.assigned_plan || client.selected_plan || 'Not set')}</span></div>
+            <div class="info-row"><span>Monthly Retainer</span><span>${money(retainer?.monthly_retainer)}</span></div>
+            <div class="info-row"><span>Billing Day</span><span>${esc(retainer?.billing_day || 'Not set')}</span></div>
+            <div class="info-row"><span>Next Payment</span><span>${compactDate(retainer?.next_payment_date)}</span></div>
+            <div class="info-row"><span>Status</span><span>${esc(retainer?.payment_status || 'Pending')}</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="activity-grid">
+        <div class="mini-panel"><div class="mini-panel-head"><span class="mini-panel-title">Projects & Tasks</span><button class="act-btn" onclick="switchPage('projects')">View Board</button></div><div class="mini-panel-body linked-list">${linkedRows(clientProjects.map(p => ({ title:p.title, meta:`${p.status || 'backlog'} · ${p.priority || 'Medium'}`, side:p.due_date ? compactDate(p.due_date) : '' })), 'No linked projects yet.')}</div></div>
+        <div class="mini-panel"><div class="mini-panel-head"><span class="mini-panel-title">Services</span></div><div class="mini-panel-body linked-list">${linkedRows(clientServices.map(s => ({ title:s, meta:'Linked through quote or invoice', side:'' })), 'No linked services yet.')}</div></div>
+        <div class="mini-panel"><div class="mini-panel-head"><span class="mini-panel-title">Quotes</span></div><div class="mini-panel-body linked-list">${linkedRows(quotes.map(q => ({ title:q.quote_number, meta:q.service?.name || q.service_name || 'Service', side:money(q.total_amount) })), 'No quotes yet.')}</div></div>
+        <div class="mini-panel"><div class="mini-panel-head"><span class="mini-panel-title">Invoices</span></div><div class="mini-panel-body linked-list">${linkedRows(invoices.map(i => ({ title:i.invoice_number, meta:i.payment_status || 'Draft', side:money(i.total_amount) })), 'No invoices yet.')}</div></div>
+        <div class="mini-panel"><div class="mini-panel-head"><span class="mini-panel-title">Payments</span></div><div class="mini-panel-body linked-list">${linkedRows((paymentsRes.data || []).map(p => ({ title:p.month, meta:p.invoice_number || 'Retainer payment', side:money(p.amount) })), 'No payment history yet.')}</div></div>
+        <div class="mini-panel"><div class="mini-panel-head"><span class="mini-panel-title">Bookings</span></div><div class="mini-panel-body linked-list">${linkedRows(bookings.map(b => ({ title:b.service || 'Consultation', meta:b.date?.date ? compactDate(b.date.date) : compactDate(b.created_at?.split('T')[0]), side:b.status || '' })), 'No consultations found.')}</div></div>
+      </div>
+    </div>
+  `;
+}
+
+function openClientLogoModal(clientId) {
+  const client = clientById(clientId) || {};
+  showModal(`
+    <div class="modal-hdr">
+      <span class="modal-title">Client Logo</span>
+      <button class="modal-close" onclick="closeModal()">Ã—</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-field full" style="align-items:center">${clientAvatar(client, 'lg')}</div>
+      <div class="modal-field full"><label>Upload Company Logo</label><input id="client-logo-file" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml"></div>
+      <div class="modal-field full"><label>Storage Note</label><input readonly value="Uses Supabase Storage bucket: client-logos"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-danger" onclick="removeClientLogo('${clientId}')">Remove Logo</button>
+      <div class="modal-foot-right">
+        <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn-add" onclick="uploadClientLogo('${clientId}')">Save Logo</button>
+      </div>
+    </div>
+  `);
+}
+
+async function uploadClientLogo(clientId) {
+  const input = $('client-logo-file');
+  const file = input?.files?.[0];
+  if (!file) { toast('Choose a logo file first.'); return; }
+  const ext = file.name.split('.').pop() || 'png';
+  const path = `${clientId}/${Date.now()}.${ext}`;
+  const { error: uploadError } = await sb.storage.from('client-logos').upload(path, file, { upsert: true });
+  if (uploadError) { toast('Logo upload failed. Create the client-logos storage bucket first.'); return; }
+  const { data } = sb.storage.from('client-logos').getPublicUrl(path);
+  const { error } = await sb.from('clients').update({ logo_url: data.publicUrl }).eq('id', clientId);
+  if (error) { toast('Logo uploaded, but client record needs migration 004.'); return; }
+  closeModal();
+  toast('Client logo updated.');
+  await Promise.all([loadClients(), loadProjects()]);
+  selectedClientId = clientId;
+  await renderClientProfile();
+}
+
+async function removeClientLogo(clientId) {
+  const { error } = await sb.from('clients').update({ logo_url: null }).eq('id', clientId);
+  if (error) { toast('Could not remove logo. Apply migration 004 first.'); return; }
+  closeModal();
+  toast('Client logo removed.');
+  await Promise.all([loadClients(), loadProjects()]);
+  selectedClientId = clientId;
+  await renderClientProfile();
 }
 
 async function openRetainerModal(clientId) {
@@ -1822,6 +2028,7 @@ async function openRetainerModal(clientId) {
       <button class="modal-close" onclick="closeModal()">Ã—</button>
     </div>
     <div class="modal-body">
+      <div class="modal-field full" style="align-items:center">${clientAvatar(client, 'lg')}</div>
       <div class="modal-field full"><label>Client</label><input readonly value="${esc(client.company || client.full_name || 'Client')}"></div>
       <div class="modal-field"><label>Assigned Plan</label><input id="rt-plan" value="${esc(retainer?.assigned_plan || client.selected_plan || client.project_type || '')}"></div>
       <div class="modal-field"><label>Monthly Retainer (R)</label><input id="rt-amount" type="number" min="0" step="1" value="${Number(retainer?.monthly_retainer) || 0}"></div>
@@ -1921,6 +2128,10 @@ function projectClientName(project) {
   return project.client?.company || project.client?.full_name || allClients.find(c => c.id === project.client_id)?.company || 'No client';
 }
 
+function projectClient(project) {
+  return allClients.find(c => c.id === project.client_id) || project.client || {};
+}
+
 function renderProjects() {
   const board = $('projects-board');
   if (!board) return;
@@ -1961,8 +2172,9 @@ function renderProjects() {
 function projectCard(p) {
   const tags = Array.isArray(p.tags) ? p.tags : String(p.tags || '').split(',').map(t => t.trim()).filter(Boolean);
   const pri = (p.priority || 'medium').toLowerCase();
+  const linkedClient = projectClient(p);
   return `<article class="project-card" draggable="true" data-id="${p.id}">
-    <div class="project-title">${esc(p.title)}</div>
+    <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.45rem">${p.client_id ? clientAvatar(linkedClient) : ''}<div class="project-title" style="margin-bottom:0">${esc(p.title)}</div></div>
     <div class="project-desc">${esc(p.description || 'No description.')}</div>
     <div class="project-meta">
       <span class="project-pill priority-${pri}">${esc(p.priority || 'Medium')}</span>
@@ -2005,7 +2217,7 @@ function wireProjectCards() {
   document.querySelectorAll('.kanban-add-task').forEach(btn => btn.addEventListener('click', () => openProjectModal(null, btn.dataset.status)));
 }
 
-function openProjectModal(id = null, defaultStatus = 'backlog') {
+function openProjectModal(id = null, defaultStatus = 'backlog', defaultClientId = '') {
   const p = id ? allProjects.find(project => project.id === id) : {};
   const tags = Array.isArray(p?.tags) ? p.tags.join(', ') : (p?.tags || '');
   showModal(`
@@ -2016,7 +2228,7 @@ function openProjectModal(id = null, defaultStatus = 'backlog') {
     <div class="modal-body">
       <div class="modal-field full"><label>Task Title</label><input id="pr-title" value="${esc(p?.title)}"></div>
       <div class="modal-field full"><label>Description</label><input id="pr-desc" value="${esc(p?.description)}"></div>
-      <div class="modal-field"><label>Associated Client</label><select id="pr-client"><option value="">No client</option>${allClients.map(c => `<option value="${c.id}"${p?.client_id === c.id ? ' selected' : ''}>${esc(c.company || c.full_name)}</option>`).join('')}</select></div>
+      <div class="modal-field"><label>Associated Client</label><select id="pr-client"><option value="">No client</option>${allClients.map(c => `<option value="${c.id}"${(p?.client_id || defaultClientId) === c.id ? ' selected' : ''}>${esc(c.company || c.full_name)}</option>`).join('')}</select></div>
       <div class="modal-field"><label>Status</label><select id="pr-status">${PROJECT_COLUMNS.map(([value,label]) => `<option value="${value}"${(p?.status || defaultStatus) === value ? ' selected' : ''}>${label}</option>`).join('')}</select></div>
       <div class="modal-field"><label>Priority</label><select id="pr-priority">${['Low','Medium','High','Urgent'].map(v => `<option value="${v}"${(p?.priority || 'Medium') === v ? ' selected' : ''}>${v}</option>`).join('')}</select></div>
       <div class="modal-field"><label>Due Date</label><input id="pr-due" type="date" value="${esc(p?.due_date)}"></div>
@@ -2258,8 +2470,9 @@ function documentRows(rows, type) {
     const number = type === 'quote' ? row.quote_number : row.invoice_number;
     const status = type === 'quote' ? row.status : row.payment_status;
     const date = type === 'quote' ? row.quote_date : row.invoice_date;
+    const docClient = allClients.find(c => c.id === row.client_id) || row.client || {};
     return `<div class="doc-row">
-      <div><div class="doc-title">${esc(number || 'Draft')}</div><div class="doc-meta">${esc(row.client?.company || row.client?.full_name || 'Client')} · ${compactDate(date)}</div></div>
+      <div style="display:flex;align-items:center;gap:.6rem">${clientAvatar(docClient)}<div><div class="doc-title">${esc(number || 'Draft')}</div><div class="doc-meta">${esc(clientDisplayName(docClient))} · ${compactDate(date)}</div></div></div>
       <div style="text-align:right"><div class="doc-title">${money(row.total_amount)}</div><div class="doc-meta">${esc(status || 'Draft')}</div></div>
     </div>`;
   }).join('');
@@ -2359,6 +2572,47 @@ function openInvoiceModal(serviceId) {
   showDocumentModal('invoice', service);
 }
 
+function openClientDocumentModal(type, clientId) {
+  const client = clientById(clientId) || {};
+  const isQuote = type === 'quote';
+  if (!serviceFinanceReady) { toast('Apply migration 003 to generate quotes and invoices.'); return; }
+  showModal(`
+    <div class="modal-hdr">
+      <span class="modal-title">${isQuote ? 'Generate Quote' : 'Generate Invoice'}</span>
+      <button class="modal-close" onclick="closeModal()">Ã—</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-field full" style="align-items:center">${clientAvatar(client, 'lg')}</div>
+      <div class="modal-field full"><label>Client</label><input readonly value="${esc(clientDisplayName(client))}"></div>
+      <div class="modal-field"><label>Service</label><select id="doc-service">${allServices.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select></div>
+      <div class="modal-field"><label>${isQuote ? 'Status' : 'Payment Status'}</label><select id="doc-status">${(isQuote ? DOC_STATUSES : INVOICE_STATUSES).map(s => `<option value="${s}">${s}</option>`).join('')}</select></div>
+      <div class="modal-field"><label>${isQuote ? 'Quote Date' : 'Invoice Date'}</label><input id="doc-date" type="date" value="${todayStr()}"></div>
+      <div class="modal-field"><label>${isQuote ? 'Expiry Date' : 'Due Date'}</label><input id="doc-due" type="date" value="${addDays(todayStr(), isQuote ? 14 : 7)}"></div>
+      <div class="modal-field"><label>Setup Fee (R)</label><input id="doc-setup" type="number" min="0" step="1" value="0"></div>
+      <div class="modal-field"><label>Monthly Retainer (R)</label><input id="doc-retainer" type="number" min="0" step="1" value="0"></div>
+      <hr class="modal-divider">
+      <div class="modal-field"><label>Additional Item</label><input id="doc-extra-label" placeholder="Optional line item"></div>
+      <div class="modal-field"><label>Additional Amount (R)</label><input id="doc-extra-amount" type="number" min="0" step="1" value="0"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-add" onclick="saveClientDocument('${type}','${clientId}')">${isQuote ? 'Create Quote' : 'Create Invoice'}</button>
+    </div>
+  `);
+  $('modal-box').classList.add('wide');
+  const syncServicePricing = () => {
+    const service = serviceById($('doc-service').value) || {};
+    $('doc-setup').value = Number(service.setup_fee) || 0;
+    $('doc-retainer').value = Number(service.monthly_retainer) || 0;
+  };
+  $('doc-service')?.addEventListener('change', syncServicePricing);
+  syncServicePricing();
+}
+
+async function saveClientDocument(type, clientId) {
+  await saveDocumentWithClient(type, $('doc-service').value, clientId);
+}
+
 function showDocumentModal(type, service) {
   const isQuote = type === 'quote';
   showModal(`
@@ -2387,9 +2641,14 @@ function showDocumentModal(type, service) {
 }
 
 async function saveDocument(type, serviceId) {
-  const service = serviceById(serviceId) || {};
   const clientId = $('doc-client').value;
   if (!clientId) { toast('Select a client first.'); return; }
+  await saveDocumentWithClient(type, serviceId, clientId);
+}
+
+async function saveDocumentWithClient(type, serviceId, clientId) {
+  const service = serviceById(serviceId) || {};
+  if (!serviceId || !service.id) { toast('Select a service first.'); return; }
   const setup = Math.max(0, parseInt($('doc-setup').value) || 0);
   const retainer = Math.max(0, parseInt($('doc-retainer').value) || 0);
   const extraAmount = Math.max(0, parseInt($('doc-extra-amount').value) || 0);
@@ -2428,7 +2687,7 @@ async function saveDocument(type, serviceId) {
   if (error) { toast(`Error creating ${isQuote ? 'quote' : 'invoice'}. Apply the finance schema migration first.`); return; }
   closeModal();
   toast(isQuote ? 'Quote generated.' : 'Invoice generated.');
-  await Promise.all([renderServiceDetail(), loadRetainerOverview()]);
+  await Promise.all([selectedServiceId ? renderServiceDetail() : Promise.resolve(), selectedClientId ? renderClientProfile() : Promise.resolve(), loadRetainerOverview()]);
 }
 
 $('add-svc-btn').addEventListener('click', async () => {
