@@ -1043,6 +1043,16 @@ async function saveEditBooking(bookingId, oldSlotId) {
   await Promise.all([loadStats(), loadBookings(), loadRecentActivity()]);
 }
 
+async function deleteBooking(id, slotId) {
+  if (!confirm('Delete this booking? This cannot be undone.')) return;
+  closeModal();
+  if (slotId) await sb.from('available_slots').update({ is_booked: false }).eq('id', slotId);
+  const { error } = await sb.from('bookings').delete().eq('id', id);
+  if (error) { toast('Error deleting booking.'); return; }
+  toast('Booking deleted.');
+  await Promise.all([loadStats(), loadBookings(), loadRecentActivity()]);
+}
+
 function wireBookingActions(container) {
   container.querySelectorAll('.act-btn[data-action]').forEach(btn => {
     btn.addEventListener('click', async () => {
@@ -1053,6 +1063,9 @@ function wireBookingActions(container) {
   });
   container.querySelectorAll('.edit-booking').forEach(btn => {
     btn.addEventListener('click', () => openEditBookingModal(btn.dataset.id));
+  });
+  container.querySelectorAll('.delete-booking').forEach(btn => {
+    btn.addEventListener('click', () => deleteBooking(btn.dataset.id, btn.dataset.slot));
   });
 }
 
