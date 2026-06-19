@@ -451,11 +451,14 @@ a{color:inherit;text-decoration:none;}
 .project-meta{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.65rem;}
 .project-pill{font-family:var(--font-m);font-size:.5rem;letter-spacing:.07em;text-transform:uppercase;color:rgba(245,244,241,.5);border:1px solid var(--border);padding:.18rem .42rem;}
 .priority-high{color:var(--err);border-color:rgba(224,112,112,.25);background:var(--err-dim);}
+.priority-urgent{color:#ff8a8a;border-color:rgba(255,138,138,.35);background:rgba(255,138,138,.12);}
 .priority-medium{color:var(--amber);border-color:rgba(196,150,58,.25);background:var(--amber-dim);}
 .priority-low{color:var(--ok);border-color:rgba(90,158,111,.25);background:var(--ok-dim);}
 .project-tags{display:flex;flex-wrap:wrap;gap:.28rem;margin-top:.5rem;}
 .project-tag{font-size:.62rem;color:rgba(245,244,241,.38);background:rgba(245,244,241,.045);padding:.14rem .38rem;}
 .project-actions{display:flex;gap:.35rem;margin-top:.75rem;}
+.kanban-add-task{background:none;border:1px solid var(--border);color:rgba(245,244,241,.38);font-family:var(--font-m);font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;padding:.25rem .45rem;transition:all .2s;}
+.kanban-add-task:hover{border-color:var(--emerald);color:var(--emerald-l);}
 [data-theme="light"] .client-filter,[data-theme="light"] .onboarding-field input,[data-theme="light"] .onboarding-field select,[data-theme="light"] .onboarding-field textarea{background:rgba(26,26,24,.05);color:#1A1A18;}
 [data-theme="light"] .client-company,[data-theme="light"] .project-title{color:#1A1A18;}
 [data-theme="light"] .client-contact,[data-theme="light"] .project-desc{color:rgba(26,26,24,.5);}
@@ -681,12 +684,27 @@ a{color:inherit;text-decoration:none;}
       <section class="page" id="page-projects">
         <div class="kanban-toolbar">
           <div class="toolbar-left">
-            <input type="text" class="search-input" id="project-search" placeholder="Search projects...">
+            <input type="text" class="search-input" id="project-search" placeholder="Search tasks...">
             <select class="client-filter" id="project-client-filter">
               <option value="all">All clients</option>
             </select>
+            <select class="client-filter" id="project-priority-filter">
+              <option value="all">All priorities</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+              <option value="Urgent">Urgent</option>
+            </select>
+            <select class="client-filter" id="project-status-filter">
+              <option value="all">All statuses</option>
+              <option value="backlog">Backlog</option>
+              <option value="todo">To Do</option>
+              <option value="in_progress">In Progress</option>
+              <option value="review">Review</option>
+              <option value="done">Done</option>
+            </select>
           </div>
-          <button class="btn-add" id="add-project-btn">Add Project</button>
+          <button class="btn-add" id="add-project-btn">New Task</button>
         </div>
         <div class="kanban-board" id="projects-board"><p class="loading-row">Loading...</p></div>
       </section>
@@ -783,6 +801,8 @@ let clientSearch  = '';
 let clientPlanFilter = 'all';
 let projectSearch = '';
 let projectClientFilter = 'all';
+let projectPriorityFilter = 'all';
+let projectStatusFilter = 'all';
 let onboardingStep = 0;
 let availabilityFilter = 'all';
 let datePicker;
@@ -1741,13 +1761,23 @@ function renderProjects() {
     );
   }
   if (projectClientFilter !== 'all') projects = projects.filter(p => p.client_id === projectClientFilter);
+  if (projectPriorityFilter !== 'all') projects = projects.filter(p => (p.priority || 'Medium') === projectPriorityFilter);
+  const columns = projectStatusFilter === 'all'
+    ? PROJECT_COLUMNS
+    : PROJECT_COLUMNS.filter(([status]) => status === projectStatusFilter);
 
-  board.innerHTML = PROJECT_COLUMNS.map(([status, label]) => {
+  board.innerHTML = columns.map(([status, label]) => {
     const items = projects.filter(p => (p.status || 'backlog') === status);
     return `<section class="kanban-col" data-status="${status}">
-      <div class="kanban-col-head"><span class="kanban-title">${label}</span><span class="kanban-count">${items.length}</span></div>
+      <div class="kanban-col-head">
+        <span class="kanban-title">${label}</span>
+        <div style="display:flex;align-items:center;gap:.4rem;">
+          <button class="kanban-add-task" data-status="${status}" type="button">New Task</button>
+          <span class="kanban-count">${items.length}</span>
+        </div>
+      </div>
       <div class="kanban-list" data-status="${status}">
-        ${items.map(projectCard).join('') || `<div class="empty-state" style="padding:1.5rem .5rem">No projects</div>`}
+        ${items.map(projectCard).join('') || `<div class="empty-state" style="padding:1.5rem .5rem">No tasks</div>`}
       </div>
     </section>`;
   }).join('');
@@ -1798,22 +1828,23 @@ function wireProjectCards() {
   });
   document.querySelectorAll('.edit-project').forEach(btn => btn.addEventListener('click', () => openProjectModal(btn.dataset.id)));
   document.querySelectorAll('.delete-project').forEach(btn => btn.addEventListener('click', () => deleteProject(btn.dataset.id)));
+  document.querySelectorAll('.kanban-add-task').forEach(btn => btn.addEventListener('click', () => openProjectModal(null, btn.dataset.status)));
 }
 
-function openProjectModal(id = null) {
+function openProjectModal(id = null, defaultStatus = 'backlog') {
   const p = id ? allProjects.find(project => project.id === id) : {};
   const tags = Array.isArray(p?.tags) ? p.tags.join(', ') : (p?.tags || '');
   showModal(`
     <div class="modal-hdr">
-      <span class="modal-title">${id ? 'Edit Project' : 'Add Project'}</span>
+      <span class="modal-title">${id ? 'Edit Task' : 'New Task'}</span>
       <button class="modal-close" onclick="closeModal()">×</button>
     </div>
     <div class="modal-body">
-      <div class="modal-field full"><label>Project Title</label><input id="pr-title" value="${esc(p?.title)}"></div>
+      <div class="modal-field full"><label>Task Title</label><input id="pr-title" value="${esc(p?.title)}"></div>
       <div class="modal-field full"><label>Description</label><input id="pr-desc" value="${esc(p?.description)}"></div>
       <div class="modal-field"><label>Associated Client</label><select id="pr-client"><option value="">No client</option>${allClients.map(c => `<option value="${c.id}"${p?.client_id === c.id ? ' selected' : ''}>${esc(c.company || c.full_name)}</option>`).join('')}</select></div>
-      <div class="modal-field"><label>Status</label><select id="pr-status">${PROJECT_COLUMNS.map(([value,label]) => `<option value="${value}"${(p?.status || 'backlog') === value ? ' selected' : ''}>${label}</option>`).join('')}</select></div>
-      <div class="modal-field"><label>Priority</label><select id="pr-priority">${['Low','Medium','High'].map(v => `<option value="${v}"${(p?.priority || 'Medium') === v ? ' selected' : ''}>${v}</option>`).join('')}</select></div>
+      <div class="modal-field"><label>Status</label><select id="pr-status">${PROJECT_COLUMNS.map(([value,label]) => `<option value="${value}"${(p?.status || defaultStatus) === value ? ' selected' : ''}>${label}</option>`).join('')}</select></div>
+      <div class="modal-field"><label>Priority</label><select id="pr-priority">${['Low','Medium','High','Urgent'].map(v => `<option value="${v}"${(p?.priority || 'Medium') === v ? ' selected' : ''}>${v}</option>`).join('')}</select></div>
       <div class="modal-field"><label>Due Date</label><input id="pr-due" type="date" value="${esc(p?.due_date)}"></div>
       <div class="modal-field"><label>Assigned Owner</label><input id="pr-owner" value="${esc(p?.owner)}" placeholder="Neo"></div>
       <div class="modal-field"><label>Tags / Categories</label><input id="pr-tags" value="${esc(tags)}" placeholder="website, portal"></div>
@@ -1822,7 +1853,7 @@ function openProjectModal(id = null) {
       <div></div>
       <div class="modal-foot-right">
         <button class="btn-ghost" onclick="closeModal()">Cancel</button>
-        <button class="btn-add" onclick="saveProject('${id || ''}')">${id ? 'Save Project' : 'Create Project'}</button>
+        <button class="btn-add" onclick="saveProject('${id || ''}')">${id ? 'Save Task' : 'Create Task'}</button>
       </div>
     </div>
   `);
@@ -1841,20 +1872,20 @@ async function saveProject(id = '') {
     tags:        $('pr-tags').value.split(',').map(t => t.trim()).filter(Boolean),
     sort_order:  99
   };
-  if (!payload.title) { toast('Project title is required.'); return; }
+  if (!payload.title) { toast('Task title is required.'); return; }
   const query = id ? sb.from('projects').update(payload).eq('id', id) : sb.from('projects').insert(payload);
   const { error } = await query;
-  if (error) { toast('Error saving project. Apply the projects schema migration first.'); return; }
+  if (error) { toast('Error saving task. Apply the projects schema migration first.'); return; }
   closeModal();
-  toast(id ? 'Project updated.' : 'Project created.');
+  toast(id ? 'Task updated.' : 'Task created.');
   loadProjects();
 }
 
 async function deleteProject(id) {
-  if (!confirm('Delete this project?')) return;
+  if (!confirm('Delete this task?')) return;
   const { error } = await sb.from('projects').delete().eq('id', id);
-  if (error) { toast('Error deleting project.'); return; }
-  toast('Project deleted.');
+  if (error) { toast('Error deleting task.'); return; }
+  toast('Task deleted.');
   loadProjects();
 }
 
@@ -1866,7 +1897,15 @@ $('project-client-filter')?.addEventListener('change', e => {
   projectClientFilter = e.target.value;
   renderProjects();
 });
-$('add-project-btn')?.addEventListener('click', () => openProjectModal());
+$('project-priority-filter')?.addEventListener('change', e => {
+  projectPriorityFilter = e.target.value;
+  renderProjects();
+});
+$('project-status-filter')?.addEventListener('change', e => {
+  projectStatusFilter = e.target.value;
+  renderProjects();
+});
+$('add-project-btn')?.addEventListener('click', () => openProjectModal(null, projectStatusFilter === 'all' ? 'backlog' : projectStatusFilter));
 
 async function loadServices() {
   const c = $('services-grid');

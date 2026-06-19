@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS projects (
   status      TEXT        NOT NULL DEFAULT 'backlog'
     CHECK (status IN ('backlog', 'todo', 'in_progress', 'review', 'done')),
   priority    TEXT        NOT NULL DEFAULT 'Medium'
-    CHECK (priority IN ('Low', 'Medium', 'High')),
+    CHECK (priority IN ('Low', 'Medium', 'High', 'Urgent')),
   due_date    DATE,
   owner       TEXT,
   tags        TEXT[]      NOT NULL DEFAULT '{}',
@@ -34,3 +34,8 @@ BEGIN
 EXCEPTION WHEN duplicate_object THEN
   NULL;
 END $$;
+
+-- If this migration was already applied before Urgent priority existed,
+-- run the following manually after checking the generated constraint name:
+-- ALTER TABLE projects DROP CONSTRAINT IF EXISTS projects_priority_check;
+-- ALTER TABLE projects ADD CONSTRAINT projects_priority_check CHECK (priority IN ('Low', 'Medium', 'High', 'Urgent'));
