@@ -883,6 +883,8 @@ let allInvoices = [];
 let selectedServiceId = null;
 let serviceFinanceReady = true;
 let selectedClientId = null;
+let financeSchemaReady = true;
+let clientProfileSchemaReady = true;
 let bookingSearch = '';
 let contactFilter = 'all';
 let contactSearch = '';
@@ -960,6 +962,13 @@ function addDays(date, days) {
 }
 function docNumber(prefix) {
   return `${prefix}-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(100 + Math.random() * 900)}`;
+}
+function isSchemaError(error) {
+  const msg = `${error?.code || ''} ${error?.message || ''} ${error?.details || ''}`.toLowerCase();
+  return ['42p01','42703','pgrst200','pgrst204','pgrst205','schema cache','does not exist','could not find','column'].some(token => msg.includes(token));
+}
+function schemaNotice(text) {
+  return `<div class="mini-panel" style="grid-column:1/-1"><div class="mini-panel-body td-dim">${text}</div></div>`;
 }
 
 function toast(msg) {
@@ -1114,7 +1123,8 @@ async function loadRetainerOverview() {
     sb.from('retainers').select('monthly_retainer,payment_status,next_payment_date'),
     sb.from('invoices').select('total_amount,payment_status')
   ]);
-  if (retRes.error || invRes.error) return;
+  financeSchemaReady = !(retRes.error || invRes.error);
+  if (!financeSchemaReady) return;
   const retainers = retRes.data || [];
   const invoices = invRes.data || [];
   const today = todayStr();
@@ -1875,20 +1885,26 @@ async function renderClientProfile() {
   const root = $('client-profile-root');
   const client = clientById(selectedClientId);
   if (!root || !client) { if (root) root.innerHTML = emptyState('Client not found'); return; }
-  const [quotesRes, invoicesRes, retRes, bookingsRes] = await Promise.all([
-    sb.from('quotes').select('*,service:service_id(name)').eq('client_id', client.id).order('created_at', { ascending: false }).limit(8),
-    sb.from('invoices').select('*,service:service_id(name)').eq('client_id', client.id).order('created_at', { ascending: false }).limit(8),
-    sb.from('retainers').select('*').eq('client_id', client.id).maybeSingle(),
-    sb.from('bookings').select('full_name,company,email,service,date:slot_id(date,start_time),status,created_at').order('created_at', { ascending: false }).limit(50)
+  const [quotesRes, invoicesRes, retRes, bookingsRichRes] = await Promise.all([
+    financeSchemaReady ? sb.from('quotes').select('*').eq('client_id', client.id).order('created_at', { ascending: false }).limit(8) : Promise.resolve({ data: [], error: null }),
+    financeSchemaReady ? sb.from('invoices').select('*').eq('client_id', client.id).order('created_at', { ascending: false }).limit(8) : Promise.resolve({ data: [], error: null }),
+    financeSchemaReady ? sb.from('retainers').select('*').eq('client_id', client.id).maybeSingle() : Promise.resolve({ data: null, error: null }),
+    sb.from('bookings').select('full_name,company,email,status,created_at,service:service_id(name),slot:slot_id(date,start_time)').order('created_at', { ascending: false }).limit(50)
   ]);
+  let bookingsRes = bookingsRichRes;
+  if (bookingsRichRes.error && isSchemaError(bookingsRichRes.error)) {
+    bookingsRes = await sb.from('bookings').select('full_name,company,email,status,created_at').order('created_at', { ascending: false }).limit(50);
+  }
+  if (quotesRes.error || invoicesRes.error || retRes.error) financeSchemaReady = false;
   const quotes = quotesRes.data || [];
   const invoices = invoicesRes.data || [];
   const retainer = retRes.data;
   const paymentsRes = retainer?.id
     ? await sb.from('retainer_payments').select('*').eq('retainer_id', retainer.id).order('created_at', { ascending: false }).limit(8)
     : { data: [] };
+  if (paymentsRes.error) financeSchemaReady = false;
   const clientProjects = allProjects.filter(p => p.client_id === client.id);
-  const clientServices = [...new Set([...quotes.map(q => q.service?.name || q.service_name), ...invoices.map(i => i.service?.name || i.service_name)].filter(Boolean))];
+  const clientServices = [...new Set([...quotes.map(q => q.service_name), ...invoices.map(i => i.service_name)].filter(Boolean))];
   const bookings = (bookingsRes.data || []).filter(b =>
     [b.email, b.company, b.full_name].some(v => v && [client.email, client.company_email, client.company, client.full_name].includes(v))
   ).slice(0, 6);
@@ -1898,11 +1914,11 @@ async function renderClientProfile() {
       <div class="profile-actions">
         <button class="btn-ghost" onclick="openClientOnboarding('${client.id}')">Edit Details</button>
         <button class="btn-ghost" onclick="openClientLogoModal('${client.id}')">Logo</button>
-        <button class="btn-add" onclick="openClientDocumentModal('quote','${client.id}')">Generate Quote</button>
-        <button class="btn-add" onclick="openClientDocumentModal('invoice','${client.id}')">Generate Invoice</button>
+        ${financeSchemaReady ? `<button class="btn-add" onclick="openClientDocumentModal('quote','${client.id}')">Generate Quote</button><button class="btn-add" onclick="openClientDocumentModal('invoice','${client.id}')">Generate Invoice</button>` : ''}
         <button class="btn-add" onclick="openProjectModal(null,'backlog','${client.id}')">New Task</button>
       </div>
     </div>
+    ${financeSchemaReady ? '' : schemaNotice('Finance schema is not installed yet, so quotes, invoices, retainers, and payment history are hidden until migration 003 is applied.')}
     <div class="profile-hero">
       <div class="profile-id">
         ${clientAvatar(client, 'lg')}
@@ -1949,10 +1965,10 @@ async function renderClientProfile() {
       <div class="activity-grid">
         <div class="mini-panel"><div class="mini-panel-head"><span class="mini-panel-title">Projects & Tasks</span><button class="act-btn" onclick="switchPage('projects')">View Board</button></div><div class="mini-panel-body linked-list">${linkedRows(clientProjects.map(p => ({ title:p.title, meta:`${p.status || 'backlog'} · ${p.priority || 'Medium'}`, side:p.due_date ? compactDate(p.due_date) : '' })), 'No linked projects yet.')}</div></div>
         <div class="mini-panel"><div class="mini-panel-head"><span class="mini-panel-title">Services</span></div><div class="mini-panel-body linked-list">${linkedRows(clientServices.map(s => ({ title:s, meta:'Linked through quote or invoice', side:'' })), 'No linked services yet.')}</div></div>
-        <div class="mini-panel"><div class="mini-panel-head"><span class="mini-panel-title">Quotes</span></div><div class="mini-panel-body linked-list">${linkedRows(quotes.map(q => ({ title:q.quote_number, meta:q.service?.name || q.service_name || 'Service', side:money(q.total_amount) })), 'No quotes yet.')}</div></div>
+        <div class="mini-panel"><div class="mini-panel-head"><span class="mini-panel-title">Quotes</span></div><div class="mini-panel-body linked-list">${linkedRows(quotes.map(q => ({ title:q.quote_number, meta:q.service_name || 'Service', side:money(q.total_amount) })), financeSchemaReady ? 'No quotes yet.' : 'Finance schema unavailable.')}</div></div>
         <div class="mini-panel"><div class="mini-panel-head"><span class="mini-panel-title">Invoices</span></div><div class="mini-panel-body linked-list">${linkedRows(invoices.map(i => ({ title:i.invoice_number, meta:i.payment_status || 'Draft', side:money(i.total_amount) })), 'No invoices yet.')}</div></div>
         <div class="mini-panel"><div class="mini-panel-head"><span class="mini-panel-title">Payments</span></div><div class="mini-panel-body linked-list">${linkedRows((paymentsRes.data || []).map(p => ({ title:p.month, meta:p.invoice_number || 'Retainer payment', side:money(p.amount) })), 'No payment history yet.')}</div></div>
-        <div class="mini-panel"><div class="mini-panel-head"><span class="mini-panel-title">Bookings</span></div><div class="mini-panel-body linked-list">${linkedRows(bookings.map(b => ({ title:b.service || 'Consultation', meta:b.date?.date ? compactDate(b.date.date) : compactDate(b.created_at?.split('T')[0]), side:b.status || '' })), 'No consultations found.')}</div></div>
+        <div class="mini-panel"><div class="mini-panel-head"><span class="mini-panel-title">Bookings</span></div><div class="mini-panel-body linked-list">${linkedRows(bookings.map(b => ({ title:b.service?.name || 'Consultation', meta:b.slot?.date ? compactDate(b.slot.date) : compactDate(b.created_at?.split('T')[0]), side:b.status || '' })), 'No consultations found.')}</div></div>
       </div>
     </div>
   `;
@@ -2009,11 +2025,25 @@ async function removeClientLogo(clientId) {
 }
 
 async function openRetainerModal(clientId) {
+  if (!financeSchemaReady) {
+    toast('Apply migration 003 to enable retainers and payment history.');
+    return;
+  }
   const client = clientById(clientId) || {};
-  const { data: retainer } = await sb.from('retainers').select('*').eq('client_id', clientId).maybeSingle();
-  const { data: payments } = retainer?.id
+  const { data: retainer, error: retainerError } = await sb.from('retainers').select('*').eq('client_id', clientId).maybeSingle();
+  if (retainerError && isSchemaError(retainerError)) {
+    financeSchemaReady = false;
+    toast('Apply migration 003 to enable retainers and payment history.');
+    return;
+  }
+  const { data: payments, error: paymentsError } = retainer?.id
     ? await sb.from('retainer_payments').select('*').eq('retainer_id', retainer.id).order('created_at', { ascending: false }).limit(12)
-    : { data: [] };
+    : { data: [], error: null };
+  if (paymentsError && isSchemaError(paymentsError)) {
+    financeSchemaReady = false;
+    toast('Apply migration 003 to enable payment history.');
+    return;
+  }
   const status = retainer?.payment_status || 'Pending';
   const historyRows = (payments || []).map(p => `<tr>
     <td>${esc(p.month || 'â€”')}</td>
@@ -2071,7 +2101,11 @@ async function saveRetainer(clientId, retainerId = '') {
     ? sb.from('retainers').update(payload).eq('id', retainerId)
     : sb.from('retainers').insert(payload);
   const { error } = await query;
-  if (error) { toast('Error saving retainer. Apply the finance schema migration first.'); return; }
+  if (error) {
+    if (isSchemaError(error)) financeSchemaReady = false;
+    toast('Error saving retainer. Apply migration 003 first.');
+    return;
+  }
   closeModal();
   toast('Retainer saved.');
   await loadRetainerOverview();
@@ -2409,27 +2443,27 @@ async function renderServiceDetail() {
   const root = $('service-detail-root');
   const service = serviceById(selectedServiceId);
   if (!root || !service) { if (root) root.innerHTML = emptyState('Service not found'); return; }
-  const [quotesRes, invoicesRes] = await Promise.all([
-    sb.from('quotes').select('*,client:client_id(company,full_name)').eq('service_id', service.id).order('created_at', { ascending: false }).limit(8),
-    sb.from('invoices').select('*,client:client_id(company,full_name)').eq('service_id', service.id).order('created_at', { ascending: false }).limit(8)
-  ]);
+  const [quotesRes, invoicesRes] = financeSchemaReady ? await Promise.all([
+    sb.from('quotes').select('*').eq('service_id', service.id).order('created_at', { ascending: false }).limit(8),
+    sb.from('invoices').select('*').eq('service_id', service.id).order('created_at', { ascending: false }).limit(8)
+  ]) : [{ data: [], error: null }, { data: [], error: null }];
+  if (quotesRes.error || invoicesRes.error) financeSchemaReady = false;
   allQuotes = quotesRes.data || [];
   allInvoices = invoicesRes.data || [];
   const associatedClientNames = [...new Set([
-    ...allQuotes.map(q => q.client?.company || q.client?.full_name).filter(Boolean),
-    ...allInvoices.map(i => i.client?.company || i.client?.full_name).filter(Boolean)
+    ...allQuotes.map(q => clientDisplayName(allClients.find(c => c.id === q.client_id) || {})).filter(Boolean),
+    ...allInvoices.map(i => clientDisplayName(allClients.find(c => c.id === i.client_id) || {})).filter(Boolean)
   ])];
   root.innerHTML = `
     <div class="detail-toolbar">
       <button class="btn-ghost" onclick="switchPage('services')">Back to Services</button>
       <div class="detail-actions">
         <button class="btn-ghost" onclick="openServiceEditModal('${service.id}')">Edit Service</button>
-        <button class="btn-add" onclick="openQuoteModal('${service.id}')">Generate Quote</button>
-        <button class="btn-add" onclick="openInvoiceModal('${service.id}')">Generate Invoice</button>
+        ${financeSchemaReady ? `<button class="btn-add" onclick="openQuoteModal('${service.id}')">Generate Quote</button><button class="btn-add" onclick="openInvoiceModal('${service.id}')">Generate Invoice</button>` : ''}
       </div>
     </div>
     <div class="service-detail-grid">
-      ${serviceFinanceReady ? '' : '<div class="mini-panel" style="grid-column:1/-1"><div class="mini-panel-body td-dim">Basic service management is active. Apply migration 003 to enable setup fees, retainers, quotes, and invoices.</div></div>'}
+      ${serviceFinanceReady && financeSchemaReady ? '' : schemaNotice('Basic service management is active. Apply migration 003 to enable setup fees, retainers, quotes, and invoices.')}
       <div class="detail-hero">
         <div class="detail-eyebrow">${esc(service.category || 'General Service')}</div>
         <h2 class="detail-title">${esc(service.name)}</h2>
@@ -2460,9 +2494,6 @@ async function renderServiceDetail() {
       </div>
     </div>
   `;
-  if (quotesRes.error || invoicesRes.error) {
-    root.querySelector('.service-detail-grid').insertAdjacentHTML('beforeend', `<div class="mini-panel" style="grid-column:1/-1"><div class="mini-panel-body td-dim">Apply the finance schema migration to persist quotes and invoices.</div></div>`);
-  }
 }
 
 function documentRows(rows, type) {
@@ -2563,11 +2594,13 @@ function clientOptions() {
 }
 
 function openQuoteModal(serviceId) {
+  if (!financeSchemaReady) { toast('Apply migration 003 to generate quotes.'); return; }
   const service = serviceById(serviceId) || {};
   showDocumentModal('quote', service);
 }
 
 function openInvoiceModal(serviceId) {
+  if (!financeSchemaReady) { toast('Apply migration 003 to generate invoices.'); return; }
   const service = serviceById(serviceId) || {};
   showDocumentModal('invoice', service);
 }
@@ -2575,7 +2608,7 @@ function openInvoiceModal(serviceId) {
 function openClientDocumentModal(type, clientId) {
   const client = clientById(clientId) || {};
   const isQuote = type === 'quote';
-  if (!serviceFinanceReady) { toast('Apply migration 003 to generate quotes and invoices.'); return; }
+  if (!serviceFinanceReady || !financeSchemaReady) { toast('Apply migration 003 to generate quotes and invoices.'); return; }
   showModal(`
     <div class="modal-hdr">
       <span class="modal-title">${isQuote ? 'Generate Quote' : 'Generate Invoice'}</span>
@@ -2684,7 +2717,11 @@ async function saveDocumentWithClient(type, serviceId, clientId) {
     payment_status: $('doc-status').value
   };
   const { error } = await sb.from(isQuote ? 'quotes' : 'invoices').insert(payload);
-  if (error) { toast(`Error creating ${isQuote ? 'quote' : 'invoice'}. Apply the finance schema migration first.`); return; }
+  if (error) {
+    if (isSchemaError(error)) financeSchemaReady = false;
+    toast(`Error creating ${isQuote ? 'quote' : 'invoice'}. Apply migration 003 first.`);
+    return;
+  }
   closeModal();
   toast(isQuote ? 'Quote generated.' : 'Invoice generated.');
   await Promise.all([selectedServiceId ? renderServiceDetail() : Promise.resolve(), selectedClientId ? renderClientProfile() : Promise.resolve(), loadRetainerOverview()]);
