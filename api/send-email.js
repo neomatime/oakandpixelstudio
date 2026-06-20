@@ -1,8 +1,7 @@
 // Vercel serverless function — sends a document as a PDF attachment via Resend.
 // Required env var: RESEND_API_KEY (set in Vercel project settings)
-// Resend free tier: 100 emails/day, no credit card required — resend.com
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -50,4 +49,4 @@ export default async function handler(req, res) {
   }
 
   res.status(200).json({ ok: true });
-}
+};
