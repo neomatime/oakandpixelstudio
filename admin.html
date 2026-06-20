@@ -1679,6 +1679,10 @@ function switchPage(name) {
   document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.page === name));
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
   $('page-title').textContent = PAGE_TITLES[name] || name;
+  if (name === 'quotes') renderQuotesTable();
+  if (name === 'invoices') renderInvoicesTable();
+  if (name === 'retainers') renderRetainersTable();
+  if (name === 'documents') renderDocumentsTable();
 }
 
 /* ── Modal ── */
@@ -3947,6 +3951,10 @@ function openInvoiceModal(serviceId) {
 }
 
 function openClientDocumentModal(type, clientId) {
+  if (!clientId) {
+    showDocumentModal(type === 'quote' ? 'quote' : 'invoice', {});
+    return;
+  }
   const client = clientById(clientId) || {};
   const isQuote = type === 'quote';
   if (!serviceFinanceReady || !financeSchemaReady) { toast('Apply migration 003 to generate quotes and invoices.'); return; }
