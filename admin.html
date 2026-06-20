@@ -2622,7 +2622,7 @@ async function renderClientProfile() {
   <div class="mini-panel-body doc-list">
     ${allProposals.filter(p => p.client_id === client.id).slice(0,5).map(p => `
       <div class="doc-row" style="cursor:pointer" onclick="openProposalEditor('${p.id}',null,null)">
-        <div><div class="doc-title">${esc(p.proposal_number)}</div><div class="doc-meta">${esc(p.title||'Untitled')} · ${compactDate(p.proposal_date)}</div></div>
+        <div><div class="doc-title">${esc(p.proposal_number)}</div><div class="doc-meta">${esc(p.title||'Untitled')} · ${esc(compactDate(p.proposal_date))}</div></div>
         <span class="badge ${p.status==='Approved'?'badge-confirmed':p.status==='Rejected'?'badge-declined':p.status==='Sent'?'badge-pending':''}">${esc(p.status)}</span>
       </div>`).join('') || '<p class="td-dim">No proposals yet.</p>'}
     ${allProposals.filter(p => p.client_id === client.id).length > 0 ? `<div style="margin-top:.5rem"><button class="btn-ghost btn-sm" onclick="docFilter='Proposal';switchPage('documents');renderDocumentsTable()">View all documents →</button></div>` : ''}
