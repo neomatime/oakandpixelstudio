@@ -1659,13 +1659,13 @@ footer{
       </p>
     </div>
     <div class="pricing-grid">
-      <article class="pricing-card reveal">
+      <article class="pricing-card reveal" data-plan="Signature">
         <div class="pricing-kicker">2 client slots</div>
         <h3 class="pricing-name">Signature</h3>
         <p class="pricing-fit">Best for businesses establishing a premium digital presence.</p>
         <div class="pricing-price">
-          <div class="pricing-setup">R25,000</div>
-          <div class="pricing-month">setup + R4,499/month</div>
+          <div class="pricing-setup" data-price-field="setup">R25,000</div>
+          <div class="pricing-month" data-price-field="monthly">setup + R4,499/month</div>
         </div>
         <ul class="pricing-list">
           <li>Premium website up to 5 pages</li>
@@ -1676,13 +1676,13 @@ footer{
         </ul>
         <a href="#contact" class="btn-primary">Apply for Signature</a>
       </article>
-      <article class="pricing-card featured reveal reveal-delay-1">
+      <article class="pricing-card featured reveal reveal-delay-1" data-plan="Growth">
         <div class="pricing-kicker">3 client slots - Core offering</div>
         <h3 class="pricing-name">Growth</h3>
         <p class="pricing-fit">Best for growing businesses wanting a stronger customer journey.</p>
         <div class="pricing-price">
-          <div class="pricing-setup">R40,000</div>
-          <div class="pricing-month">setup + R6,999/month</div>
+          <div class="pricing-setup" data-price-field="setup">R40,000</div>
+          <div class="pricing-month" data-price-field="monthly">setup + R6,999/month</div>
         </div>
         <ul class="pricing-list">
           <li>Everything in Signature</li>
@@ -1693,13 +1693,13 @@ footer{
         </ul>
         <a href="#contact" class="btn-primary">Apply for Growth</a>
       </article>
-      <article class="pricing-card reveal reveal-delay-2">
+      <article class="pricing-card reveal reveal-delay-2" data-plan="Premium">
         <div class="pricing-kicker">2 client slots</div>
         <h3 class="pricing-name">Premium</h3>
         <p class="pricing-fit">Best for businesses seeking a highly tailored digital ecosystem.</p>
         <div class="pricing-price">
-          <div class="pricing-setup">R65,000</div>
-          <div class="pricing-month">setup + R12,499/month</div>
+          <div class="pricing-setup" data-price-field="setup">R65,000</div>
+          <div class="pricing-month" data-price-field="monthly">setup + R12,499/month</div>
         </div>
         <ul class="pricing-list">
           <li>Everything in Growth</li>
@@ -3305,6 +3305,7 @@ document.querySelectorAll('.service-card').forEach(card => {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
   const money = value => `R ${Math.max(0, Number(value) || 0).toLocaleString('en-ZA')}`;
+  const normalize = value => String(value || '').toLowerCase().replace(/&amp;/g, '&').replace(/[^a-z0-9]+/g, ' ').trim();
 
   async function fetchServices(select) {
     const url = `${SB_URL}/rest/v1/services?select=${encodeURIComponent(select)}&active=eq.true&order=sort_order.asc`;
@@ -3347,6 +3348,23 @@ document.querySelectorAll('.service-card').forEach(card => {
     if ([...contactSelect.options].some(option => option.value === current)) contactSelect.value = current;
   }
 
+  function updatePricingCards(services) {
+    document.querySelectorAll('.pricing-card[data-plan]').forEach(card => {
+      const plan = normalize(card.dataset.plan);
+      const service = services.find(item => {
+        const name = normalize(item.name);
+        return name === plan || name === `${plan} plan` || name.includes(`${plan} plan`) || name.includes(plan);
+      });
+      if (!service) return;
+      const setupFee = Number(service.setup_fee) || Number(service.price) || 0;
+      const monthlyRetainer = Number(service.monthly_retainer) || 0;
+      const setupEl = card.querySelector('[data-price-field="setup"]');
+      const monthlyEl = card.querySelector('[data-price-field="monthly"]');
+      if (setupEl && setupFee) setupEl.textContent = money(setupFee);
+      if (monthlyEl && monthlyRetainer) monthlyEl.textContent = `setup + ${money(monthlyRetainer)}/month`;
+    });
+  }
+
   function wireServiceClicks() {
     grid.querySelectorAll('.service-card').forEach(card => {
       card.addEventListener('click', () => {
@@ -3371,6 +3389,7 @@ document.querySelectorAll('.service-card').forEach(card => {
     if (!services?.length) throw new Error('No services returned');
     grid.innerHTML = services.map(serviceCard).join('');
     updateContactSelect(services);
+    updatePricingCards(services);
     wireServiceClicks();
   } catch (_) {
     grid.innerHTML = fallbackCards;
