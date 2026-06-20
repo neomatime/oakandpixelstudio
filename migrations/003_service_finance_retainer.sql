@@ -37,8 +37,11 @@ CREATE TABLE IF NOT EXISTS invoices (
   additional_items JSONB NOT NULL DEFAULT '[]'::jsonb,
   total_amount INTEGER NOT NULL DEFAULT 0,
   payment_status TEXT NOT NULL DEFAULT 'Draft',
+  banking_details TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS banking_details TEXT;
 
 CREATE TABLE IF NOT EXISTS retainers (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,

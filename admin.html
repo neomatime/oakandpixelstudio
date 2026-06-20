@@ -454,7 +454,7 @@ body.sidebar-collapsed .btn-signout::before{
   [data-theme="light"] .modal-close{color:rgba(26,26,24,.3);}
   [data-theme="light"] .modal-close:hover{color:#1A1A18;}
   [data-theme="light"] .modal-field label{color:rgba(26,26,24,.45);}
-  [data-theme="light"] .modal-field input,[data-theme="light"] .modal-field select{background:rgba(26,26,24,.04);border-color:var(--border-hi);color:#1A1A18;}
+  [data-theme="light"] .modal-field input,[data-theme="light"] .modal-field select,[data-theme="light"] .modal-field textarea{background:rgba(26,26,24,.04);border-color:var(--border-hi);color:#1A1A18;}
   [data-theme="light"] .btn-ghost{color:rgba(26,26,24,.45);border-color:rgba(26,26,24,.12);}
 [data-theme="light"] .data-table tbody tr:hover { background:rgba(10,10,9,.04); }
 [data-theme="light"] .filter-tab { border-color:rgba(10,10,9,.15); color:rgba(10,10,9,.55); }
@@ -499,8 +499,9 @@ body.sidebar-collapsed .btn-signout::before{
 .modal-field{display:flex;flex-direction:column;gap:.3rem;}
 .modal-field.full{grid-column:1/-1;}
 .modal-field label{font-family:var(--font-m);font-size:.54rem;letter-spacing:.11em;text-transform:uppercase;color:rgba(245,244,241,.32);}
-.modal-field input,.modal-field select{background:rgba(245,244,241,.04);border:1px solid var(--border-hi);color:var(--off-white);font-family:var(--font-b);font-size:.82rem;padding:.55rem .75rem;outline:none;transition:border-color .2s;}
-.modal-field input:focus,.modal-field select:focus{border-color:var(--emerald);}
+.modal-field input,.modal-field select,.modal-field textarea{background:rgba(245,244,241,.04);border:1px solid var(--border-hi);color:var(--off-white);font-family:var(--font-b);font-size:.82rem;padding:.55rem .75rem;outline:none;transition:border-color .2s;}
+.modal-field textarea{min-height:92px;resize:vertical;line-height:1.5;}
+.modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{border-color:var(--emerald);}
 .modal-field input[readonly]{opacity:.5;cursor:default;}
 .modal-field select option{background:var(--card);}
 .modal-divider{grid-column:1/-1;border:none;border-top:1px solid var(--border);margin:.1rem 0;}
@@ -1478,6 +1479,9 @@ function _pdfStyles() {
     table.pdf-items th{text-align:left;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#6b6b64;padding:.5rem;border-bottom:1px solid #e0dfd8}
     table.pdf-items td{padding:.6rem .5rem;border-bottom:1px solid #f0efe8;font-size:10pt}
     table.pdf-items tr.total td{font-weight:700;border-top:2px solid #B8955A;border-bottom:none}
+    .pdf-bank{border:1px solid #e0dfd8;background:#faf9f4;padding:.85rem 1rem;margin:0 0 1.5rem}
+    .pdf-bank-title{font-size:8pt;text-transform:uppercase;letter-spacing:.08em;color:#6b6b64;margin-bottom:.35rem}
+    .pdf-bank-body{font-size:10pt;line-height:1.55;color:#1A1A18;white-space:pre-line}
     .pdf-footer{margin-top:2rem;padding-top:1rem;border-top:1px solid #e0dfd8;font-size:8pt;color:#6b6b64;display:flex;justify-content:space-between}
     .pdf-section-title{font-size:9pt;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem;color:#2d2d2b}
     .pdf-body-text{font-size:10pt;margin-bottom:1rem;color:#2d2d2b}
@@ -1529,6 +1533,15 @@ function _pdfFooter() {
   </div>`;
 }
 
+function _pdfBankingDetails(invoice) {
+  const details = (invoice.banking_details || '').trim();
+  if (!details) return '';
+  return `<div class="pdf-bank">
+    <div class="pdf-bank-title">Banking Details</div>
+    <div class="pdf-bank-body">${esc(details)}</div>
+  </div>`;
+}
+
 function quoteTemplate(quote, client) {
   return `<!DOCTYPE html><html><head><meta charset="UTF-8">${_pdfStyles()}</head><body><div class="pdf-wrap">
     ${_pdfHeader(quote.quote_number)}
@@ -1557,6 +1570,7 @@ function invoiceTemplate(invoice, client) {
       <div class="pdf-tile"><div class="pdf-tile-lbl">Status</div><div class="pdf-tile-val">${esc(invoice.payment_status)}</div></div>
     </div>
     ${_pdfLineItems(invoice)}
+    ${_pdfBankingDetails(invoice)}
     ${_pdfFooter()}
   </div></body></html>`;
 }
@@ -1639,7 +1653,7 @@ function docNumber(prefix) {
 }
 function isSchemaError(error) {
   const msg = `${error?.code || ''} ${error?.message || ''} ${error?.details || ''}`.toLowerCase();
-  return ['42p01','42703','pgrst200','pgrst204','pgrst205','schema cache','does not exist','could not find','column'].some(token => msg.includes(token));
+  return ['42p01','42703','pgrst200','pgrst202','pgrst204','pgrst205','schema cache','does not exist','could not find','column','function'].some(token => msg.includes(token));
 }
 function schemaNotice(text) {
   return `<div class="mini-panel" style="grid-column:1/-1"><div class="mini-panel-body td-dim">${text}</div></div>`;
@@ -3762,6 +3776,7 @@ function openEditInvoiceModal(invoiceId) {
       <div class="modal-field"><label>Due Date</label><input id="ei-due" type="date" value="${invoice.due_date || ''}"></div>
       <div class="modal-field"><label>Setup Fee (R)</label><input id="ei-setup" type="number" value="${invoice.setup_fee || 0}"></div>
       <div class="modal-field"><label>Monthly Retainer (R)</label><input id="ei-retainer" type="number" value="${invoice.monthly_retainer || 0}"></div>
+      <div class="modal-field full"><label>Banking Details</label><textarea id="ei-banking" rows="4" placeholder="Bank name, account holder, account number, branch code, payment reference">${esc(invoice.banking_details || '')}</textarea></div>
     </div>
     <div class="modal-foot">
       <button class="btn-ghost" onclick="closeModal()">Cancel</button>
@@ -3772,37 +3787,50 @@ function openEditInvoiceModal(invoiceId) {
 }
 
 async function updateInvoice(invoiceId) {
+  const invoice = allInvoices.find(i => i.id === invoiceId) || {};
   const setup = Math.max(0, parseInt($('ei-setup').value) || 0);
   const retainer = Math.max(0, parseInt($('ei-retainer').value) || 0);
-  const { error } = await sb.from('invoices').update({
+  const extras = Array.isArray(invoice.additional_items) ? invoice.additional_items : [];
+  const extraTotal = extras.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+  const payload = {
     payment_status: $('ei-status').value,
     invoice_date: $('ei-date').value,
     due_date: $('ei-due').value,
     setup_fee: setup,
     monthly_retainer: retainer,
-    total_amount: setup + retainer
-  }).eq('id', invoiceId);
+    total_amount: setup + retainer + extraTotal,
+    banking_details: $('ei-banking').value.trim() || null
+  };
+  let { error } = await sb.from('invoices').update(payload).eq('id', invoiceId);
+  let bankingSkipped = false;
+  if (error && isSchemaError(error)) {
+    delete payload.banking_details;
+    const retry = await sb.from('invoices').update(payload).eq('id', invoiceId);
+    error = retry.error;
+    bankingSkipped = !error;
+  }
   if (error) { toast('Error updating invoice.'); return; }
   closeModal();
-  toast('Invoice updated.');
+  toast(bankingSkipped ? 'Invoice updated. Apply migration 007 to save banking details.' : 'Invoice updated.');
   await loadInvoices();
 }
 
 function openInvoiceFromQuote() {
-  const accepted = allQuotes.filter(q => q.status === 'Accepted');
-  if (!accepted.length) { toast('No accepted quotes to convert.'); return; }
+  const quotes = allQuotes;
+  if (!quotes.length) { toast('No quotes available to convert.'); return; }
   showModal(`
     <div class="modal-hdr">
-      <span class="modal-title">Invoice from Quote</span>
+      <span class="modal-title">Convert Quote to Invoice</span>
       <button class="modal-close" onclick="closeModal()">×</button>
     </div>
     <div class="modal-body">
-      <p class="td-dim" style="margin-bottom:1rem">Select an accepted quote to pre-fill invoice details.</p>
-      ${accepted.map(q => {
+      <p class="td-dim" style="margin-bottom:1rem">Select a quote to convert. The original quote will be removed after the invoice is created.</p>
+      ${quotes.map(q => {
         const client = allClients.find(c => c.id === q.client_id) || {};
-        return `<div class="doc-row" style="cursor:pointer" onclick="prefillInvoiceFromQuote('${q.id}')">
+        const badgeCls = { Draft:'', Sent:'badge-pending', Accepted:'badge-confirmed' }[q.status] || '';
+        return `<div class="doc-row" style="cursor:pointer" onclick="convertQuoteToInvoice('${q.id}')">
           <div><div class="doc-title">${esc(q.quote_number)}</div><div class="doc-meta">${esc(clientDisplayName(client))} · ${money(q.total_amount)}</div></div>
-          <span class="badge badge-confirmed">Accepted</span>
+          <span class="badge ${badgeCls}">${esc(q.status || 'Draft')}</span>
         </div>`;
       }).join('')}
     </div>
@@ -3824,6 +3852,67 @@ function prefillInvoiceFromQuote(quoteId) {
     if ($('doc-setup')) $('doc-setup').value = quote.setup_fee || 0;
     if ($('doc-retainer')) $('doc-retainer').value = quote.monthly_retainer || 0;
   }, 100);
+}
+
+async function convertQuoteToInvoice(quoteId) {
+  const quote = allQuotes.find(q => q.id === quoteId);
+  if (!quote) return;
+  if (!confirm(`Convert ${quote.quote_number} into an invoice? The quote will be removed after conversion.`)) return;
+  const invoiceNumber = docNumber('INV');
+  const dueDate = addDays(todayStr(), 7);
+  startLoad();
+  let converted = false;
+  const rpc = await sb.rpc('convert_quote_to_invoice', {
+    p_quote_id: quoteId,
+    p_invoice_number: invoiceNumber,
+    p_due_date: dueDate,
+    p_banking_details: null
+  });
+
+  if (!rpc.error) {
+    converted = true;
+  } else if (!isSchemaError(rpc.error)) {
+    endLoad();
+    toast('Error converting quote.');
+    return;
+  } else {
+    const payload = {
+      invoice_number: invoiceNumber,
+      client_id: quote.client_id,
+      service_id: quote.service_id,
+      service_name: quote.service_name,
+      service_description: quote.service_description,
+      invoice_date: todayStr(),
+      due_date: dueDate,
+      setup_fee: quote.setup_fee || 0,
+      monthly_retainer: quote.monthly_retainer || 0,
+      additional_items: Array.isArray(quote.additional_items) ? quote.additional_items : [],
+      total_amount: quote.total_amount || 0,
+      payment_status: 'Draft'
+    };
+    const insert = await sb.from('invoices').insert(payload);
+    if (insert.error) {
+      endLoad();
+      toast(isSchemaError(insert.error) ? 'Apply migration 003 to enable invoices.' : 'Error creating invoice.');
+      return;
+    }
+    const remove = await sb.from('quotes').delete().eq('id', quoteId);
+    if (remove.error) {
+      endLoad();
+      toast('Invoice created, but quote could not be removed.');
+      await loadInvoices();
+      return;
+    }
+    converted = true;
+  }
+
+  endLoad();
+  if (converted) {
+    closeModal();
+    toast('Quote converted to invoice.');
+    await Promise.all([loadQuotes(), loadInvoices(), loadRetainerOverview()]);
+    switchPage('invoices');
+  }
 }
 
 function renderQuotesTable() {
@@ -3858,6 +3947,7 @@ function renderQuotesTable() {
         <td class="td-actions">
           <button class="btn-ghost btn-sm" onclick="openEditQuoteModal('${q.id}')">Edit</button>
           <button class="btn-ghost btn-sm" onclick="downloadQuotePDF('${q.id}')">PDF</button>
+          <button class="btn-ghost btn-sm" onclick="convertQuoteToInvoice('${q.id}')">Convert</button>
           <button class="btn-ghost btn-sm btn-danger" onclick="deleteQuote('${q.id}')">Delete</button>
         </td>
       </tr>`;
