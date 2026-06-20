@@ -2045,6 +2045,44 @@ function acceptanceText(docType) {
   return `Approval, payment, signature, written confirmation, or continued instruction to proceed may be treated as acceptance of this ${docType}, including its scope, dependencies, fees, responsibilities, and limitations.`;
 }
 
+function docText(value, fallback) {
+  const text = String(value || '').trim();
+  return text || fallback;
+}
+
+function clientPlanName(client = {}) {
+  return client.selected_plan || client.project_type || 'Selected plan';
+}
+
+function defaultSowMilestones() {
+  return 'Recommended milestones: onboarding and discovery; structure, content, and access confirmation; design, build, or system configuration; internal quality review; client review and agreed revisions; launch, handover, or activation; first optimization or support checkpoint.';
+}
+
+function defaultSowTimeline() {
+  return 'The delivery timeline will be confirmed once onboarding inputs, platform access, content, and approvals are available. Dates may move where client inputs, third-party platform availability, approved change requests, or late approvals affect the planned sequence of work.';
+}
+
+function defaultSowResponsibilities() {
+  return 'Oak & Pixel Studio will plan, design, build, configure, review, and support the approved deliverables using reasonable professional care. The client will provide accurate business information, timely approvals, content, brand assets, billing details, required system access, and an authorized decision maker.';
+}
+
+function defaultSowAssumptions() {
+  return 'This SOW assumes the selected plan, approved proposal, service requirements, and commercial terms remain stable; the client has authority to use supplied content and assets; required access can be provided promptly; and there are no undisclosed technical, legal, brand, hosting, or platform constraints that materially change delivery.';
+}
+
+function defaultSowExclusions() {
+  return 'Unless expressly included, this SOW excludes paid advertising management, formal legal drafting, advanced data migration, custom integrations, additional pages or features, third-party licence fees, emergency support, unsupported platform repairs, and rework caused by changed instructions, late content, or client-side modifications.';
+}
+
+function defaultWelcomeMessage(client = {}) {
+  const clientName = clientDisplayName(client);
+  return `Welcome to Oak & Pixel Studio. We are pleased to begin this partnership with ${clientName}. Our role is to help translate your digital presence, client journey, and operating systems into a more refined, reliable, and commercially useful experience.`;
+}
+
+function defaultWelcomeInfo() {
+  return 'To keep onboarding efficient, please confirm the primary decision maker, billing contact, brand assets, website/domain/hosting access, platform credentials, preferred communication channel, and any time-sensitive launch dates. Access credentials should be shared through secure channels only and may be removed or rotated after handover where appropriate.';
+}
+
 function quoteTemplate(quote, client) {
   return _documentTemplate({
     docNum: quote.quote_number,
@@ -2137,6 +2175,19 @@ function proposalTemplate(proposal, client) {
 }
 
 function sowTemplate(scope, client, proposal) {
+  const plan = clientPlanName(client);
+  const commercialRows = [
+    { cells: [{ value: 'Client Plan' }, { value: plan }] },
+    proposal?.proposal_number ? { cells: [{ value: 'Linked Proposal' }, { value: proposal.proposal_number }] } : null,
+    Number(proposal?.setup_fee) > 0 ? { cells: [{ value: 'Setup Fee' }, { value: money(proposal.setup_fee) }] } : null,
+    Number(proposal?.monthly_retainer) > 0 ? { cells: [{ value: 'Monthly Retainer' }, { value: money(proposal.monthly_retainer) }] } : null,
+    Number(proposal?.total_amount) > 0 ? { total: true, cells: [{ value: 'Commercial Total' }, { value: money(proposal.total_amount) }] } : null
+  ];
+  const commercialSummary = _pdfTable('Commercial Summary', [
+    { label: 'Item' },
+    { label: 'Detail' }
+  ], commercialRows);
+
   return _documentTemplate({
     docNum: scope.scope_number,
     client,
@@ -2149,21 +2200,25 @@ function sowTemplate(scope, client, proposal) {
     ],
     numberedSections: true,
     sections: [
-      { title: 'Executive Summary', body: serviceContextText(scope, client, 'Scope of Work') },
+      { title: 'Executive Summary', body: `${serviceContextText(scope, client, 'Scope of Work')} This SOW is intended to keep the engagement clear, controlled, and commercially accountable from kickoff through handover.` },
       { title: 'Parties Involved', body: clientPartyText(client) },
       { title: 'Purpose', body: 'This Scope of Work translates the approved commercial intent into a practical delivery record. It defines what Oak & Pixel Studio will deliver, what the client must provide, and how changes, approvals, and delays will be handled.' },
-      { title: 'Deliverables', body: scope.deliverables || 'Deliverables will be limited to the items expressly listed in this scope, the approved proposal, or a written change request accepted by Oak & Pixel Studio.' },
-      { title: 'Milestones', body: scope.milestones },
-      { title: 'Timeline', body: scope.timeline },
-      { title: 'Responsibilities', body: scope.responsibilities || operationalProtectionText() },
+      { title: 'Deliverables', body: docText(scope.deliverables || proposal?.deliverables, 'Deliverables are limited to the items expressly listed in this SOW, the approved proposal, or a written change request accepted by Oak & Pixel Studio. Any delivery item not written into the approved scope should be treated as out of scope until confirmed in writing.') },
+      { title: 'Milestones and Delivery Flow', body: docText(scope.milestones, defaultSowMilestones()) },
+      { title: 'Timeline and Dependencies', body: docText(scope.timeline || proposal?.timeline, defaultSowTimeline()) },
+      { title: 'Responsibilities', body: docText(scope.responsibilities, defaultSowResponsibilities()) },
+      { title: 'Communication and Approvals', body: 'The client should appoint one primary decision maker for feedback, approvals, access coordination, and priority calls. Feedback should be consolidated before submission. Delayed, conflicting, or incomplete feedback may extend timelines and may require rescheduling of delivery work.' },
       { title: 'Scope Boundaries and Change Requests', body: commercialProtectionText('This SOW') },
-      { title: 'Assumptions', body: scope.assumptions || 'The scope assumes timely access, accurate information, stable third-party platforms, agreed brand direction, and prompt feedback from the client.' },
-      { title: 'Exclusions', body: scope.exclusions || 'Unless expressly stated, this SOW excludes copywriting beyond agreed content support, paid advertising, third-party licence fees, custom legal documents, complex data migration, advanced integrations, and work caused by unsupported client-side changes.' },
+      { title: 'Revision and Acceptance Standard', body: 'Revisions are limited to the agreed scope, approved direction, and reasonable refinement of the listed deliverables. A deliverable may be treated as accepted once approved in writing, paid for, published, used in production, or left without material feedback after a reasonable review period.' },
+      { title: 'Assumptions', body: docText(scope.assumptions, defaultSowAssumptions()) },
+      { title: 'Exclusions', body: docText(scope.exclusions, defaultSowExclusions()) },
+      { title: 'Payment Terms', body: paymentProtectionText() },
       { title: 'Intellectual Property', body: ipProtectionText() },
       { title: 'Confidentiality', body: confidentialityProtectionText() },
-      { title: 'Risk and Compliance Notes', body: `${riskProtectionText()} ${complianceNoteText()}` },
-      { title: 'Approval and Acceptance', body: acceptanceText('scope of work') }
+      { title: 'Risk, Platforms, and Compliance Notes', body: `${riskProtectionText()} ${complianceNoteText()}` },
+      { title: 'Approval and Acceptance', body: `${acceptanceText('scope of work')} Acceptance authorizes Oak & Pixel Studio to schedule work, request access and assets, and treat the listed deliverables as the controlling delivery record for this engagement.` }
     ],
+    html: commercialSummary,
     signatures: true
   });
 }
@@ -2176,7 +2231,19 @@ function welcomeLetterTemplate(letter, client) {
   ], [
     { cells: [{ value: 'Plan' }, { value: client.selected_plan || '-' }] },
     { cells: [{ value: 'Start Date' }, { value: compactDate(client.project_start_date) }] },
+    { cells: [{ value: 'Primary Contact' }, { value: client.full_name || '-' }] },
+    { cells: [{ value: 'Contact Email' }, { value: client.email || client.company_email || '-' }] },
+    { cells: [{ value: 'Contact Phone' }, { value: client.phone || client.company_phone || '-' }] },
     { cells: [{ value: 'Services' }, { value: services }] }
+  ]);
+  const checklist = _pdfTable('Onboarding Checklist', [
+    { label: 'Area' },
+    { label: 'Expectation' }
+  ], [
+    { cells: [{ value: 'Decision Maker' }, { value: 'Confirm the person authorized to approve direction, scope decisions, launch timing, and commercial changes.' }] },
+    { cells: [{ value: 'Assets and Content' }, { value: 'Provide brand assets, copy, imagery, service information, credentials, and any existing platform details needed for delivery.' }] },
+    { cells: [{ value: 'Approvals' }, { value: 'Keep feedback consolidated, clear, and timely so delivery dates and review windows remain practical.' }] },
+    { cells: [{ value: 'Billing and Access' }, { value: 'Keep payment details, billing contact, platform access, and security information accurate throughout the engagement.' }] }
   ]);
   return _documentTemplate({
     docNum: letter.letter_number,
@@ -2189,18 +2256,23 @@ function welcomeLetterTemplate(letter, client) {
       { label: 'Plan', value: client.selected_plan || '-' }
     ],
     sections: [
-      { title: 'Executive Summary', body: letter.welcome_message || `Welcome to Oak & Pixel Studio. This letter confirms the start of our working relationship with ${clientDisplayName(client)} and outlines the practical expectations that help the engagement run smoothly.` },
+      { title: 'Executive Summary', body: docText(letter.welcome_message, defaultWelcomeMessage(client)) },
       { title: 'Parties Involved', body: clientPartyText(client) },
       { title: 'Purpose', body: 'This welcome letter is an onboarding guide. It is not a replacement for a signed agreement, quote, invoice, proposal, scope of work, or retainer schedule.' },
+      { title: 'Engagement Context', body: `${clientDisplayName(client)} is being onboarded under the ${clientPlanName(client)} framework unless another written service order applies. Oak & Pixel Studio will use the confirmed plan, approved documents, and onboarding information to coordinate delivery priorities.` },
+      { title: 'What Happens Next', body: 'Oak & Pixel Studio will confirm access requirements, review the selected services, align on priorities, prepare or confirm the relevant delivery documents, and schedule the first operational steps. Any urgent deadlines should be flagged before delivery dates are confirmed.' },
+      { title: 'Delivery Standard', body: 'Our standard is calm, precise, and commercially useful delivery. Work is managed through clear scope records, structured feedback, practical timelines, and careful handling of the systems, content, and brand assets entrusted to us.' },
       { title: 'Scope and Service Boundaries', body: commercialProtectionText('This welcome letter') },
       { title: 'Client Responsibilities', body: operationalProtectionText() },
+      { title: 'Communication Expectations', body: 'The client should keep one primary contact available for decisions, provide consolidated feedback, and notify Oak & Pixel Studio early where priorities, dates, approvals, or access requirements change.' },
       { title: 'Commercial Notes', body: paymentProtectionText() },
       { title: 'Intellectual Property and Methodologies', body: ipProtectionText() },
       { title: 'Confidentiality and Access', body: confidentialityProtectionText() },
-      { title: 'Important Information', body: letter.important_info || 'Oak & Pixel Studio will use onboarding information, selected plan details, approved services, and client-provided assets to guide delivery. Please keep contact details, decision makers, brand assets, access credentials, and billing details current throughout the engagement.' },
-      { title: 'Compliance Notes', body: complianceNoteText() }
+      { title: 'Important Information', body: docText(letter.important_info, defaultWelcomeInfo()) },
+      { title: 'Compliance Notes', body: complianceNoteText() },
+      { title: 'Acknowledgement', body: `${acceptanceText('welcome letter')} This acknowledgement helps both parties begin with shared expectations while the formal commercial documents continue to govern fees, scope, delivery, and acceptance.` }
     ],
-    html: details
+    html: `${details}${checklist}`
   });
 }
 
@@ -4277,26 +4349,30 @@ function openSOWEditor(scopeId, proposalId) {
   const scope = scopeId ? allScopes.find(s => s.id === scopeId) : null;
   const effectiveProposalId = (scope && scope.proposal_id) ? scope.proposal_id : proposalId;
   const proposal = effectiveProposalId ? allProposals.find(p => p.id === effectiveProposalId) : null;
+  const client = proposal ? clientById(proposal.client_id) || {} : (scope?.client_id ? clientById(scope.client_id) || {} : {});
   const linked = $('sow-linked-proposal');
   if (linked) linked.textContent = proposal ? `Linked Proposal: ${proposal.proposal_number}` : '';
   const backBtn = $('sow-back-btn');
   if (backBtn) backBtn.textContent = proposal ? `← Back to Proposal ${proposal.proposal_number}` : '← Back';
   if (scope) {
     $('sow-title').value = scope.title || '';
-    $('sow-deliverables').value = scope.deliverables || '';
-    $('sow-milestones').value = scope.milestones || '';
-    $('sow-timeline').value = scope.timeline || '';
-    $('sow-responsibilities').value = scope.responsibilities || '';
-    $('sow-assumptions').value = scope.assumptions || '';
-    $('sow-exclusions').value = scope.exclusions || '';
+    $('sow-deliverables').value = scope.deliverables || proposal?.deliverables || '';
+    $('sow-milestones').value = scope.milestones || defaultSowMilestones();
+    $('sow-timeline').value = scope.timeline || proposal?.timeline || defaultSowTimeline();
+    $('sow-responsibilities').value = scope.responsibilities || defaultSowResponsibilities();
+    $('sow-assumptions').value = scope.assumptions || defaultSowAssumptions();
+    $('sow-exclusions').value = scope.exclusions || defaultSowExclusions();
     if ($('sow-status')) $('sow-status').value = scope.status || 'Draft';
     if ($('sow-date')) $('sow-date').value = scope.scope_date || todayStr();
     _currentScopeProposalId = effectiveProposalId;
   } else if (proposal) {
-    $('sow-title').value = proposal.title ? `SOW — ${proposal.title}` : '';
-    $('sow-deliverables').value = proposal.deliverables || '';
-    $('sow-timeline').value = proposal.timeline || '';
-    ['sow-milestones','sow-responsibilities','sow-assumptions','sow-exclusions'].forEach(id => { if ($(id)) $(id).value = ''; });
+    $('sow-title').value = proposal.title ? `SOW - ${proposal.title}` : `Scope of Work - ${clientDisplayName(client)}`;
+    $('sow-deliverables').value = proposal.deliverables || `Approved deliverables for ${clientDisplayName(client)} under the ${clientPlanName(client)} engagement. Final delivery is limited to the approved proposal, this SOW, and any accepted written change request.`;
+    $('sow-milestones').value = defaultSowMilestones();
+    $('sow-timeline').value = proposal.timeline || defaultSowTimeline();
+    $('sow-responsibilities').value = defaultSowResponsibilities();
+    $('sow-assumptions').value = defaultSowAssumptions();
+    $('sow-exclusions').value = defaultSowExclusions();
     if ($('sow-status')) $('sow-status').value = 'Draft';
   } else {
     ['sow-title','sow-deliverables','sow-milestones','sow-timeline','sow-responsibilities','sow-assumptions','sow-exclusions'].forEach(id => { if ($(id)) $(id).value = ''; });
@@ -4316,9 +4392,13 @@ function sowGoBack() {
 async function saveScope() {
   const title = $('sow-title')?.value.trim();
   if (!title) { toast('Add a title first.'); return; }
+  const existingScope = _currentScopeId ? allScopes.find(s => s.id === _currentScopeId) : null;
+  const linkedProposal = _currentScopeProposalId ? allProposals.find(p => p.id === _currentScopeProposalId) : null;
   const payload = {
     title,
     proposal_id: _currentScopeProposalId || null,
+    client_id: linkedProposal?.client_id || existingScope?.client_id || null,
+    service_id: linkedProposal?.service_id || existingScope?.service_id || null,
     status: $('sow-status')?.value || 'Draft',
     scope_date: $('sow-date')?.value || todayStr(),
     deliverables: $('sow-deliverables')?.value || null,
@@ -4347,7 +4427,7 @@ async function downloadSOWPDF() {
   const scope = allScopes.find(s => s.id === _currentScopeId);
   if (!scope) return;
   const proposal = scope.proposal_id ? allProposals.find(p => p.id === scope.proposal_id) : null;
-  const client = proposal ? allClients.find(c => c.id === proposal.client_id) || {} : {};
+  const client = (proposal ? allClients.find(c => c.id === proposal.client_id) : allClients.find(c => c.id === scope.client_id)) || {};
   await generatePDF(sowTemplate(scope, client, proposal), `${scope.scope_number}.pdf`);
 }
 
@@ -4363,7 +4443,8 @@ function openWelcomeLetterModal(clientId) {
     ...allQuotes.filter(q => q.client_id === clientId).map(q => q.service_name),
     ...allInvoices.filter(i => i.client_id === clientId).map(i => i.service_name)
   ].filter((s,i,a) => s && a.indexOf(s) === i);
-  const greeting = `Welcome to Oak & Pixel Studio, ${client.full_name || client.company || 'there'}. We're thrilled to have ${client.company || 'you'} on board and look forward to a great partnership.`;
+  const greeting = defaultWelcomeMessage(client);
+  const defaultInfo = defaultWelcomeInfo();
   showModal(`
     <div class="modal-hdr">
       <span class="modal-title">Generate Welcome Letter</span>
@@ -4375,8 +4456,8 @@ function openWelcomeLetterModal(clientId) {
       <div class="modal-field full"><label>Plan</label><input readonly value="${esc(client.selected_plan || '—')}"></div>
       <div class="modal-field full"><label>Start Date</label><input readonly value="${esc(client.project_start_date || '—')}"></div>
       <div class="modal-field full"><label>Assigned Services</label><input readonly value="${esc(assignedServices.join(', ') || 'None yet')}"></div>
-      <div class="modal-field full"><label>Welcome Message</label><textarea id="wl-message" rows="4">${esc(greeting)}</textarea></div>
-      <div class="modal-field full"><label>Important Information (optional)</label><textarea id="wl-info" rows="3" placeholder="Office hours, key contacts, payment details…"></textarea></div>
+      <div class="modal-field full"><label>Welcome Message</label><textarea id="wl-message" rows="5">${esc(greeting)}</textarea></div>
+      <div class="modal-field full"><label>Important Information</label><textarea id="wl-info" rows="4">${esc(defaultInfo)}</textarea></div>
     </div>
     <div class="modal-foot">
       <button class="btn-ghost" onclick="closeModal()">Cancel</button>
@@ -4512,7 +4593,7 @@ async function downloadSOWDocumentPDF(scopeId) {
   const scope = allScopes.find(s => s.id === scopeId);
   if (!scope) return;
   const proposal = scope.proposal_id ? allProposals.find(p => p.id === scope.proposal_id) : null;
-  const client = allClients.find(c => c.id === (scope.client_id || proposal?.client_id)) || {};
+  const client = allClients.find(c => c.id === (proposal?.client_id || scope.client_id)) || {};
   await generatePDF(sowTemplate(scope, client, proposal), `${scope.scope_number}.pdf`);
 }
 
