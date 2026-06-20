@@ -294,6 +294,52 @@ section{position:relative}
 }
 .panel-attr{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--mist)}
 
+/* Founder */
+#founder{
+  padding:0 0 10rem;background:var(--off-white);
+}
+.founder-card{
+  display:grid;grid-template-columns:.82fr 1fr;gap:2px;
+  background:var(--silk);border:1px solid var(--silk);
+}
+.founder-media{
+  min-height:620px;background:var(--white);position:relative;overflow:hidden;
+}
+.founder-media img{
+  width:100%;height:100%;object-fit:cover;object-position:center top;display:block;
+  filter:saturate(.94) contrast(1.02);
+  transition:transform .8s var(--ease-expo),filter .8s ease;
+}
+.founder-card:hover .founder-media img{transform:scale(1.025);filter:saturate(1) contrast(1.04);}
+.founder-copy{
+  background:var(--white);padding:4.5rem;display:flex;flex-direction:column;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.founder-copy::before{
+  content:'';position:absolute;top:0;right:0;width:3px;height:100%;
+  background:linear-gradient(var(--emerald),transparent);
+}
+.founder-eyebrow{
+  font-family:var(--font-mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--emerald);margin-bottom:1.4rem;display:flex;align-items:center;gap:.65rem;
+}
+.founder-eyebrow::before{content:'';width:22px;height:1px;background:var(--emerald);}
+.founder-name{
+  font-family:var(--font-display);font-size:clamp(2.6rem,4.5vw,4.5rem);
+  font-weight:300;line-height:1;color:var(--black);margin-bottom:.85rem;
+}
+.founder-role{
+  font-family:var(--font-mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--mist);margin-bottom:2.4rem;
+}
+.founder-body{
+  color:var(--slate);font-size:1rem;line-height:1.85;max-width:580px;margin-bottom:1.4rem;
+}
+.founder-signature{
+  margin-top:1.6rem;padding-top:1.6rem;border-top:1px solid var(--silk);
+  font-family:var(--font-display);font-size:1.45rem;font-style:italic;color:var(--graphite);
+}
+
 /* ─── SERVICES ───────────────────────────────────────── */
 #services{
   padding:10rem 0;
@@ -1173,6 +1219,9 @@ footer{
 
   /* About */
   .about-grid { grid-template-columns: 1fr; gap: 4rem; }
+  .founder-card { grid-template-columns: 1fr; }
+  .founder-media { min-height: 520px; }
+  .founder-copy { padding: 3.5rem; }
 
   /* Services */
   .services-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1211,6 +1260,7 @@ footer{
 
   /* Sections */
   #about, #services, #pricing, #work, #standards { padding: 5rem 0; }
+  #founder { padding: 0 0 5rem; }
   #contact { padding: 6rem 0; }
   .container { padding: 0 1.5rem; }
 
@@ -1225,6 +1275,9 @@ footer{
   .about-grid   { grid-template-columns: 1fr; gap: 3rem; }
   .about-stats  { grid-template-columns: 1fr 1fr; }
   .about-headline { font-size: clamp(2rem, 7vw, 3rem); }
+  .founder-media { min-height: 420px; }
+  .founder-copy { padding: 2.4rem 1.5rem; }
+  .founder-name { font-size: clamp(2.25rem, 12vw, 3.2rem); }
 
   /* Services */
   .services-grid { grid-template-columns: 1fr; }
@@ -1284,6 +1337,8 @@ footer{
   .pricing-card { padding: 1.7rem 1.25rem; }
   .about-stats { grid-template-columns: 1fr 1fr; }
   .stat-num    { font-size: 3rem; }
+  .founder-media { min-height: 360px; }
+  .founder-copy { padding: 2rem 1.25rem; }
   footer { padding: 2rem 1.25rem; }
 }
 
@@ -1550,6 +1605,29 @@ footer{
           </p>
           <p class="panel-attr">Oak & Pixel — Studio Doctrine, 2026</p>
         </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOUNDER -->
+<section id="founder">
+  <div class="container">
+    <div class="founder-card reveal">
+      <div class="founder-media">
+        <img src="images/founder.jpeg" alt="Neo Matime, Founder and CEO of Oak & Pixel Studio">
+      </div>
+      <div class="founder-copy">
+        <div class="founder-eyebrow">Founder &amp; CEO</div>
+        <h2 class="founder-name">Neo Matime</h2>
+        <div class="founder-role">Founder of Oak &amp; Pixel Studio &middot; 2026</div>
+        <p class="founder-body">
+          Oak &amp; Pixel Studio was founded by Neo Matime in 2026 with a clear belief: premium digital infrastructure should feel as refined as the brands it represents.
+        </p>
+        <p class="founder-body">
+          As Founder &amp; CEO, Neo leads the studio's standard for strategic clarity, polished execution, and systems that help ambitious businesses operate with more confidence online.
+        </p>
+        <div class="founder-signature">Built with discipline, taste, and intent.</div>
       </div>
     </div>
   </div>
