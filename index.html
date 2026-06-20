@@ -296,48 +296,97 @@ section{position:relative}
 
 /* Founder */
 #founder{
-  padding:0 0 10rem;background:var(--off-white);
+  padding:0 0 10rem;background:linear-gradient(180deg,var(--off-white) 0%,#efeee9 100%);
 }
 .founder-card{
-  display:grid;grid-template-columns:.82fr 1fr;gap:2px;
-  background:var(--silk);border:1px solid var(--silk);
+  display:grid;grid-template-columns:minmax(360px,.86fr) minmax(0,1.14fr);gap:0;
+  background:var(--black);border:1px solid rgba(10,10,9,.12);
+  position:relative;overflow:hidden;isolation:isolate;
+  box-shadow:0 42px 90px rgba(10,10,9,.12);
+}
+.founder-card::before{
+  content:'';position:absolute;inset:1.2rem;z-index:1;pointer-events:none;
+  border:1px solid rgba(255,255,255,.08);
+}
+.founder-card::after{
+  content:'';position:absolute;right:0;top:0;width:38%;height:100%;z-index:0;pointer-events:none;
+  background:
+    linear-gradient(90deg,transparent,rgba(26,92,58,.16)),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.045) 0 1px,transparent 1px 72px);
 }
 .founder-media{
-  min-height:620px;background:var(--white);position:relative;overflow:hidden;
+  min-height:700px;background:#11110f;position:relative;overflow:hidden;z-index:2;
+  border-right:1px solid rgba(255,255,255,.08);
+}
+.founder-media::before{
+  content:'';position:absolute;inset:1.2rem;z-index:2;pointer-events:none;
+  border:1px solid rgba(255,255,255,.14);
+}
+.founder-media::after{
+  content:'Founded 2026';position:absolute;left:2.25rem;bottom:2.25rem;z-index:3;
+  font-family:var(--font-mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(255,255,255,.72);background:rgba(10,10,9,.72);border:1px solid rgba(255,255,255,.14);
+  padding:.8rem 1rem;backdrop-filter:blur(14px);
 }
 .founder-media img{
   width:100%;height:100%;object-fit:cover;object-position:center top;display:block;
-  filter:saturate(.94) contrast(1.02);
+  filter:saturate(.82) contrast(1.08);
   transition:transform .8s var(--ease-expo),filter .8s ease;
 }
-.founder-card:hover .founder-media img{transform:scale(1.025);filter:saturate(1) contrast(1.04);}
+.founder-card:hover .founder-media img{transform:scale(1.03);filter:saturate(.98) contrast(1.08);}
 .founder-copy{
-  background:var(--white);padding:4.5rem;display:flex;flex-direction:column;justify-content:center;
-  position:relative;overflow:hidden;
+  padding:5.5rem 5rem;display:flex;flex-direction:column;justify-content:center;
+  position:relative;overflow:hidden;z-index:2;color:var(--white);
 }
 .founder-copy::before{
-  content:'';position:absolute;top:0;right:0;width:3px;height:100%;
-  background:linear-gradient(var(--emerald),transparent);
+  content:'';position:absolute;top:5.5rem;right:5rem;width:54px;height:54px;opacity:.9;
+  background:
+    linear-gradient(var(--emerald),var(--emerald)) right top/18px 18px no-repeat,
+    linear-gradient(rgba(255,255,255,.16),rgba(255,255,255,.16)) left top/18px 18px no-repeat,
+    linear-gradient(rgba(255,255,255,.16),rgba(255,255,255,.16)) left bottom/18px 18px no-repeat,
+    linear-gradient(var(--white),var(--white)) right bottom/18px 18px no-repeat;
 }
 .founder-eyebrow{
   font-family:var(--font-mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--emerald);margin-bottom:1.4rem;display:flex;align-items:center;gap:.65rem;
+  color:rgba(255,255,255,.55);margin-bottom:1.5rem;display:flex;align-items:center;gap:.75rem;
 }
-.founder-eyebrow::before{content:'';width:22px;height:1px;background:var(--emerald);}
+.founder-eyebrow::before{content:'';width:32px;height:1px;background:var(--emerald);}
+.founder-kicker{
+  font-family:var(--font-mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--emerald-l);margin-bottom:1.1rem;
+}
 .founder-name{
-  font-family:var(--font-display);font-size:clamp(2.6rem,4.5vw,4.5rem);
-  font-weight:300;line-height:1;color:var(--black);margin-bottom:.85rem;
+  font-family:var(--font-display);font-size:clamp(3rem,5.4vw,5.8rem);
+  font-weight:300;line-height:.95;color:var(--white);margin-bottom:1rem;
 }
 .founder-role{
   font-family:var(--font-mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--mist);margin-bottom:2.4rem;
+  color:rgba(255,255,255,.48);margin-bottom:2.8rem;
+}
+.founder-statement{
+  font-family:var(--font-display);font-size:clamp(1.75rem,2.7vw,3rem);
+  line-height:1.12;font-weight:300;color:#f5f1e9;max-width:760px;margin-bottom:2rem;
 }
 .founder-body{
-  color:var(--slate);font-size:1rem;line-height:1.85;max-width:580px;margin-bottom:1.4rem;
+  color:rgba(255,255,255,.66);font-size:1rem;line-height:1.85;max-width:640px;margin-bottom:1.25rem;
+}
+.founder-meta{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:2.5rem;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);max-width:680px;
+}
+.founder-meta-item{
+  background:rgba(255,255,255,.035);padding:1.1rem 1rem;
+}
+.founder-meta-label{
+  display:block;font-family:var(--font-mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(255,255,255,.38);margin-bottom:.45rem;
+}
+.founder-meta-value{
+  display:block;font-family:var(--font-display);font-size:1.18rem;color:var(--white);
 }
 .founder-signature{
-  margin-top:1.6rem;padding-top:1.6rem;border-top:1px solid var(--silk);
-  font-family:var(--font-display);font-size:1.45rem;font-style:italic;color:var(--graphite);
+  margin-top:2rem;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,.1);
+  font-family:var(--font-display);font-size:1.55rem;font-style:italic;color:rgba(255,255,255,.88);
 }
 
 /* ─── SERVICES ───────────────────────────────────────── */
@@ -1220,8 +1269,9 @@ footer{
   /* About */
   .about-grid { grid-template-columns: 1fr; gap: 4rem; }
   .founder-card { grid-template-columns: 1fr; }
-  .founder-media { min-height: 520px; }
-  .founder-copy { padding: 3.5rem; }
+  .founder-media { min-height: 560px; border-right:0; border-bottom:1px solid rgba(255,255,255,.08); }
+  .founder-copy { padding: 4rem 3.5rem; }
+  .founder-copy::before { top:4rem; right:3.5rem; }
 
   /* Services */
   .services-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1276,8 +1326,14 @@ footer{
   .about-stats  { grid-template-columns: 1fr 1fr; }
   .about-headline { font-size: clamp(2rem, 7vw, 3rem); }
   .founder-media { min-height: 420px; }
-  .founder-copy { padding: 2.4rem 1.5rem; }
+  .founder-card::before { inset:.75rem; }
+  .founder-media::before { inset:.75rem; }
+  .founder-media::after { left:1.5rem; bottom:1.5rem; }
+  .founder-copy { padding: 3rem 1.5rem 2.4rem; }
+  .founder-copy::before { width:42px;height:42px;top:1.5rem;right:1.5rem;background-size:14px 14px; }
   .founder-name { font-size: clamp(2.25rem, 12vw, 3.2rem); }
+  .founder-statement { font-size: clamp(1.55rem, 8vw, 2.25rem); }
+  .founder-meta { grid-template-columns:1fr; margin-top:2rem; }
 
   /* Services */
   .services-grid { grid-template-columns: 1fr; }
@@ -1339,6 +1395,8 @@ footer{
   .stat-num    { font-size: 3rem; }
   .founder-media { min-height: 360px; }
   .founder-copy { padding: 2rem 1.25rem; }
+  .founder-role { line-height:1.7; }
+  .founder-meta-value { font-size:1.05rem; }
   footer { padding: 2rem 1.25rem; }
 }
 
@@ -1619,14 +1677,32 @@ footer{
       </div>
       <div class="founder-copy">
         <div class="founder-eyebrow">Founder &amp; CEO</div>
+        <div class="founder-kicker">Oak &amp; Pixel Studio</div>
         <h2 class="founder-name">Neo Matime</h2>
         <div class="founder-role">Founder of Oak &amp; Pixel Studio &middot; 2026</div>
+        <p class="founder-statement">
+          Building a studio where digital systems carry the same restraint, precision, and presence as the brands they serve.
+        </p>
         <p class="founder-body">
           Oak &amp; Pixel Studio was founded by Neo Matime in 2026 with a clear belief: premium digital infrastructure should feel as refined as the brands it represents.
         </p>
         <p class="founder-body">
           As Founder &amp; CEO, Neo leads the studio's standard for strategic clarity, polished execution, and systems that help ambitious businesses operate with more confidence online.
         </p>
+        <div class="founder-meta" aria-label="Founder credentials">
+          <div class="founder-meta-item">
+            <span class="founder-meta-label">Role</span>
+            <span class="founder-meta-value">Founder &amp; CEO</span>
+          </div>
+          <div class="founder-meta-item">
+            <span class="founder-meta-label">Founded</span>
+            <span class="founder-meta-value">2026</span>
+          </div>
+          <div class="founder-meta-item">
+            <span class="founder-meta-label">Standard</span>
+            <span class="founder-meta-value">Premium Systems</span>
+          </div>
+        </div>
         <div class="founder-signature">Built with discipline, taste, and intent.</div>
       </div>
     </div>
