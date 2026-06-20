@@ -1225,10 +1225,10 @@ function _pdfClientBlock(client) {
   return `<div class="pdf-client-row">
     <div></div>
     <div class="pdf-client-info">
-      <strong>${client.company || client.full_name || ''}</strong><br>
-      ${client.company_address ? client.company_address + '<br>' : ''}
-      ${client.company_email || client.email || ''}<br>
-      ${client.company_phone || client.phone || ''}
+      <strong>${esc(client.company || client.full_name || '')}</strong><br>
+      ${client.company_address ? esc(client.company_address) + '<br>' : ''}
+      ${esc(client.company_email || client.email || '')}<br>
+      ${esc(client.company_phone || client.phone || '')}
     </div>
   </div>`;
 }
@@ -1243,7 +1243,7 @@ function _pdfLineItems(doc) {
   return `<table class="pdf-items">
     <thead><tr><th>Description</th><th style="text-align:right">Amount</th></tr></thead>
     <tbody>
-      ${rows.map(r => `<tr><td>${r.label}</td><td style="text-align:right">${money(Number(r.amount))}</td></tr>`).join('')}
+      ${rows.map(r => `<tr><td>${esc(r.label)}</td><td style="text-align:right">${money(Number(r.amount))}</td></tr>`).join('')}
       <tr class="total"><td>Total</td><td style="text-align:right">${money(doc.total_amount)}</td></tr>
     </tbody>
   </table>`;
@@ -1260,7 +1260,7 @@ function quoteTemplate(quote, client) {
   return `<!DOCTYPE html><html><head><meta charset="UTF-8">${_pdfStyles()}</head><body><div class="pdf-wrap">
     ${_pdfHeader(quote.quote_number)}
     ${_pdfClientBlock(client)}
-    <div class="pdf-title">${quote.service_name || 'Quotation'}</div>
+    <div class="pdf-title">${esc(quote.service_name || 'Quotation')}</div>
     <div class="pdf-subtitle">Quote &middot; ${compactDate(quote.quote_date)}</div>
     <div class="pdf-tiles">
       <div class="pdf-tile"><div class="pdf-tile-lbl">Quote Date</div><div class="pdf-tile-val">${compactDate(quote.quote_date)}</div></div>
@@ -1276,7 +1276,7 @@ function invoiceTemplate(invoice, client) {
   return `<!DOCTYPE html><html><head><meta charset="UTF-8">${_pdfStyles()}</head><body><div class="pdf-wrap">
     ${_pdfHeader(invoice.invoice_number)}
     ${_pdfClientBlock(client)}
-    <div class="pdf-title">${invoice.service_name || 'Invoice'}</div>
+    <div class="pdf-title">${esc(invoice.service_name || 'Invoice')}</div>
     <div class="pdf-subtitle">Invoice &middot; ${compactDate(invoice.invoice_date)}</div>
     <div class="pdf-tiles">
       <div class="pdf-tile"><div class="pdf-tile-lbl">Invoice Date</div><div class="pdf-tile-val">${compactDate(invoice.invoice_date)}</div></div>
