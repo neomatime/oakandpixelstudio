@@ -2009,6 +2009,42 @@ function serviceContextText(doc, client, docType) {
   return `${docType} prepared by Oak & Pixel Studio for ${clientName}. This document relates to ${serviceName} and should be read together with the agreed service scope, client onboarding details, payment terms, and any approved proposal or scope of work.`;
 }
 
+function clientPartyText(client = {}) {
+  return `Oak & Pixel Studio is the service provider. ${clientDisplayName(client)} is the client and is responsible for ensuring that its nominated contact, approvers, billing contact, and technical representatives have authority to make decisions for the engagement.`;
+}
+
+function commercialProtectionText(docType) {
+  return `${docType} covers only the services, deliverables, dates, and fees expressly recorded in this document or an approved linked scope. Anything not expressly included is out of scope and may require a written change request, revised quote, adjusted timeline, or additional fee before work begins.`;
+}
+
+function operationalProtectionText() {
+  return 'Delivery depends on timely client inputs, approvals, access credentials, brand assets, content, third-party platform access, and accurate business information. Delays caused by missing inputs, late approvals, unavailable systems, or changed requirements may move delivery dates without placing Oak & Pixel Studio in breach.';
+}
+
+function paymentProtectionText() {
+  return 'Fees remain payable according to the relevant quote, invoice, agreement, or retainer schedule. Late, failed, reversed, or disputed payments may result in paused delivery, suspended support, delayed handover, or restricted access until the account is brought up to date. Previously approved work and incurred costs remain payable.';
+}
+
+function ipProtectionText() {
+  return 'After full payment, the client owns final approved client-specific deliverables created for the engagement. Oak & Pixel Studio retains ownership of its pre-existing methods, reusable components, templates, internal systems, source libraries, know-how, strategy frameworks, and non-client-specific assets. Third-party software, plugins, fonts, platforms, stock assets, and integrations remain subject to their own licence terms.';
+}
+
+function riskProtectionText() {
+  return 'Oak & Pixel Studio is not responsible for third-party platform outages, hosting interruptions, payment gateway failures, domain registrar issues, search engine or social platform changes, client-side data errors, unsupported client modifications, force majeure events, or business losses that could not reasonably be controlled by Oak & Pixel Studio. Any liability should be limited to fees paid for the affected service unless a signed agreement states otherwise.';
+}
+
+function confidentialityProtectionText() {
+  return 'Both parties must protect confidential information. This includes client business information, customer data, credentials, commercial terms, Oak & Pixel Studio methodologies, internal systems, workflows, templates, pricing logic, and intellectual property. Information should only be used for the approved engagement and shared with people who need it for delivery.';
+}
+
+function complianceNoteText() {
+  return 'The parties should handle personal information, payment information, access credentials, and client data in line with applicable South African law, reasonable security practices, and agreed business purposes. This template is a commercial operating document and should be reviewed by a qualified legal adviser where formal legal execution is required.';
+}
+
+function acceptanceText(docType) {
+  return `Approval, payment, signature, written confirmation, or continued instruction to proceed may be treated as acceptance of this ${docType}, including its scope, dependencies, fees, responsibilities, and limitations.`;
+}
+
 function quoteTemplate(quote, client) {
   return _documentTemplate({
     docNum: quote.quote_number,
@@ -2021,9 +2057,17 @@ function quoteTemplate(quote, client) {
       { label: 'Status', value: quote.status }
     ],
     sections: [
-      { title: 'Document Context', body: serviceContextText(quote, client, 'Quote') },
-      { title: 'Service Description', body: quote.description || `${quote.service_name || 'The selected service'} includes the setup work, delivery support, and ongoing care required to establish or improve the client digital operating system.` },
-      { title: 'Commercial Notes', body: `Setup fees cover project preparation and implementation work. Monthly retainers cover ongoing service delivery, optimization, support, and agreed recurring tasks. Quote acceptance confirms that Oak & Pixel Studio may prepare the onboarding path, service schedule, and related agreement documents.` }
+      { title: 'Executive Summary', body: serviceContextText(quote, client, 'Quote') },
+      { title: 'Parties Involved', body: clientPartyText(client) },
+      { title: 'Purpose and Scope', body: quote.description || `${quote.service_name || 'The selected service'} includes the setup work, delivery support, and ongoing care required to establish or improve the client digital operating system.` },
+      { title: 'Scope Boundaries', body: commercialProtectionText('This quote') },
+      { title: 'Payment Terms', body: `${paymentProtectionText()} Setup fees cover project preparation and implementation. Monthly retainers cover recurring service delivery, optimization, support, and agreed ongoing tasks.` },
+      { title: 'Client Dependencies', body: operationalProtectionText() },
+      { title: 'Intellectual Property', body: ipProtectionText() },
+      { title: 'Confidentiality', body: confidentialityProtectionText() },
+      { title: 'Risk Management', body: riskProtectionText() },
+      { title: 'Compliance Notes', body: complianceNoteText() },
+      { title: 'Approval and Acceptance', body: `${acceptanceText('quote')} Quote acceptance authorizes Oak & Pixel Studio to prepare onboarding, schedule service delivery, and issue any required agreement documents.` }
     ],
     html: _pdfLineItems(quote)
   });
@@ -2041,9 +2085,13 @@ function invoiceTemplate(invoice, client) {
       { label: 'Status', value: invoice.payment_status }
     ],
     sections: [
-      { title: 'Document Context', body: serviceContextText(invoice, client, 'Invoice') },
-      { title: 'Service Description', body: invoice.description || `${invoice.service_name || 'The selected service'} reflects approved setup, retainer, or delivery work for the client account.` },
-      { title: 'Payment Notes', body: `Please use the invoice number as payment reference. Payment confirms continuation of the active service schedule, unless otherwise agreed in writing by Oak & Pixel Studio.` }
+      { title: 'Executive Summary', body: serviceContextText(invoice, client, 'Invoice') },
+      { title: 'Parties Involved', body: clientPartyText(client) },
+      { title: 'Service Context', body: invoice.description || `${invoice.service_name || 'The selected service'} reflects approved setup, retainer, recurring support, or delivery work for the client account.` },
+      { title: 'Payment Obligations', body: `${paymentProtectionText()} Please use the invoice number as payment reference.` },
+      { title: 'Service Suspension', body: 'Oak & Pixel Studio may pause active delivery, support, handover, maintenance, publishing, or new work where an invoice is overdue, disputed without reasonable basis, reversed, or unpaid after reminder.' },
+      { title: 'Risk and Compliance Notes', body: `${riskProtectionText()} ${complianceNoteText()}` },
+      { title: 'Acceptance', body: 'Payment of this invoice confirms the commercial record for the listed services and does not remove the need to comply with any signed agreement, scope of work, retainer terms, or change request.' }
     ],
     html: `${_pdfLineItems(invoice)}${_pdfBankingDetails(invoice)}`
   });
@@ -2069,13 +2117,20 @@ function proposalTemplate(proposal, client) {
       { label: 'Status', value: proposal.status }
     ],
     sections: [
-      { title: 'Document Context', body: serviceContextText(proposal, client, 'Proposal') },
-      { title: 'Executive Summary', body: proposal.executive_summary || `Oak & Pixel Studio proposes a focused digital delivery engagement for ${clientDisplayName(client)}, designed to improve presentation, systems, client experience, and operational clarity.` },
+      { title: 'Executive Summary', body: proposal.executive_summary || `Oak & Pixel Studio proposes a focused digital delivery engagement for ${clientDisplayName(client)}, designed to improve presentation, systems, client experience, operational clarity, and long-term digital reliability.` },
+      { title: 'Parties Involved', body: clientPartyText(client) },
+      { title: 'Purpose', body: serviceContextText(proposal, client, 'Proposal') },
       { title: 'Challenges', body: proposal.challenges },
       { title: 'Our Solution', body: proposal.solution || 'The proposed solution combines premium web experience, workflow structure, service delivery discipline, and ongoing optimization so the client can operate with more confidence online.' },
       { title: 'Deliverables', body: proposal.deliverables },
       { title: 'Timeline', body: proposal.timeline },
-      { title: 'Next Steps', body: proposal.next_steps || 'Once approved, Oak & Pixel Studio will confirm onboarding requirements, prepare the scope of work, issue the required agreements, and schedule the project kickoff.' }
+      { title: 'Scope Boundaries and Change Requests', body: commercialProtectionText('This proposal') },
+      { title: 'Client Responsibilities', body: operationalProtectionText() },
+      { title: 'Payment Terms', body: paymentProtectionText() },
+      { title: 'Intellectual Property', body: ipProtectionText() },
+      { title: 'Confidentiality', body: confidentialityProtectionText() },
+      { title: 'Risk and Compliance Notes', body: `${riskProtectionText()} ${complianceNoteText()}` },
+      { title: 'Next Steps and Acceptance', body: proposal.next_steps || `${acceptanceText('proposal')} Once approved, Oak & Pixel Studio will confirm onboarding requirements, prepare the scope of work, issue the required agreements, and schedule the project kickoff.` }
     ],
     html: investment
   });
@@ -2094,13 +2149,20 @@ function sowTemplate(scope, client, proposal) {
     ],
     numberedSections: true,
     sections: [
-      { title: 'Document Context', body: serviceContextText(scope, client, 'Scope of Work') },
-      { title: 'Deliverables', body: scope.deliverables },
+      { title: 'Executive Summary', body: serviceContextText(scope, client, 'Scope of Work') },
+      { title: 'Parties Involved', body: clientPartyText(client) },
+      { title: 'Purpose', body: 'This Scope of Work translates the approved commercial intent into a practical delivery record. It defines what Oak & Pixel Studio will deliver, what the client must provide, and how changes, approvals, and delays will be handled.' },
+      { title: 'Deliverables', body: scope.deliverables || 'Deliverables will be limited to the items expressly listed in this scope, the approved proposal, or a written change request accepted by Oak & Pixel Studio.' },
       { title: 'Milestones', body: scope.milestones },
       { title: 'Timeline', body: scope.timeline },
-      { title: 'Responsibilities', body: scope.responsibilities },
-      { title: 'Assumptions', body: scope.assumptions },
-      { title: 'Exclusions', body: scope.exclusions }
+      { title: 'Responsibilities', body: scope.responsibilities || operationalProtectionText() },
+      { title: 'Scope Boundaries and Change Requests', body: commercialProtectionText('This SOW') },
+      { title: 'Assumptions', body: scope.assumptions || 'The scope assumes timely access, accurate information, stable third-party platforms, agreed brand direction, and prompt feedback from the client.' },
+      { title: 'Exclusions', body: scope.exclusions || 'Unless expressly stated, this SOW excludes copywriting beyond agreed content support, paid advertising, third-party licence fees, custom legal documents, complex data migration, advanced integrations, and work caused by unsupported client-side changes.' },
+      { title: 'Intellectual Property', body: ipProtectionText() },
+      { title: 'Confidentiality', body: confidentialityProtectionText() },
+      { title: 'Risk and Compliance Notes', body: `${riskProtectionText()} ${complianceNoteText()}` },
+      { title: 'Approval and Acceptance', body: acceptanceText('scope of work') }
     ],
     signatures: true
   });
@@ -2127,8 +2189,16 @@ function welcomeLetterTemplate(letter, client) {
       { label: 'Plan', value: client.selected_plan || '-' }
     ],
     sections: [
-      { title: 'Welcome Message', body: letter.welcome_message },
-      { title: 'Important Information', body: letter.important_info || 'Oak & Pixel Studio will use the onboarding information, selected plan, and assigned services to guide delivery. Please keep contact details, decision makers, brand assets, and billing details current throughout the engagement.' }
+      { title: 'Executive Summary', body: letter.welcome_message || `Welcome to Oak & Pixel Studio. This letter confirms the start of our working relationship with ${clientDisplayName(client)} and outlines the practical expectations that help the engagement run smoothly.` },
+      { title: 'Parties Involved', body: clientPartyText(client) },
+      { title: 'Purpose', body: 'This welcome letter is an onboarding guide. It is not a replacement for a signed agreement, quote, invoice, proposal, scope of work, or retainer schedule.' },
+      { title: 'Scope and Service Boundaries', body: commercialProtectionText('This welcome letter') },
+      { title: 'Client Responsibilities', body: operationalProtectionText() },
+      { title: 'Commercial Notes', body: paymentProtectionText() },
+      { title: 'Intellectual Property and Methodologies', body: ipProtectionText() },
+      { title: 'Confidentiality and Access', body: confidentialityProtectionText() },
+      { title: 'Important Information', body: letter.important_info || 'Oak & Pixel Studio will use onboarding information, selected plan details, approved services, and client-provided assets to guide delivery. Please keep contact details, decision makers, brand assets, access credentials, and billing details current throughout the engagement.' },
+      { title: 'Compliance Notes', body: complianceNoteText() }
     ],
     html: details
   });
@@ -2140,6 +2210,10 @@ function retainerStatementNumber(retainer) {
 
 function projectBriefNumber(project) {
   return `PB-${String(project.id || '').slice(0, 8).toUpperCase()}`;
+}
+
+function projectCompletionNumber(project) {
+  return `PCR-${String(project.id || '').slice(0, 8).toUpperCase()}`;
 }
 
 function retainerStatementTemplate(retainer, client, payments = []) {
@@ -2164,6 +2238,15 @@ function retainerStatementTemplate(retainer, client, payments = []) {
       { label: 'Assigned Plan', value: retainer.assigned_plan || client.selected_plan || '-' },
       { label: 'Monthly Retainer', value: money(retainer.monthly_retainer) },
       { label: 'Payment Status', value: retainer.payment_status || 'Pending' }
+    ],
+    sections: [
+      { title: 'Executive Summary', body: `This monthly retainer statement summarizes the active recurring service relationship between Oak & Pixel Studio and ${clientDisplayName(client)}.` },
+      { title: 'Purpose', body: 'The statement is intended to support account visibility, payment follow-up, and monthly service management. It does not replace invoices, agreements, or bank payment records.' },
+      { title: 'Payment Obligations', body: paymentProtectionText() },
+      { title: 'Scope and Support Boundaries', body: 'Retainer services are limited to the active plan, approved support terms, available monthly capacity, and agreed service schedule. Unused capacity, emergency work, new builds, major redesigns, advanced integrations, or work outside the active plan may require separate approval or quotation.' },
+      { title: 'Service Continuity', body: 'Retainer services are planned around reserved capacity. Missed or failed payments may pause recurring services, priority support, maintenance, reporting, optimization, or new delivery work until resolved.' },
+      { title: 'Confidentiality and Data', body: confidentialityProtectionText() },
+      { title: 'Compliance Notes', body: complianceNoteText() }
     ],
     html: `${_pdfTable('Retainer Summary', [
       { label: 'Detail' },
@@ -2198,8 +2281,15 @@ function projectBriefTemplate(project, client) {
       { label: 'Due Date', value: compactDate(project.due_date) }
     ],
     sections: [
-      { title: 'Project Description', body: project.description || 'No project description has been added yet.' },
-      { title: 'Assigned Owner', body: project.owner || 'Unassigned' }
+      { title: 'Executive Summary', body: `This project brief records the working context for ${project.title || 'the project'} and aligns Oak & Pixel Studio and ${clientDisplayName(client)} on purpose, ownership, dependencies, and delivery expectations.` },
+      { title: 'Parties Involved', body: clientPartyText(client) },
+      { title: 'Purpose', body: project.description || 'No project description has been added yet. The project brief should be updated before execution if scope, owner, due date, or client dependencies are unclear.' },
+      { title: 'Deliverables and Boundaries', body: commercialProtectionText('This project brief') },
+      { title: 'Responsibilities and Dependencies', body: operationalProtectionText() },
+      { title: 'Timeline', body: `Current due date: ${compactDate(project.due_date)}. Timelines may move where client dependencies, approvals, access, third-party platforms, or change requests affect delivery.` },
+      { title: 'Intellectual Property', body: ipProtectionText() },
+      { title: 'Risk and Compliance Notes', body: `${riskProtectionText()} ${complianceNoteText()}` },
+      { title: 'Acceptance', body: acceptanceText('project brief') }
     ],
     html: `${tagsHTML}${_pdfTable('Client Context', [
       { label: 'Detail' },
@@ -2210,6 +2300,44 @@ function projectBriefTemplate(project, client) {
       { cells: [{ value: 'OPS Plan' }, { value: client.selected_plan || '-' }] },
       { cells: [{ value: 'Start Date' }, { value: compactDate(client.project_start_date) }] }
     ])}`
+  });
+}
+
+function projectCompletionTemplate(project, client) {
+  const tags = Array.isArray(project.tags) ? project.tags : String(project.tags || '').split(',').map(t => t.trim()).filter(Boolean);
+  const tagsHTML = tags.length ? `<div class="pdf-section-title">Project Categories</div><div class="pdf-tags">${tags.map(t => `<span class="pdf-tag">${esc(t)}</span>`).join('')}</div>` : '';
+  return _documentTemplate({
+    docNum: projectCompletionNumber(project),
+    client,
+    title: `${project.title || 'Project'} Completion Report`,
+    subtitle: `Project Completion Report | ${compactDate(todayStr())}`,
+    tiles: [
+      { label: 'Completion Status', value: PROJECT_COLUMNS.find(([value]) => value === project.status)?.[1] || 'Done' },
+      { label: 'Priority', value: project.priority || 'Medium' },
+      { label: 'Owner', value: project.owner || 'Unassigned' }
+    ],
+    sections: [
+      { title: 'Executive Summary', body: `This completion report records the closure position for ${project.title || 'the project'} delivered by Oak & Pixel Studio for ${clientDisplayName(client)}.` },
+      { title: 'Parties Involved', body: clientPartyText(client) },
+      { title: 'Purpose', body: 'The purpose of this report is to confirm what was completed, note the delivery context, identify handover responsibilities, and record the commercial assumptions that apply after project closure.' },
+      { title: 'Delivered Work', body: project.description || 'The completed work follows the approved project brief, proposal, scope of work, or accepted task record in OPS Studio Command Center.' },
+      { title: 'Scope Boundaries', body: 'Completion confirms delivery of the approved scope only. New requests, additional changes, future improvements, fixes caused by client-side changes, new integrations, and work outside the approved record require a new task, retainer request, or change quote.' },
+      { title: 'Client Acceptance Responsibilities', body: 'The client is responsible for reviewing the delivered work promptly, reporting any material issue within the agreed review window, and confirming acceptance or required corrections in writing.' },
+      { title: 'Post-Completion Support', body: 'Post-completion support is limited to the active plan, retainer, warranty window, or written support agreement. Ongoing maintenance, optimization, content updates, monitoring, and platform support are not included unless expressly agreed.' },
+      { title: 'Intellectual Property and Handover', body: ipProtectionText() },
+      { title: 'Risk and Compliance Notes', body: `${riskProtectionText()} ${complianceNoteText()}` },
+      { title: 'Approval and Acceptance', body: acceptanceText('project completion report') }
+    ],
+    html: `${tagsHTML}${_pdfTable('Completion Details', [
+      { label: 'Detail' },
+      { label: 'Information' }
+    ], [
+      { cells: [{ value: 'Client' }, { value: clientDisplayName(client) }] },
+      { cells: [{ value: 'Project Owner' }, { value: project.owner || 'Unassigned' }] },
+      { cells: [{ value: 'Due Date' }, { value: compactDate(project.due_date) }] },
+      { cells: [{ value: 'Completion Date' }, { value: compactDate(todayStr()) }] }
+    ])}`,
+    signatures: true
   });
 }
 
@@ -2225,27 +2353,46 @@ function agreementTemplate(kind, client, retainer = {}) {
     { label: 'Status', value: 'Template' }
   ];
   const msaSections = [
-    { title: 'Parties', body: `This Master Services Agreement is entered into between Oak & Pixel Studio and ${clientName}. It governs digital strategy, design, development, automation, CRM, retainer, and related service delivery work agreed between the parties.` },
-    { title: 'Services', body: `Oak & Pixel Studio will provide services according to the selected plan, approved proposal, signed scope of work, or written service order. Current plan: ${plan}. Monthly retainer: ${retainerAmount}.` },
-    { title: 'Client Responsibilities', body: 'The client is responsible for timely approvals, accurate business information, access to required systems, brand assets, payment details, and feedback needed for Oak & Pixel Studio to deliver the work.' },
-    { title: 'Fees and Payment', body: `Setup fees, retainers, and additional approved work are payable according to issued quotes and invoices. Retainer billing day: ${billingDay}. Late or failed payments may pause delivery until the account is regularized.` },
-    { title: 'Intellectual Property', body: 'Client-owned materials remain the property of the client. Final approved deliverables transfer to the client after full payment, excluding Oak & Pixel Studio pre-existing tools, reusable methods, templates, libraries, and internal know-how.' },
-    { title: 'Confidentiality', body: 'Both parties must protect confidential information received during the engagement and use it only for the purposes of delivering or receiving the agreed services.' },
-    { title: 'Term and Termination', body: 'The agreement remains active while services, retainers, invoices, or scopes of work are active. Either party may terminate according to the written notice period agreed in the relevant service order or retainer terms.' }
+    { title: 'Executive Summary', body: `This Master Services Agreement sets the commercial operating rules for the relationship between Oak & Pixel Studio and ${clientName}. It is designed to support long-term digital delivery while keeping scope, ownership, payment, confidentiality, and responsibilities clear.` },
+    { title: 'Parties', body: clientPartyText(client) },
+    { title: 'Purpose', body: `This agreement governs premium websites, online booking experiences, lead capture, client onboarding, client operating system implementation, digital presence management, standalone services, retainers, and related work confirmed in a quote, proposal, scope of work, or service order.` },
+    { title: 'Services and Scope Boundaries', body: `${commercialProtectionText('This agreement')} Current plan: ${plan}. Monthly retainer: ${retainerAmount}.` },
+    { title: 'Change Requests and Revisions', body: 'Reasonable revisions may be included only where they are expressly stated in the applicable quote, proposal, or SOW. New features, major design changes, additional pages, integrations, emergency work, rework caused by changed instructions, or work outside approved scope requires written approval and may be quoted separately.' },
+    { title: 'Client Responsibilities', body: operationalProtectionText() },
+    { title: 'Fees, Payment and Suspension', body: `${paymentProtectionText()} Retainer billing day: ${billingDay}. Oak & Pixel Studio may withhold publishing, handover, maintenance, source exports, credentials transfer, or further delivery until overdue amounts are settled.` },
+    { title: 'Intellectual Property', body: ipProtectionText() },
+    { title: 'Confidentiality', body: confidentialityProtectionText() },
+    { title: 'Third-Party Platforms and Data Accuracy', body: 'The client remains responsible for the accuracy of business, product, pricing, customer, banking, legal, and compliance information supplied to Oak & Pixel Studio. Third-party platforms, hosting providers, payment gateways, plugins, domain registrars, analytics tools, and AI or automation services remain outside Oak & Pixel Studio control.' },
+    { title: 'Limitation of Liability and Force Majeure', body: riskProtectionText() },
+    { title: 'Term, Termination and Handover', body: 'The agreement remains active while services, retainers, invoices, or scopes of work are active. Either party may terminate according to the written notice period in the relevant service order or retainer terms. On termination, all approved unpaid fees, third-party costs, and completed work remain payable before final handover.' },
+    { title: 'Compliance Notes', body: complianceNoteText() },
+    { title: 'Approval and Acceptance', body: acceptanceText('Master Services Agreement') }
   ];
   const ndaSections = [
-    { title: 'Purpose', body: `Oak & Pixel Studio and ${clientName} may exchange confidential business, operational, technical, financial, client, brand, marketing, and systems information for consultation, quoting, onboarding, service delivery, and project execution.` },
-    { title: 'Confidential Information', body: 'Confidential information includes non-public information shared in writing, verbally, visually, digitally, through systems access, or through project materials, regardless of whether it is specifically marked confidential.' },
-    { title: 'Obligations', body: 'Each party agrees to protect confidential information with reasonable care, limit access to people who need it for the engagement, and not disclose it to unauthorized third parties.' },
-    { title: 'Exclusions', body: 'Information is not confidential if it is publicly available through no breach, already known before disclosure, independently developed without use of confidential information, or lawfully received from another source.' },
-    { title: 'Term', body: 'Confidentiality obligations continue for the duration of the engagement and for a reasonable period after the relationship ends, or longer where required by law or separate written agreement.' }
+    { title: 'Executive Summary', body: `This NDA protects confidential information exchanged between Oak & Pixel Studio and ${clientName} during consultation, quoting, onboarding, implementation, support, and long-term service delivery.` },
+    { title: 'Parties', body: clientPartyText(client) },
+    { title: 'Purpose', body: 'The purpose is to allow both parties to share information needed to evaluate, plan, deliver, manage, or support digital infrastructure while protecting sensitive business, technical, commercial, and operational information.' },
+    { title: 'Confidential Information', body: 'Confidential information includes non-public business information, customer data, strategy, pricing, operational details, access credentials, financial details, technical configurations, brand materials, marketing plans, internal systems, workflows, templates, proposals, code, processes, and Oak & Pixel Studio methodologies.' },
+    { title: 'Obligations', body: 'Each party must use confidential information only for the approved business purpose, protect it with reasonable care, restrict access to people who need it, and avoid disclosure to unauthorized third parties.' },
+    { title: 'OPS Methodologies and Internal Systems', body: 'Oak & Pixel Studio methodologies, templates, internal operating systems, service processes, pricing logic, automations, frameworks, and know-how remain confidential and owned by Oak & Pixel Studio, even where they are visible during delivery.' },
+    { title: 'Data Handling and Access', body: 'Where access credentials, personal information, customer records, or business data are shared, both parties should handle them according to applicable South African law, reasonable security practices, and the agreed engagement purpose.' },
+    { title: 'Exclusions', body: 'Information is not confidential if it is publicly available through no breach, already known before disclosure, independently developed without using confidential information, lawfully received from another source, or required to be disclosed by law or competent authority.' },
+    { title: 'Return or Destruction', body: 'On request, each party should return, delete, or securely destroy confidential materials where reasonably practical, except for records required for backups, legal, accounting, security, or legitimate business purposes.' },
+    { title: 'Term', body: 'Confidentiality obligations continue for the duration of the engagement and for a reasonable period after the relationship ends, or longer where required by a signed agreement or applicable law.' },
+    { title: 'Compliance Notes', body: complianceNoteText() },
+    { title: 'Acceptance', body: acceptanceText('NDA') }
   ];
   const debitSections = [
-    { title: 'Mandate Authorization', body: `${clientName} authorizes Oak & Pixel Studio or its nominated payment provider to collect approved recurring service fees, retainers, and related charges according to the accepted service plan, quote, invoice, or retainer schedule.` },
+    { title: 'Executive Summary', body: `This Debit Order Mandate records ${clientName}'s authorization for recurring collections relating to approved Oak & Pixel Studio retainers, service plans, and related charges.` },
+    { title: 'Parties', body: clientPartyText(client) },
+    { title: 'Mandate Authorization', body: `${clientName} authorizes Oak & Pixel Studio or its nominated payment provider to collect approved recurring service fees, retainers, arrears, failed payment recovery amounts, and related charges according to the accepted service plan, quote, invoice, agreement, or retainer schedule.` },
     { title: 'Billing Details', body: `Assigned plan: ${plan}. Monthly retainer: ${retainerAmount}. Billing day: ${billingDay}. The actual collection amount may vary where additional approved line items, arrears, failed payment recovery, or plan changes apply.` },
     { title: 'Client Banking Information', body: 'Bank name: ______________________________\nAccount holder: __________________________\nAccount number: __________________________\nBranch code: _____________________________\nAccount type: ____________________________' },
-    { title: 'Payment Terms', body: 'The client must ensure sufficient funds are available on the billing date. Failed, disputed, or reversed collections may result in service pauses, recovery charges, or manual invoice settlement.' },
-    { title: 'Cancellation or Changes', body: 'The mandate may be changed or cancelled according to the agreed retainer terms, provided all outstanding invoices and approved service fees remain payable.' }
+    { title: 'Client Responsibilities', body: 'The client must provide accurate banking information, ensure authority to use the nominated account, keep payment details current, and ensure sufficient funds are available on the billing date.' },
+    { title: 'Payment Terms and Failed Collections', body: `${paymentProtectionText()} Failed, disputed, or reversed collections may result in service pauses, recovery charges, manual invoice settlement, or restricted support until resolved.` },
+    { title: 'Changes and Cancellation', body: 'The mandate may be changed or cancelled according to the agreed retainer or service terms. Cancellation does not cancel amounts already due, approved work, active invoices, or charges incurred before the cancellation takes effect.' },
+    { title: 'Compliance Notes', body: 'Debit order processing should follow applicable South African banking, payment system, privacy, and consumer protection requirements. This mandate template should be reviewed by the payment provider or a qualified legal adviser before formal operational use.' },
+    { title: 'Acceptance', body: acceptanceText('Debit Order Mandate') }
   ];
   return _documentTemplate({
     docNum: agreementNumber(kind, client),
@@ -4277,6 +4424,7 @@ function buildDocumentList() {
       return { ...r, _type:'Retainer Statement', _num:retainerStatementNumber(r), _date:r.next_payment_date || r.created_at, _status:r.payment_status, _title:`${clientDisplayName(client)} Retainer Statement` };
     }),
     ...allProjects.map(p => ({ ...p, _type:'Project Brief', _num:projectBriefNumber(p), _date:p.created_at || p.due_date, _status:PROJECT_COLUMNS.find(([value]) => value === p.status)?.[1] || p.status, _title:p.title||'Project Brief' })),
+    ...allProjects.filter(p => (p.status || '').toLowerCase() === 'done').map(p => ({ ...p, _type:'Project Completion Report', _num:projectCompletionNumber(p), _date:p.due_date || p.created_at, _status:'Complete', _title:`${p.title || 'Project'} Completion Report` })),
   ].sort((a,b) => {
     const at = new Date(a._date || 0).getTime();
     const bt = new Date(b._date || 0).getTime();
@@ -4303,15 +4451,11 @@ function renderDocumentsTable() {
   document.querySelectorAll('#doc-tabs .filter-tab').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.f === docFilter);
   });
-  if (docFilter === '__completion') {
-    root.innerHTML = emptyState('Coming soon', 'This document type will be available in a future update.');
-    return;
-  }
   const search = ($('doc-hub-search')?.value || '').toLowerCase();
   let rows = docFilter === '__agreements' ? buildAgreementRows() : buildDocumentList();
   if (!showArchived) rows = rows.filter(r => !r.archived);
   if (docFilter !== 'all') {
-    const filterType = docFilter === '__agreements' ? 'Agreement' : docFilter === '__retainer-statements' ? 'Retainer Statement' : docFilter === '__project-briefs' ? 'Project Brief' : docFilter;
+    const filterType = docFilter === '__agreements' ? 'Agreement' : docFilter === '__retainer-statements' ? 'Retainer Statement' : docFilter === '__project-briefs' ? 'Project Brief' : docFilter === '__completion' ? 'Project Completion Report' : docFilter;
     rows = rows.filter(r => r._type === filterType);
   }
   if (search) rows = rows.filter(r => {
@@ -4319,7 +4463,7 @@ function renderDocumentsTable() {
     return (r._num||'').toLowerCase().includes(search) || clientDisplayName(client).toLowerCase().includes(search) || (r._title||'').toLowerCase().includes(search);
   });
   if (!rows.length) { root.innerHTML = emptyState('No documents found'); return; }
-  const typeBadge = { Quote:'badge-gold', Invoice:'badge-amber', Proposal:'badge-emerald', SOW:'badge-ok', 'Welcome Letter':'', Agreement:'badge-gold', 'Retainer Statement':'badge-amber', 'Project Brief':'badge-ok' };
+  const typeBadge = { Quote:'badge-gold', Invoice:'badge-amber', Proposal:'badge-emerald', SOW:'badge-ok', 'Welcome Letter':'', Agreement:'badge-gold', 'Retainer Statement':'badge-amber', 'Project Brief':'badge-ok', 'Project Completion Report':'badge-emerald' };
   root.innerHTML = `<table class="data-table">
     <thead><tr><th>#</th><th>Type</th><th>Client</th><th>Title</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
     <tbody>${rows.map(r => {
@@ -4342,7 +4486,8 @@ function renderDocumentsTable() {
           ${r._type==='Agreement' ? `<button class="btn-ghost btn-sm" onclick="downloadAgreementPDF('${r._agreementKind}','${r.client_id}')">PDF</button>` : ''}
           ${r._type==='Retainer Statement' ? `<button class="btn-ghost btn-sm" onclick="downloadRetainerStatementPDF('${r.id}')">PDF</button>` : ''}
           ${r._type==='Project Brief' ? `<button class="btn-ghost btn-sm" onclick="downloadProjectBriefPDF('${r.id}')">PDF</button>` : ''}
-          ${!r.archived && !['Agreement','Retainer Statement','Project Brief'].includes(r._type) ? `<button class="btn-ghost btn-sm" onclick="archiveDocument('${r._type}','${r.id}')">Archive</button>` : ''}
+          ${r._type==='Project Completion Report' ? `<button class="btn-ghost btn-sm" onclick="downloadProjectCompletionPDF('${r.id}')">PDF</button>` : ''}
+          ${!r.archived && !['Agreement','Retainer Statement','Project Brief','Project Completion Report'].includes(r._type) ? `<button class="btn-ghost btn-sm" onclick="archiveDocument('${r._type}','${r.id}')">Archive</button>` : ''}
         </td>
       </tr>`;
     }).join('')}</tbody>
@@ -4400,6 +4545,13 @@ async function downloadProjectBriefPDF(projectId) {
   if (!project) return;
   const client = allClients.find(c => c.id === project.client_id) || project.client || {};
   await generatePDF(projectBriefTemplate(project, client), `${projectBriefNumber(project)}.pdf`);
+}
+
+async function downloadProjectCompletionPDF(projectId) {
+  const project = allProjects.find(p => p.id === projectId);
+  if (!project) return;
+  const client = allClients.find(c => c.id === project.client_id) || project.client || {};
+  await generatePDF(projectCompletionTemplate(project, client), `${projectCompletionNumber(project)}.pdf`);
 }
 
 async function archiveDocument(type, id) {
