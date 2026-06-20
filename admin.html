@@ -1534,17 +1534,19 @@ function addDays(date, days) {
 let _pdfBusy = false;
 let _pdfLogoDataUrl = null;
 let _pdfLogoLoaded = false;
-function imageToDataUrl(src) {
+function imageToDataUrl(src, maxPx = 200) {
   return new Promise(resolve => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
       try {
         const canvas = document.createElement('canvas');
-        canvas.width = img.naturalWidth || img.width;
-        canvas.height = img.naturalHeight || img.height;
+        const nat = Math.max(img.naturalWidth || img.width, img.naturalHeight || img.height, 1);
+        const scale = Math.min(1, maxPx / nat);
+        canvas.width  = Math.round((img.naturalWidth  || img.width)  * scale);
+        canvas.height = Math.round((img.naturalHeight || img.height) * scale);
         const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         resolve(canvas.toDataURL('image/png'));
       } catch (error) {
         console.warn('PDF logo conversion failed.', error);
