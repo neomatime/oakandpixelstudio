@@ -939,7 +939,7 @@ a{color:inherit;text-decoration:none;}
 
 </div><!-- /app -->
 
-<div id="pdf-render-zone" style="position:absolute;left:-9999px;top:0;width:210mm;background:#fff;"></div>
+<div id="pdf-render-zone" aria-hidden="true" style="position:absolute;left:-9999px;top:0;width:210mm;min-height:1px;background:#fff;"></div>
 <div id="page-loader"></div>
 <div class="toast" id="toast"></div>
 <div id="modal-overlay" class="modal-overlay" style="display:none">
@@ -1154,16 +1154,23 @@ function addDays(date, days) {
   d.setDate(d.getDate() + days);
   return d.toISOString().split('T')[0];
 }
+let _pdfBusy = false;
 async function generatePDF(templateHTML, filename) {
+  if (_pdfBusy) return;
+  _pdfBusy = true;
   const zone = $('pdf-render-zone');
   zone.innerHTML = templateHTML;
-  await html2pdf().set({
-    margin: [15, 15, 15, 15],
-    filename,
-    html2canvas: { scale: 2, useCORS: true, logging: false },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  }).from(zone).save();
-  zone.innerHTML = '';
+  try {
+    await html2pdf().set({
+      margin: [15, 15, 15, 15],
+      filename,
+      html2canvas: { scale: 2, useCORS: true, logging: false },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).from(zone).save();
+  } finally {
+    zone.innerHTML = '';
+    _pdfBusy = false;
+  }
 }
 function docNumber(prefix) {
   return `${prefix}-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(100 + Math.random() * 900)}`;
