@@ -1116,6 +1116,40 @@ a{color:inherit;text-decoration:none;}
   </div>
 </section>
 
+<!-- ═══════════════════════════════════ SOW EDITOR ═══════════════════════════════════ -->
+<section class="page" id="page-sow-editor">
+  <div id="sow-back-btn" class="editor-back" onclick="sowGoBack()">← Back to Proposal</div>
+  <div class="editor-grid">
+    <div>
+      <div class="mini-panel editor-section"><div class="mini-panel-head"><span class="mini-panel-title">Deliverables</span></div><div class="mini-panel-body"><textarea id="sow-deliverables" placeholder="List all deliverables…"></textarea></div></div>
+      <div class="mini-panel editor-section"><div class="mini-panel-head"><span class="mini-panel-title">Milestones</span></div><div class="mini-panel-body"><textarea id="sow-milestones" placeholder="Key project milestones and dates…"></textarea></div></div>
+      <div class="mini-panel editor-section"><div class="mini-panel-head"><span class="mini-panel-title">Timeline</span></div><div class="mini-panel-body"><textarea id="sow-timeline" placeholder="Project timeline and phases…"></textarea></div></div>
+      <div class="mini-panel editor-section"><div class="mini-panel-head"><span class="mini-panel-title">Responsibilities</span></div><div class="mini-panel-body"><textarea id="sow-responsibilities" placeholder="Client vs OPS responsibilities…"></textarea></div></div>
+      <div class="mini-panel editor-section"><div class="mini-panel-head"><span class="mini-panel-title">Assumptions</span></div><div class="mini-panel-body"><textarea id="sow-assumptions" placeholder="Conditions assumed to be true…"></textarea></div></div>
+      <div class="mini-panel editor-section"><div class="mini-panel-head"><span class="mini-panel-title">Exclusions</span></div><div class="mini-panel-body"><textarea id="sow-exclusions" placeholder="What is explicitly not included…"></textarea></div></div>
+    </div>
+    <div class="editor-meta-panel">
+      <div class="mini-panel">
+        <div class="mini-panel-head"><span class="mini-panel-title">SOW Details</span></div>
+        <div class="mini-panel-body">
+          <div id="sow-linked-proposal" class="td-dim" style="margin-bottom:.75rem;font-size:.78rem"></div>
+          <div class="modal-body" style="padding:0">
+            <div class="modal-field full"><label>Title</label><input id="sow-title" placeholder="Scope of Work title…"></div>
+            <div class="modal-field"><label>Status</label><select id="sow-status">
+              <option value="Draft">Draft</option><option value="Sent">Sent</option><option value="Approved">Approved</option>
+            </select></div>
+            <div class="modal-field"><label>Scope Date</label><input id="sow-date" type="date"></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.5rem;margin-top:1rem">
+        <button class="btn-ghost" onclick="saveScope()">Save</button>
+        <button class="btn-add" onclick="downloadSOWPDF()">Generate PDF</button>
+      </div>
+    </div>
+  </div>
+</section>
+
     </div><!-- /page-content -->
   </main>
 
@@ -3247,7 +3281,86 @@ async function downloadProposalPDF() {
   await generatePDF(proposalTemplate(proposal, client), `${proposal.proposal_number}.pdf`);
 }
 
-function openSOWEditor(scopeId, proposalId) { toast('SOW editor loading…'); }
+let _currentScopeId = null;
+let _currentScopeProposalId = null;
+
+function openSOWEditor(scopeId, proposalId) {
+  _currentScopeId = scopeId || null;
+  _currentScopeProposalId = proposalId || null;
+  switchPage('sow-editor');
+  if ($('sow-date')) $('sow-date').value = todayStr();
+  const proposal = proposalId ? allProposals.find(p => p.id === proposalId) : null;
+  const scope = scopeId ? allScopes.find(s => s.id === scopeId) : null;
+  const linked = $('sow-linked-proposal');
+  if (linked) linked.textContent = proposal ? `Linked Proposal: ${proposal.proposal_number}` : '';
+  const backBtn = $('sow-back-btn');
+  if (backBtn) backBtn.textContent = proposal ? `← Back to Proposal ${proposal.proposal_number}` : '← Back';
+  if (scope) {
+    $('sow-title').value = scope.title || '';
+    $('sow-deliverables').value = scope.deliverables || '';
+    $('sow-milestones').value = scope.milestones || '';
+    $('sow-timeline').value = scope.timeline || '';
+    $('sow-responsibilities').value = scope.responsibilities || '';
+    $('sow-assumptions').value = scope.assumptions || '';
+    $('sow-exclusions').value = scope.exclusions || '';
+    if ($('sow-status')) $('sow-status').value = scope.status || 'Draft';
+    if ($('sow-date')) $('sow-date').value = scope.scope_date || todayStr();
+    _currentScopeProposalId = scope.proposal_id || proposalId;
+  } else if (proposal) {
+    $('sow-title').value = proposal.title ? `SOW — ${proposal.title}` : '';
+    $('sow-deliverables').value = proposal.deliverables || '';
+    $('sow-timeline').value = proposal.timeline || '';
+    ['sow-milestones','sow-responsibilities','sow-assumptions','sow-exclusions'].forEach(id => { if ($(id)) $(id).value = ''; });
+    if ($('sow-status')) $('sow-status').value = 'Draft';
+  }
+}
+
+function sowGoBack() {
+  if (_currentScopeProposalId) {
+    openProposalEditor(_currentScopeProposalId, null, null);
+  } else {
+    switchPage('documents');
+    renderDocumentsTable();
+  }
+}
+
+async function saveScope() {
+  const title = $('sow-title')?.value.trim();
+  if (!title) { toast('Add a title first.'); return; }
+  const payload = {
+    title,
+    proposal_id: _currentScopeProposalId || null,
+    status: $('sow-status')?.value || 'Draft',
+    scope_date: $('sow-date')?.value || todayStr(),
+    deliverables: $('sow-deliverables')?.value || null,
+    milestones: $('sow-milestones')?.value || null,
+    timeline: $('sow-timeline')?.value || null,
+    responsibilities: $('sow-responsibilities')?.value || null,
+    assumptions: $('sow-assumptions')?.value || null,
+    exclusions: $('sow-exclusions')?.value || null,
+  };
+  let error;
+  if (_currentScopeId) {
+    ({ error } = await sb.from('scopes').update(payload).eq('id', _currentScopeId));
+  } else {
+    payload.scope_number = docNumber('SOW');
+    const res = await sb.from('scopes').insert(payload).select().single();
+    error = res.error;
+    if (!error) _currentScopeId = res.data.id;
+  }
+  if (error) { toast('Error saving SOW.'); console.error(error); return; }
+  toast('SOW saved.');
+  await loadScopes();
+}
+
+async function downloadSOWPDF() {
+  await saveScope();
+  const scope = allScopes.find(s => s.id === _currentScopeId);
+  if (!scope) return;
+  const proposal = scope.proposal_id ? allProposals.find(p => p.id === scope.proposal_id) : null;
+  const client = proposal ? allClients.find(c => c.id === proposal.client_id) || {} : {};
+  await generatePDF(sowTemplate(scope, proposal, client), `${scope.scope_number}.pdf`);
+}
 
 function openSOWEditorFromProposal() {
   if (!_currentProposalId) return;
