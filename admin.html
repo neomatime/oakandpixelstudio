@@ -3247,6 +3247,8 @@ async function downloadProposalPDF() {
   await generatePDF(proposalTemplate(proposal, client), `${proposal.proposal_number}.pdf`);
 }
 
+function openSOWEditor(scopeId, proposalId) { toast('SOW editor loading…'); }
+
 function openSOWEditorFromProposal() {
   if (!_currentProposalId) return;
   openSOWEditor(null, _currentProposalId);
