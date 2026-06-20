@@ -303,18 +303,24 @@ section{position:relative}
   background:var(--black);border:1px solid rgba(10,10,9,.12);
   position:relative;overflow:hidden;isolation:isolate;
   min-height:min(720px,calc(100svh - 150px));
+  --mx:50%;--my:50%;--founder-lift:0px;--portrait-x:0px;--portrait-y:0px;
   box-shadow:0 36px 78px rgba(10,10,9,.11);
+  transition:opacity .9s var(--ease-expo),transform .9s var(--ease-expo),box-shadow .8s var(--ease-expo),border-color .8s ease;
 }
 .founder-card::before{
   content:'';position:absolute;inset:1.2rem;z-index:1;pointer-events:none;
   border:1px solid rgba(255,255,255,.08);
+  transition:border-color .8s ease;
 }
 .founder-card::after{
-  content:'';position:absolute;right:0;top:0;width:38%;height:100%;z-index:0;pointer-events:none;
+  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.9;
   background:
-    linear-gradient(90deg,transparent,rgba(26,92,58,.16)),
+    radial-gradient(circle at var(--mx) var(--my),rgba(255,255,255,.13),transparent 24rem),
+    linear-gradient(90deg,transparent 40%,rgba(26,92,58,.16)),
     repeating-linear-gradient(0deg,rgba(255,255,255,.045) 0 1px,transparent 1px 72px);
+  transition:opacity .8s ease;
 }
+.founder-card.reveal.visible{transform:translateY(var(--founder-lift));}
 .founder-media{
   min-height:min(720px,calc(100svh - 150px));background:#11110f;position:relative;overflow:hidden;z-index:2;
   border-right:1px solid rgba(255,255,255,.08);
@@ -332,9 +338,13 @@ section{position:relative}
 .founder-media img{
   width:100%;height:100%;object-fit:cover;object-position:center top;display:block;
   filter:saturate(.82) contrast(1.08);
+  transform:translate3d(var(--portrait-x),var(--portrait-y),0) scale(1.01);
   transition:transform .8s var(--ease-expo),filter .8s ease;
 }
-.founder-card:hover .founder-media img{transform:scale(1.03);filter:saturate(.98) contrast(1.08);}
+.founder-card:hover{border-color:rgba(255,255,255,.1);box-shadow:0 42px 94px rgba(10,10,9,.16);}
+.founder-card:hover::before{border-color:rgba(255,255,255,.14);}
+.founder-card:hover::after{opacity:1;}
+.founder-card:hover .founder-media img{filter:saturate(.96) contrast(1.08);}
 .founder-copy{
   padding:3.7rem 4.4rem;display:flex;flex-direction:column;justify-content:center;
   position:relative;overflow:hidden;z-index:2;color:var(--white);
@@ -351,7 +361,8 @@ section{position:relative}
   font-family:var(--font-mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;
   color:rgba(255,255,255,.55);margin-bottom:1.5rem;display:flex;align-items:center;gap:.75rem;
 }
-.founder-eyebrow::before{content:'';width:32px;height:1px;background:var(--emerald);}
+.founder-eyebrow::before{content:'';width:32px;height:1px;background:var(--emerald);transition:width .7s var(--ease-expo),background .7s ease;}
+.founder-card:hover .founder-eyebrow::before{width:44px;background:var(--emerald-l);}
 .founder-kicker{
   font-family:var(--font-mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
   color:var(--emerald-l);margin-bottom:.85rem;
@@ -376,8 +387,15 @@ section{position:relative}
   background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);max-width:680px;
 }
 .founder-meta-item{
-  background:rgba(255,255,255,.035);padding:.82rem .9rem;
+  background:rgba(255,255,255,.035);padding:.82rem .9rem;position:relative;overflow:hidden;
+  transition:background .45s ease,transform .45s var(--ease-expo);
 }
+.founder-meta-item::before{
+  content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.08),transparent 60%);
+  opacity:0;transition:opacity .45s ease;
+}
+.founder-meta-item:hover{background:rgba(255,255,255,.055);transform:translateY(-2px);}
+.founder-meta-item:hover::before{opacity:1;}
 .founder-meta-label{
   display:block;font-family:var(--font-mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;
   color:rgba(255,255,255,.38);margin-bottom:.45rem;
@@ -388,6 +406,21 @@ section{position:relative}
 .founder-signature{
   margin-top:1.25rem;padding-top:1.1rem;border-top:1px solid rgba(255,255,255,.1);
   font-family:var(--font-display);font-size:1.35rem;font-style:italic;color:rgba(255,255,255,.88);
+  transition:color .45s ease,border-color .45s ease;
+}
+.founder-card:hover .founder-signature{color:var(--white);border-color:rgba(255,255,255,.18);}
+
+@media (prefers-reduced-motion: reduce) {
+  .founder-card,
+  .founder-card::before,
+  .founder-card::after,
+  .founder-media img,
+  .founder-meta-item,
+  .founder-signature,
+  .founder-eyebrow::before { transition:none; }
+  .founder-card.reveal.visible,
+  .founder-media img,
+  .founder-meta-item:hover { transform:none; }
 }
 
 /* ─── SERVICES ───────────────────────────────────────── */
@@ -2354,6 +2387,41 @@ const obs = new IntersectionObserver(entries=>{
   entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible') });
 },{threshold:.12});
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// ── FOUNDER FEATURE MICRO-INTERACTION ───────────────────
+(function(){
+  const card = document.querySelector('.founder-card');
+  if(!card) return;
+  const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!canHover || reduceMotion) return;
+
+  let raf = null;
+  function update(e){
+    const rect = card.getBoundingClientRect();
+    const x = Math.max(0,Math.min(1,(e.clientX - rect.left) / rect.width));
+    const y = Math.max(0,Math.min(1,(e.clientY - rect.top) / rect.height));
+    if(raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(()=>{
+      card.style.setProperty('--mx', `${(x * 100).toFixed(2)}%`);
+      card.style.setProperty('--my', `${(y * 100).toFixed(2)}%`);
+      card.style.setProperty('--founder-lift', '-4px');
+      card.style.setProperty('--portrait-x', `${((x - .5) * -10).toFixed(2)}px`);
+      card.style.setProperty('--portrait-y', `${((y - .5) * -8).toFixed(2)}px`);
+    });
+  }
+  function reset(){
+    if(raf) cancelAnimationFrame(raf);
+    card.style.setProperty('--mx','50%');
+    card.style.setProperty('--my','50%');
+    card.style.setProperty('--founder-lift','0px');
+    card.style.setProperty('--portrait-x','0px');
+    card.style.setProperty('--portrait-y','0px');
+  }
+
+  card.addEventListener('pointermove',update);
+  card.addEventListener('pointerleave',reset);
+})();
 
 // ── HERO CANVAS (geometric ambient background) ──────────
 (function(){
