@@ -1635,6 +1635,27 @@ async function generatePDF(templateHTML, filename) {
         y += 22;
       }
     };
+    const drawPreparedFor = () => {
+      const clientLines = nodeText(root.querySelector('.pdf-client-lines'));
+      if (!clientLines) return;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      const lines = doc.splitTextToSize(clientLines, contentW - 14);
+      const blockH = Math.max(23, lines.length * 4.4 + 13);
+      pageBreak(blockH + 8);
+      doc.setFillColor(250, 249, 244);
+      doc.setDrawColor(224, 223, 216);
+      doc.rect(margin, y, contentW, blockH, 'FD');
+      doc.setFont('courier', 'normal');
+      doc.setFontSize(7);
+      setMuted();
+      doc.text('PREPARED FOR', margin + 6, y + 6);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.8);
+      setInk();
+      doc.text(lines, margin + 6, y + 14);
+      y += blockH + 8;
+    };
 
     const docNum = clean(root.querySelector('.pdf-doc-num')?.textContent) || filename.replace(/\.pdf$/i, '');
     const logo = await pdfBrandLogo();
@@ -1656,16 +1677,6 @@ async function generatePDF(templateHTML, filename) {
     y += 10;
     drawRule();
 
-    const clientLines = nodeText(root.querySelector('.pdf-client-lines'));
-    if (clientLines) {
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8.5);
-      setMuted();
-      const lines = doc.splitTextToSize(clientLines, 78);
-      doc.text(lines, pageW - margin - 78, y);
-      y += Math.max(18, lines.length * 4.5);
-    }
-
     doc.setFont('times', 'normal');
     doc.setFontSize(27);
     setInk();
@@ -1675,7 +1686,8 @@ async function generatePDF(templateHTML, filename) {
     doc.setFontSize(8);
     setMuted();
     writeWrapped(clean(root.querySelector('.pdf-subtitle')?.textContent), margin, contentW, 4);
-    y += 8;
+    y += 7;
+    drawPreparedFor();
     drawTiles();
 
     [...root.children].forEach(child => {
