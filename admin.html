@@ -1183,6 +1183,111 @@ async function generatePDF(templateHTML, filename) {
     _pdfBusy = false;
   }
 }
+
+function _pdfStyles() {
+  return `<style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Jost',sans-serif;color:#1a1a18;font-size:11pt;line-height:1.5}
+    .pdf-wrap{padding:0}
+    .pdf-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem}
+    .pdf-logo{font-family:'Jost',sans-serif;font-weight:700;font-size:18pt;letter-spacing:.04em}
+    .pdf-doc-num{font-family:'DM Mono',monospace;font-size:8pt;color:#6b6b64;padding-top:.3rem}
+    .pdf-rule{border:none;border-top:1px solid #B8955A;margin:1rem 0}
+    .pdf-client-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem}
+    .pdf-client-info{font-size:9pt;color:#4a4a42}
+    .pdf-title{font-family:'Cormorant Garamond',serif;font-size:28pt;font-weight:600;margin-bottom:.3rem}
+    .pdf-subtitle{font-family:'DM Mono',monospace;font-size:8pt;text-transform:uppercase;letter-spacing:.08em;color:#6b6b64;margin-bottom:1.5rem}
+    .pdf-tiles{display:flex;gap:1rem;margin-bottom:1.5rem}
+    .pdf-tile{flex:1;border:1px solid #e0dfd8;border-radius:4px;padding:.75rem}
+    .pdf-tile-lbl{font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#6b6b64;margin-bottom:.25rem}
+    .pdf-tile-val{font-size:11pt;font-weight:600}
+    table.pdf-items{width:100%;border-collapse:collapse;margin-bottom:1.5rem}
+    table.pdf-items th{text-align:left;font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:#6b6b64;padding:.5rem;border-bottom:1px solid #e0dfd8}
+    table.pdf-items td{padding:.6rem .5rem;border-bottom:1px solid #f0efe8;font-size:10pt}
+    table.pdf-items tr.total td{font-weight:700;border-top:2px solid #B8955A;border-bottom:none}
+    .pdf-footer{margin-top:2rem;padding-top:1rem;border-top:1px solid #e0dfd8;font-size:8pt;color:#6b6b64;display:flex;justify-content:space-between}
+    .pdf-section-title{font-size:9pt;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem;color:#2d2d2b}
+    .pdf-body-text{font-size:10pt;margin-bottom:1rem;color:#2d2d2b}
+    .pdf-sig-block{display:flex;gap:2rem;margin-top:2rem}
+    .pdf-sig-col{flex:1;border-top:1px solid #1a1a18;padding-top:.5rem;font-size:9pt}
+  </style>`;
+}
+
+function _pdfHeader(docNum) {
+  return `<div class="pdf-header">
+    <div class="pdf-logo">Oak &amp; Pixel</div>
+    <div class="pdf-doc-num">${docNum}</div>
+  </div>
+  <hr class="pdf-rule">`;
+}
+
+function _pdfClientBlock(client) {
+  return `<div class="pdf-client-row">
+    <div></div>
+    <div class="pdf-client-info">
+      <strong>${client.company || client.full_name || ''}</strong><br>
+      ${client.company_address ? client.company_address + '<br>' : ''}
+      ${client.company_email || client.email || ''}<br>
+      ${client.company_phone || client.phone || ''}
+    </div>
+  </div>`;
+}
+
+function _pdfLineItems(doc) {
+  const items = doc.additional_items || [];
+  const rows = [
+    { label: 'Setup Fee', amount: doc.setup_fee },
+    { label: 'Monthly Retainer', amount: doc.monthly_retainer },
+    ...items
+  ].filter(r => Number(r.amount) > 0);
+  return `<table class="pdf-items">
+    <thead><tr><th>Description</th><th style="text-align:right">Amount</th></tr></thead>
+    <tbody>
+      ${rows.map(r => `<tr><td>${r.label}</td><td style="text-align:right">${money(Number(r.amount))}</td></tr>`).join('')}
+      <tr class="total"><td>Total</td><td style="text-align:right">${money(doc.total_amount)}</td></tr>
+    </tbody>
+  </table>`;
+}
+
+function _pdfFooter() {
+  return `<div class="pdf-footer">
+    <span>Oak &amp; Pixel Studio &middot; hello@oakandpixel.co.za</span>
+    <span>Generated: ${new Date().toLocaleDateString('en-ZA')}</span>
+  </div>`;
+}
+
+function quoteTemplate(quote, client) {
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8">${_pdfStyles()}</head><body><div class="pdf-wrap">
+    ${_pdfHeader(quote.quote_number)}
+    ${_pdfClientBlock(client)}
+    <div class="pdf-title">${quote.service_name || 'Quotation'}</div>
+    <div class="pdf-subtitle">Quote &middot; ${compactDate(quote.quote_date)}</div>
+    <div class="pdf-tiles">
+      <div class="pdf-tile"><div class="pdf-tile-lbl">Quote Date</div><div class="pdf-tile-val">${compactDate(quote.quote_date)}</div></div>
+      <div class="pdf-tile"><div class="pdf-tile-lbl">Valid Until</div><div class="pdf-tile-val">${compactDate(quote.expiry_date) || '—'}</div></div>
+      <div class="pdf-tile"><div class="pdf-tile-lbl">Status</div><div class="pdf-tile-val">${quote.status}</div></div>
+    </div>
+    ${_pdfLineItems(quote)}
+    ${_pdfFooter()}
+  </div></body></html>`;
+}
+
+function invoiceTemplate(invoice, client) {
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8">${_pdfStyles()}</head><body><div class="pdf-wrap">
+    ${_pdfHeader(invoice.invoice_number)}
+    ${_pdfClientBlock(client)}
+    <div class="pdf-title">${invoice.service_name || 'Invoice'}</div>
+    <div class="pdf-subtitle">Invoice &middot; ${compactDate(invoice.invoice_date)}</div>
+    <div class="pdf-tiles">
+      <div class="pdf-tile"><div class="pdf-tile-lbl">Invoice Date</div><div class="pdf-tile-val">${compactDate(invoice.invoice_date)}</div></div>
+      <div class="pdf-tile"><div class="pdf-tile-lbl">Due Date</div><div class="pdf-tile-val">${compactDate(invoice.due_date) || '—'}</div></div>
+      <div class="pdf-tile"><div class="pdf-tile-lbl">Status</div><div class="pdf-tile-val">${invoice.payment_status}</div></div>
+    </div>
+    ${_pdfLineItems(invoice)}
+    ${_pdfFooter()}
+  </div></body></html>`;
+}
+
 function docNumber(prefix) {
   return `${prefix}-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(100 + Math.random() * 900)}`;
 }
