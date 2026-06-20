@@ -294,6 +294,18 @@ a{color:inherit;text-decoration:none;}
 .info-row span:last-child{text-align:right;color:var(--off-white);}
 .doc-list{display:grid;gap:.55rem;}
 .doc-row{border:1px solid var(--border);padding:.65rem .75rem;display:flex;justify-content:space-between;gap:1rem;align-items:center;}
+.data-table { width:100%; border-collapse:collapse; font-size:.82rem; }
+.data-table thead th { padding:.5rem .75rem; text-align:left; font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; color:var(--mist); border-bottom:1px solid var(--border); }
+.data-table tbody td { padding:.6rem .75rem; border-bottom:1px solid var(--border); }
+.data-table tbody tr:hover { background:rgba(245,244,241,.03); }
+.td-mono { font-family:var(--font-m); font-size:.78rem; }
+.td-actions { display:flex; gap:.4rem; }
+.btn-sm { padding:.2rem .55rem; font-size:.75rem; }
+.btn-danger { color:var(--err); }
+.page-toolbar { display:flex; gap:.75rem; align-items:center; flex-wrap:wrap; margin-bottom:1.25rem; }
+.filter-tabs { display:flex; gap:.25rem; }
+.filter-tab { background:none; border:1px solid var(--border); border-radius:4px; padding:.25rem .65rem; font-size:.75rem; color:var(--mist); cursor:pointer; font-family:var(--font-b); }
+.filter-tab.active, .filter-tab:hover { border-color:var(--gold); color:var(--gold); }
 .doc-title{font-family:var(--font-m);font-size:.66rem;color:var(--off-white);}
 .doc-meta{font-size:.66rem;color:rgba(245,244,241,.42);margin-top:.16rem;}
 .retainer-overview{margin:0 0 1.5rem;padding:1.1rem 1.3rem;background:var(--card);border:1px solid var(--border);display:grid;grid-template-columns:1.3fr repeat(5,1fr);gap:.8rem;align-items:center;}
@@ -956,6 +968,22 @@ a{color:inherit;text-decoration:none;}
 
       <section class="page" id="page-client-profile">
         <div id="client-profile-root"><p class="loading-row">Select a client to view their profile.</p></div>
+      </section>
+
+      <!-- ═══════════════════════════════════ QUOTES PAGE ═══════════════════════════════════ -->
+      <section class="page" id="page-quotes">
+        <div class="page-toolbar">
+          <input class="search-input" id="quotes-search" placeholder="Search quotes…" oninput="renderQuotesTable()">
+          <div class="filter-tabs" id="quotes-tabs">
+            <button class="filter-tab active" data-f="all" onclick="quotesFilter='all';renderQuotesTable()">All</button>
+            <button class="filter-tab" data-f="Draft" onclick="quotesFilter='Draft';renderQuotesTable()">Draft</button>
+            <button class="filter-tab" data-f="Sent" onclick="quotesFilter='Sent';renderQuotesTable()">Sent</button>
+            <button class="filter-tab" data-f="Accepted" onclick="quotesFilter='Accepted';renderQuotesTable()">Accepted</button>
+            <button class="filter-tab" data-f="Declined" onclick="quotesFilter='Declined';renderQuotesTable()">Declined</button>
+          </div>
+          <button class="btn-add" onclick="openClientDocumentModal('quote',null)" id="quotes-new-btn">+ New Quote</button>
+        </div>
+        <div id="quotes-table-root"></div>
       </section>
 
     </div><!-- /page-content -->
@@ -2956,6 +2984,101 @@ async function renderServiceDetail() {
       </div>
     </div>
   `;
+}
+
+function renderQuotesTable() {
+  const root = $('quotes-table-root');
+  if (!root) return;
+  if (!financeSchemaReady) { root.innerHTML = schemaNotice('Apply migration 003 to enable quotes.'); return; }
+  const search = ($('quotes-search')?.value || '').toLowerCase();
+  const rows = allQuotes.filter(q => {
+    if (quotesFilter !== 'all' && q.status !== quotesFilter) return false;
+    if (search) {
+      const client = allClients.find(c => c.id === q.client_id) || {};
+      return (q.quote_number || '').toLowerCase().includes(search) || clientDisplayName(client).toLowerCase().includes(search);
+    }
+    return true;
+  });
+  if (!rows.length) { root.innerHTML = emptyState('No quotes found'); return; }
+  root.innerHTML = `<table class="data-table">
+    <thead><tr><th>Quote #</th><th>Client</th><th>Service</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+    <tbody>${rows.map(q => {
+      const client = allClients.find(c => c.id === q.client_id) || {};
+      const badgeCls = { Draft:'', Sent:'badge-pending', Accepted:'badge-confirmed', Declined:'badge-declined', Expired:'' }[q.status] || '';
+      return `<tr>
+        <td class="td-mono">${esc(q.quote_number)}</td>
+        <td>${esc(clientDisplayName(client))}</td>
+        <td>${esc(q.service_name || '—')}</td>
+        <td>${money(q.total_amount)}</td>
+        <td><span class="badge ${badgeCls}">${esc(q.status)}</span></td>
+        <td>${compactDate(q.quote_date)}</td>
+        <td class="td-actions">
+          <button class="btn-ghost btn-sm" onclick="openEditQuoteModal('${q.id}')">Edit</button>
+          <button class="btn-ghost btn-sm" onclick="downloadQuotePDF('${q.id}')">PDF</button>
+          <button class="btn-ghost btn-sm btn-danger" onclick="deleteQuote('${q.id}')">Delete</button>
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+async function downloadQuotePDF(quoteId) {
+  const quote = allQuotes.find(q => q.id === quoteId);
+  if (!quote) return;
+  const client = allClients.find(c => c.id === quote.client_id) || {};
+  await generatePDF(quoteTemplate(quote, client), `${quote.quote_number}.pdf`);
+}
+
+async function deleteQuote(quoteId) {
+  if (!confirm('Delete this quote? This cannot be undone.')) return;
+  const { error } = await sb.from('quotes').delete().eq('id', quoteId);
+  if (error) { toast('Error deleting quote.'); return; }
+  toast('Quote deleted.');
+  await loadQuotes();
+}
+
+function openEditQuoteModal(quoteId) {
+  const quote = allQuotes.find(q => q.id === quoteId);
+  if (!quote) return;
+  const client = allClients.find(c => c.id === quote.client_id) || {};
+  showModal(`
+    <div class="modal-hdr">
+      <span class="modal-title">Edit Quote</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-field full"><label>Quote Number</label><input readonly value="${esc(quote.quote_number)}"></div>
+      <div class="modal-field full"><label>Client</label><input readonly value="${esc(clientDisplayName(client))}"></div>
+      <div class="modal-field"><label>Status</label><select id="eq-status">${DOC_STATUSES.map(s => `<option value="${s}" ${s===quote.status?'selected':''}>${s}</option>`).join('')}</select></div>
+      <div class="modal-field"><label>Quote Date</label><input id="eq-date" type="date" value="${quote.quote_date || ''}"></div>
+      <div class="modal-field"><label>Expiry Date</label><input id="eq-due" type="date" value="${quote.expiry_date || ''}"></div>
+      <div class="modal-field"><label>Setup Fee (R)</label><input id="eq-setup" type="number" value="${quote.setup_fee || 0}"></div>
+      <div class="modal-field"><label>Monthly Retainer (R)</label><input id="eq-retainer" type="number" value="${quote.monthly_retainer || 0}"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-add" onclick="updateQuote('${quoteId}')">Save Changes</button>
+    </div>
+  `);
+  $('modal-box').classList.add('wide');
+}
+
+async function updateQuote(quoteId) {
+  const setup = Math.max(0, parseInt($('eq-setup').value) || 0);
+  const retainer = Math.max(0, parseInt($('eq-retainer').value) || 0);
+  const total = setup + retainer;
+  const { error } = await sb.from('quotes').update({
+    status: $('eq-status').value,
+    quote_date: $('eq-date').value,
+    expiry_date: $('eq-due').value,
+    setup_fee: setup,
+    monthly_retainer: retainer,
+    total_amount: total
+  }).eq('id', quoteId);
+  if (error) { toast('Error updating quote.'); return; }
+  closeModal();
+  toast('Quote updated.');
+  await loadQuotes();
 }
 
 function documentRows(rows, type) {
