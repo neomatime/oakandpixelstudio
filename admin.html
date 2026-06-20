@@ -968,6 +968,17 @@ let selectedServiceId = null;
 let serviceFinanceReady = true;
 let selectedClientId = null;
 let financeSchemaReady = true;
+let allRetainers = [];
+let allProposals = [];
+let allScopes = [];
+let allWelcomeLetters = [];
+let proposalSchemaReady = true;
+let retainerSchemaReady = true;
+let docFilter = 'all';
+let docSearch = '';
+let quotesFilter = 'all';
+let invoicesFilter = 'all';
+let showArchived = false;
 let clientProfileSchemaReady = true;
 let bookingSearch = '';
 let contactFilter = 'all';
@@ -1252,7 +1263,7 @@ $('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') $(
 $('logout-btn').addEventListener('click', () => sb.auth.signOut());
 
 /* ── Navigation ── */
-const PAGE_TITLES = { overview:'Overview', bookings:'Bookings', availability:'Availability', projects:'Projects', services:'Services', 'service-detail':'Service Details', contacts:'Contacts', clients:'Clients', 'client-profile':'Client Profile' };
+const PAGE_TITLES = { overview:'Overview', bookings:'Bookings', availability:'Availability', projects:'Projects', services:'Services', 'service-detail':'Service Details', contacts:'Contacts', clients:'Clients', 'client-profile':'Client Profile', quotes:'Quotes', invoices:'Invoices', retainers:'Retainers', documents:'Documents', 'proposal-editor':'Proposal', 'sow-editor':'Scope of Work' };
 
 document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
   btn.addEventListener('click', () => switchPage(btn.dataset.page));
@@ -1289,7 +1300,7 @@ document.addEventListener('keydown', e => {
 /* ── Load all data ── */
 async function loadAll() {
   startLoad();
-  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadContacts(), loadClients(), loadProjects(), loadRecentActivity(), loadRetainerOverview()]);
+  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadContacts(), loadClients(), loadProjects(), loadRecentActivity(), loadRetainerOverview(), loadQuotes(), loadInvoices(), loadRetainers(), loadProposals(), loadScopes(), loadWelcomeLetters()]);
   endLoad();
 }
 
@@ -1359,6 +1370,44 @@ async function loadRetainerOverview() {
   $('stat-overdue-retainers').textContent = overdue;
   $('stat-upcoming-collections').textContent = upcoming;
   $('stat-outstanding-invoices').textContent = money(outstanding);
+}
+async function loadQuotes() {
+  if (!financeSchemaReady) return;
+  const { data, error } = await sb.from('quotes').select('*').order('created_at', { ascending: false });
+  if (error) { if (isSchemaError(error)) financeSchemaReady = false; return; }
+  allQuotes = data || [];
+  renderQuotesTable();
+}
+async function loadInvoices() {
+  if (!financeSchemaReady) return;
+  const { data, error } = await sb.from('invoices').select('*').order('created_at', { ascending: false });
+  if (error) { if (isSchemaError(error)) financeSchemaReady = false; return; }
+  allInvoices = data || [];
+  renderInvoicesTable();
+}
+async function loadRetainers() {
+  if (!financeSchemaReady) return;
+  const { data, error } = await sb.from('retainers').select('*').order('created_at', { ascending: false });
+  if (error) { if (isSchemaError(error)) retainerSchemaReady = false; return; }
+  allRetainers = data || [];
+  renderRetainersTable();
+}
+async function loadProposals() {
+  const { data, error } = await sb.from('proposals').select('*').order('created_at', { ascending: false });
+  if (error) { if (isSchemaError(error)) proposalSchemaReady = false; return; }
+  allProposals = data || [];
+}
+async function loadScopes() {
+  if (!proposalSchemaReady) return;
+  const { data, error } = await sb.from('scopes').select('*').order('created_at', { ascending: false });
+  if (error) return;
+  allScopes = data || [];
+}
+async function loadWelcomeLetters() {
+  if (!proposalSchemaReady) return;
+  const { data, error } = await sb.from('welcome_letters').select('*').order('created_at', { ascending: false });
+  if (error) return;
+  allWelcomeLetters = data || [];
 }
 
 async function loadRecentActivity() {
