@@ -2990,6 +2990,9 @@ function renderQuotesTable() {
   const root = $('quotes-table-root');
   if (!root) return;
   if (!financeSchemaReady) { root.innerHTML = schemaNotice('Apply migration 003 to enable quotes.'); return; }
+  document.querySelectorAll('#quotes-tabs .filter-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.f === quotesFilter);
+  });
   const search = ($('quotes-search')?.value || '').toLowerCase();
   const rows = allQuotes.filter(q => {
     if (quotesFilter !== 'all' && q.status !== quotesFilter) return false;
