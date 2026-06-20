@@ -205,6 +205,10 @@ a{color:inherit;text-decoration:none;}
 .badge-pending{background:var(--gold-dim);color:var(--gold);}
 .badge-confirmed{background:var(--ok-dim);color:var(--ok);}
 .badge-declined{background:var(--err-dim);color:var(--err);}
+.badge-gold { background:rgba(184,149,90,.15); color:var(--gold); border-color:rgba(184,149,90,.3); }
+.badge-amber { background:rgba(196,150,58,.15); color:var(--amber); border-color:rgba(196,150,58,.3); }
+.badge-emerald { background:rgba(26,92,58,.25); color:var(--ok); border-color:rgba(26,92,58,.4); }
+.badge-ok { background:rgba(90,158,111,.15); color:var(--ok); border-color:rgba(90,158,111,.3); }
 
 /* ── ACT BUTTONS ──────────────────────────── */
 .act-btn{background:none;border:1px solid var(--border);color:rgba(245,244,241,.38);font-family:var(--font-m);font-size:.53rem;letter-spacing:.08em;text-transform:uppercase;padding:.28rem .6rem;transition:all .2s;}
@@ -1012,6 +1016,26 @@ a{color:inherit;text-decoration:none;}
           <div class="stat-card"><div class="stat-label">Outstanding</div><div class="stat-value" id="rm-overdue">0</div></div>
         </div>
         <div id="retainers-table-root"></div>
+      </section>
+
+      <!-- ══════════════════════════════════ DOCUMENTS PAGE ══════════════════════════════════ -->
+      <section class="page" id="page-documents">
+        <div class="page-toolbar">
+          <input class="search-input" id="doc-hub-search" placeholder="Search documents…" oninput="renderDocumentsTable()">
+          <div class="filter-tabs">
+            <button class="filter-tab active" onclick="docFilter='all';renderDocumentsTable()">All</button>
+            <button class="filter-tab" onclick="docFilter='Quote';renderDocumentsTable()">Quotes</button>
+            <button class="filter-tab" onclick="docFilter='Invoice';renderDocumentsTable()">Invoices</button>
+            <button class="filter-tab" onclick="docFilter='Proposal';renderDocumentsTable()">Proposals</button>
+            <button class="filter-tab" onclick="docFilter='SOW';renderDocumentsTable()">SOW</button>
+            <button class="filter-tab" onclick="docFilter='Welcome Letter';renderDocumentsTable()">Welcome Letters</button>
+            <button class="filter-tab" onclick="docFilter='__retainer-statements';renderDocumentsTable()">Retainer Statements</button>
+            <button class="filter-tab" onclick="docFilter='__project-briefs';renderDocumentsTable()">Project Briefs</button>
+            <button class="filter-tab" onclick="docFilter='__completion';renderDocumentsTable()">Completion Reports</button>
+          </div>
+          <label class="filter-tab" style="cursor:pointer"><input type="checkbox" id="doc-show-archived" onchange="showArchived=this.checked;renderDocumentsTable()" style="margin-right:.3rem">Archived</label>
+        </div>
+        <div id="doc-hub-root"></div>
       </section>
 
     </div><!-- /page-content -->
@@ -3012,6 +3036,67 @@ async function renderServiceDetail() {
       </div>
     </div>
   `;
+}
+
+function buildDocumentList() {
+  return [
+    ...allQuotes.map(q => ({ ...q, _type:'Quote', _num:q.quote_number, _date:q.quote_date, _status:q.status, _title:q.service_name||'Quote' })),
+    ...allInvoices.map(i => ({ ...i, _type:'Invoice', _num:i.invoice_number, _date:i.invoice_date, _status:i.payment_status, _title:i.service_name||'Invoice' })),
+    ...allProposals.map(p => ({ ...p, _type:'Proposal', _num:p.proposal_number, _date:p.proposal_date, _status:p.status, _title:p.title||'Proposal' })),
+    ...allScopes.map(s => ({ ...s, _type:'SOW', _num:s.scope_number, _date:s.scope_date, _status:s.status, _title:s.title||'Scope of Work' })),
+    ...allWelcomeLetters.map(w => ({ ...w, _type:'Welcome Letter', _num:w.letter_number, _date:w.created_at, _status:w.status, _title:'Welcome Letter' })),
+  ].sort((a,b) => new Date(b._date) - new Date(a._date));
+}
+
+function renderDocumentsTable() {
+  const root = $('doc-hub-root');
+  if (!root) return;
+  if (['__retainer-statements','__project-briefs','__completion'].includes(docFilter)) {
+    root.innerHTML = emptyState('Coming soon', 'This document type will be available in a future update.');
+    return;
+  }
+  const search = ($('doc-hub-search')?.value || '').toLowerCase();
+  let rows = buildDocumentList();
+  if (!showArchived) rows = rows.filter(r => !r.archived);
+  if (docFilter !== 'all') rows = rows.filter(r => r._type === docFilter);
+  if (search) rows = rows.filter(r => {
+    const client = allClients.find(c => c.id === r.client_id) || {};
+    return (r._num||'').toLowerCase().includes(search) || clientDisplayName(client).toLowerCase().includes(search) || (r._title||'').toLowerCase().includes(search);
+  });
+  if (!rows.length) { root.innerHTML = emptyState('No documents found'); return; }
+  const typeBadge = { Quote:'badge-gold', Invoice:'badge-amber', Proposal:'badge-emerald', SOW:'badge-ok', 'Welcome Letter':'' };
+  root.innerHTML = `<table class="data-table">
+    <thead><tr><th>#</th><th>Type</th><th>Client</th><th>Title</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${rows.map(r => {
+      const client = allClients.find(c => c.id === r.client_id) || {};
+      return `<tr ${r.archived ? 'style="opacity:.5"' : ''}>
+        <td class="td-mono">${esc(r._num||'—')}</td>
+        <td><span class="badge ${typeBadge[r._type]||''}">${esc(r._type)}</span></td>
+        <td>${esc(clientDisplayName(client))}</td>
+        <td>${esc(r._title)}</td>
+        <td>${esc(compactDate(r._date) || '—')}</td>
+        <td>${esc(r._status||'—')}</td>
+        <td class="td-actions">
+          ${r._type==='Proposal' ? `<button class="btn-ghost btn-sm" onclick="openProposalEditor('${r.id}',null,null)">View</button>` : ''}
+          ${r._type==='SOW' ? `<button class="btn-ghost btn-sm" onclick="openSOWEditor('${r.id}',null)">View</button>` : ''}
+          ${r._type==='Quote' ? `<button class="btn-ghost btn-sm" onclick="downloadQuotePDF('${r.id}')">PDF</button>` : ''}
+          ${r._type==='Invoice' ? `<button class="btn-ghost btn-sm" onclick="downloadInvoicePDF('${r.id}')">PDF</button>` : ''}
+          ${!r.archived ? `<button class="btn-ghost btn-sm" onclick="archiveDocument('${r._type}','${r.id}')">Archive</button>` : ''}
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+async function archiveDocument(type, id) {
+  const tableMap = { Quote:'quotes', Invoice:'invoices', Proposal:'proposals', SOW:'scopes', 'Welcome Letter':'welcome_letters' };
+  const table = tableMap[type];
+  if (!table) return;
+  const { error } = await sb.from(table).update({ archived: true }).eq('id', id);
+  if (error) { toast('Error archiving document.'); return; }
+  toast('Document archived.');
+  await Promise.all([loadQuotes(), loadInvoices(), loadProposals(), loadScopes(), loadWelcomeLetters()]);
+  renderDocumentsTable();
 }
 
 function computeRetainerMetrics() {
