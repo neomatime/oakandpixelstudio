@@ -2707,11 +2707,11 @@ async function renderServiceDetail() {
     sb.from('invoices').select('*').eq('service_id', service.id).order('created_at', { ascending: false }).limit(8)
   ]) : [{ data: [], error: null }, { data: [], error: null }];
   if (quotesRes.error || invoicesRes.error) financeSchemaReady = false;
-  allQuotes = quotesRes.data || [];
-  allInvoices = invoicesRes.data || [];
+  const serviceQuotes = quotesRes.data || [];
+  const serviceInvoices = invoicesRes.data || [];
   const associatedClientNames = [...new Set([
-    ...allQuotes.map(q => clientDisplayName(allClients.find(c => c.id === q.client_id) || {})).filter(Boolean),
-    ...allInvoices.map(i => clientDisplayName(allClients.find(c => c.id === i.client_id) || {})).filter(Boolean)
+    ...serviceQuotes.map(q => clientDisplayName(allClients.find(c => c.id === q.client_id) || {})).filter(Boolean),
+    ...serviceInvoices.map(i => clientDisplayName(allClients.find(c => c.id === i.client_id) || {})).filter(Boolean)
   ])];
   root.innerHTML = `
     <div class="detail-toolbar">
@@ -2744,12 +2744,12 @@ async function renderServiceDetail() {
         </div>
       </div>
       <div class="mini-panel">
-        <div class="mini-panel-head"><span class="mini-panel-title">Quotes</span><span class="badge badge-pending">${allQuotes.length}</span></div>
-        <div class="mini-panel-body doc-list">${documentRows(allQuotes, 'quote') || '<p class="td-dim">No quotes generated yet.</p>'}</div>
+        <div class="mini-panel-head"><span class="mini-panel-title">Quotes</span><span class="badge badge-pending">${serviceQuotes.length}</span></div>
+        <div class="mini-panel-body doc-list">${documentRows(serviceQuotes, 'quote') || '<p class="td-dim">No quotes generated yet.</p>'}</div>
       </div>
       <div class="mini-panel">
-        <div class="mini-panel-head"><span class="mini-panel-title">Invoices</span><span class="badge badge-pending">${allInvoices.length}</span></div>
-        <div class="mini-panel-body doc-list">${documentRows(allInvoices, 'invoice') || '<p class="td-dim">No invoices generated yet.</p>'}</div>
+        <div class="mini-panel-head"><span class="mini-panel-title">Invoices</span><span class="badge badge-pending">${serviceInvoices.length}</span></div>
+        <div class="mini-panel-body doc-list">${documentRows(serviceInvoices, 'invoice') || '<p class="td-dim">No invoices generated yet.</p>'}</div>
       </div>
     </div>
   `;
@@ -2990,7 +2990,7 @@ async function saveDocumentWithClient(type, serviceId, clientId) {
   }
   closeModal();
   toast(isQuote ? 'Quote generated.' : 'Invoice generated.');
-  await Promise.all([selectedServiceId ? renderServiceDetail() : Promise.resolve(), selectedClientId ? renderClientProfile() : Promise.resolve(), loadRetainerOverview()]);
+  await Promise.all([selectedServiceId ? renderServiceDetail() : Promise.resolve(), selectedClientId ? renderClientProfile() : Promise.resolve(), loadRetainerOverview(), loadQuotes(), loadInvoices()]);
 }
 
 $('add-svc-btn').addEventListener('click', async () => {
