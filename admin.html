@@ -1288,6 +1288,79 @@ function invoiceTemplate(invoice, client) {
   </div></body></html>`;
 }
 
+function proposalTemplate(proposal, client) {
+  const sections = [
+    { title: 'Executive Summary', body: proposal.executive_summary },
+    { title: 'Challenges', body: proposal.challenges },
+    { title: 'Our Solution', body: proposal.solution },
+    { title: 'Deliverables', body: proposal.deliverables },
+    { title: 'Timeline', body: proposal.timeline },
+    { title: 'Next Steps', body: proposal.next_steps }
+  ].filter(s => s.body);
+  const investmentHTML = `<div class="pdf-section-title">Investment</div>
+    <table class="pdf-items">
+      <thead><tr><th>Item</th><th style="text-align:right">Amount</th></tr></thead>
+      <tbody>
+        ${Number(proposal.setup_fee) > 0 ? `<tr><td>Setup Fee</td><td style="text-align:right">${money(proposal.setup_fee)}</td></tr>` : ''}
+        ${Number(proposal.monthly_retainer) > 0 ? `<tr><td>Monthly Retainer</td><td style="text-align:right">${money(proposal.monthly_retainer)}</td></tr>` : ''}
+        <tr class="total"><td>Total</td><td style="text-align:right">${money(proposal.total_amount)}</td></tr>
+      </tbody>
+    </table>`;
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8">${_pdfStyles()}</head><body><div class="pdf-wrap">
+    ${_pdfHeader(proposal.proposal_number)}
+    ${_pdfClientBlock(client)}
+    <div class="pdf-title">${esc(proposal.title || 'Proposal')}</div>
+    <div class="pdf-subtitle">Proposal &middot; ${compactDate(proposal.proposal_date)}</div>
+    ${sections.map(s => `<div class="pdf-section-title">${esc(s.title)}</div><div class="pdf-body-text">${esc(s.body).replace(/\n/g,'<br>')}</div>`).join('')}
+    ${investmentHTML}
+    ${_pdfFooter()}
+  </div></body></html>`;
+}
+
+function sowTemplate(scope, client, proposal) {
+  const sections = [
+    { title: 'Deliverables', body: scope.deliverables },
+    { title: 'Milestones', body: scope.milestones },
+    { title: 'Timeline', body: scope.timeline },
+    { title: 'Responsibilities', body: scope.responsibilities },
+    { title: 'Assumptions', body: scope.assumptions },
+    { title: 'Exclusions', body: scope.exclusions }
+  ].filter(s => s.body);
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8">${_pdfStyles()}</head><body><div class="pdf-wrap">
+    ${_pdfHeader(scope.scope_number)}
+    ${_pdfClientBlock(client)}
+    <div class="pdf-title">${esc(scope.title || 'Scope of Work')}</div>
+    <div class="pdf-subtitle">SOW &middot; ${compactDate(scope.scope_date)}${proposal ? ` &middot; Ref: ${proposal.proposal_number}` : ''}</div>
+    ${sections.map((s,i) => `<div class="pdf-section-title">${i+1}. ${esc(s.title)}</div><div class="pdf-body-text">${esc(s.body).replace(/\n/g,'<br>')}</div>`).join('')}
+    <div class="pdf-sig-block">
+      <div class="pdf-sig-col"><strong>Oak &amp; Pixel Studio</strong><br><br><br>Signature &amp; Date</div>
+      <div class="pdf-sig-col"><strong>${esc(client.company || client.full_name || 'Client')}</strong><br><br><br>Signature &amp; Date</div>
+    </div>
+    ${_pdfFooter()}
+  </div></body></html>`;
+}
+
+function welcomeLetterTemplate(letter, client) {
+  const services = (letter.assigned_services || []).map(esc).join(', ') || '—';
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8">${_pdfStyles()}</head><body><div class="pdf-wrap">
+    ${_pdfHeader(letter.letter_number)}
+    ${_pdfClientBlock(client)}
+    <div class="pdf-title">Welcome to Oak &amp; Pixel Studio</div>
+    <div class="pdf-subtitle">Welcome Letter &middot; ${compactDate(letter.created_at)}</div>
+    <div class="pdf-body-text">${esc(letter.welcome_message || '').replace(/\n/g,'<br>')}</div>
+    <table class="pdf-items" style="margin-bottom:1rem">
+      <thead><tr><th>Detail</th><th>Information</th></tr></thead>
+      <tbody>
+        <tr><td>Plan</td><td>${esc(client.selected_plan || '—')}</td></tr>
+        <tr><td>Start Date</td><td>${compactDate(client.project_start_date) || '—'}</td></tr>
+        <tr><td>Services</td><td>${services}</td></tr>
+      </tbody>
+    </table>
+    ${letter.important_info ? `<div class="pdf-section-title">Important Information</div><div class="pdf-body-text">${esc(letter.important_info).replace(/\n/g,'<br>')}</div>` : ''}
+    ${_pdfFooter()}
+  </div></body></html>`;
+}
+
 function docNumber(prefix) {
   return `${prefix}-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(100 + Math.random() * 900)}`;
 }
