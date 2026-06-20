@@ -3289,8 +3289,9 @@ function openSOWEditor(scopeId, proposalId) {
   _currentScopeProposalId = proposalId || null;
   switchPage('sow-editor');
   if ($('sow-date')) $('sow-date').value = todayStr();
-  const proposal = proposalId ? allProposals.find(p => p.id === proposalId) : null;
   const scope = scopeId ? allScopes.find(s => s.id === scopeId) : null;
+  const effectiveProposalId = (scope && scope.proposal_id) ? scope.proposal_id : proposalId;
+  const proposal = effectiveProposalId ? allProposals.find(p => p.id === effectiveProposalId) : null;
   const linked = $('sow-linked-proposal');
   if (linked) linked.textContent = proposal ? `Linked Proposal: ${proposal.proposal_number}` : '';
   const backBtn = $('sow-back-btn');
@@ -3305,12 +3306,15 @@ function openSOWEditor(scopeId, proposalId) {
     $('sow-exclusions').value = scope.exclusions || '';
     if ($('sow-status')) $('sow-status').value = scope.status || 'Draft';
     if ($('sow-date')) $('sow-date').value = scope.scope_date || todayStr();
-    _currentScopeProposalId = scope.proposal_id || proposalId;
+    _currentScopeProposalId = effectiveProposalId;
   } else if (proposal) {
     $('sow-title').value = proposal.title ? `SOW — ${proposal.title}` : '';
     $('sow-deliverables').value = proposal.deliverables || '';
     $('sow-timeline').value = proposal.timeline || '';
     ['sow-milestones','sow-responsibilities','sow-assumptions','sow-exclusions'].forEach(id => { if ($(id)) $(id).value = ''; });
+    if ($('sow-status')) $('sow-status').value = 'Draft';
+  } else {
+    ['sow-title','sow-deliverables','sow-milestones','sow-timeline','sow-responsibilities','sow-assumptions','sow-exclusions'].forEach(id => { if ($(id)) $(id).value = ''; });
     if ($('sow-status')) $('sow-status').value = 'Draft';
   }
 }
@@ -3359,7 +3363,7 @@ async function downloadSOWPDF() {
   if (!scope) return;
   const proposal = scope.proposal_id ? allProposals.find(p => p.id === scope.proposal_id) : null;
   const client = proposal ? allClients.find(c => c.id === proposal.client_id) || {} : {};
-  await generatePDF(sowTemplate(scope, proposal, client), `${scope.scope_number}.pdf`);
+  await generatePDF(sowTemplate(scope, client, proposal), `${scope.scope_number}.pdf`);
 }
 
 function openSOWEditorFromProposal() {
