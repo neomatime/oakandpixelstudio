@@ -3116,6 +3116,142 @@ async function renderServiceDetail() {
   `;
 }
 
+let _currentProposalId = null;
+let _proposalBackContext = null;
+
+function openProposalEditor(proposalId, clientId, serviceId) {
+  _currentProposalId = proposalId || null;
+  _proposalBackContext = clientId ? { type:'client', id:clientId } : { type:'documents' };
+  const proposal = proposalId ? allProposals.find(p => p.id === proposalId) : null;
+  switchPage('proposal-editor');
+  const dateVal = proposal ? proposal.proposal_date : todayStr();
+  const expiryVal = proposal ? (proposal.expiry_date || '') : addDays(todayStr(), 30);
+  if ($('pe-date')) $('pe-date').value = dateVal;
+  if ($('pe-expiry')) $('pe-expiry').value = expiryVal;
+  const clientSel = $('pe-client');
+  if (clientSel) { clientSel.innerHTML = '<option value="">— Select Client —</option>' + allClients.map(c => `<option value="${c.id}">${esc(c.company || c.full_name || 'Unnamed')}</option>`).join(''); }
+  const svcSel = $('pe-service');
+  if (svcSel) { svcSel.innerHTML = '<option value="">— Select Service —</option>' + allServices.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join(''); }
+  if (proposal) {
+    $('pe-summary').value = proposal.executive_summary || '';
+    $('pe-challenges').value = proposal.challenges || '';
+    $('pe-solution').value = proposal.solution || '';
+    $('pe-deliverables').value = proposal.deliverables || '';
+    $('pe-timeline').value = proposal.timeline || '';
+    $('pe-investment').value = proposal.investment || '';
+    $('pe-next-steps').value = proposal.next_steps || '';
+    $('pe-setup').value = proposal.setup_fee || 0;
+    $('pe-retainer').value = proposal.monthly_retainer || 0;
+    $('pe-title').value = proposal.title || '';
+    if ($('pe-status')) $('pe-status').value = proposal.status || 'Draft';
+    if ($('pe-client') && proposal.client_id) $('pe-client').value = proposal.client_id;
+    if ($('pe-service') && proposal.service_id) $('pe-service').value = proposal.service_id;
+    const showSOW = proposal.status === 'Approved';
+    if ($('pe-gen-sow-btn')) $('pe-gen-sow-btn').style.display = showSOW ? '' : 'none';
+  } else {
+    ['pe-summary','pe-challenges','pe-solution','pe-deliverables','pe-timeline','pe-investment','pe-next-steps','pe-title'].forEach(id => { if ($(id)) $(id).value = ''; });
+    if ($('pe-setup')) $('pe-setup').value = 0;
+    if ($('pe-retainer')) $('pe-retainer').value = 0;
+    if ($('pe-status')) $('pe-status').value = 'Draft';
+    if ($('pe-gen-sow-btn')) $('pe-gen-sow-btn').style.display = 'none';
+    if (clientId && $('pe-client')) $('pe-client').value = clientId;
+    if (serviceId && $('pe-service')) { $('pe-service').value = serviceId; syncProposalPricing(); }
+  }
+  updateProposalTotal();
+  const backBtn = $('proposal-back-btn');
+  if (backBtn) {
+    if (clientId) {
+      const client = allClients.find(c => c.id === clientId) || {};
+      backBtn.textContent = `← Back to ${clientDisplayName(client) || 'Client'}`;
+    } else {
+      backBtn.textContent = '← Back to Documents';
+    }
+  }
+}
+
+function proposalGoBack() {
+  if (_proposalBackContext?.type === 'client') {
+    selectedClientId = _proposalBackContext.id;
+    switchPage('client-profile');
+    renderClientProfile();
+  } else {
+    switchPage('documents');
+    renderDocumentsTable();
+  }
+}
+
+function updateProposalTotal() {
+  const setup = Math.max(0, parseInt($('pe-setup')?.value) || 0);
+  const ret = Math.max(0, parseInt($('pe-retainer')?.value) || 0);
+  if ($('pe-total')) $('pe-total').textContent = `Total: ${money(setup + ret)}`;
+}
+
+function syncProposalPricing() {
+  const serviceId = $('pe-service')?.value;
+  if (!serviceId) return;
+  const service = allServices.find(s => s.id === serviceId);
+  if (!service) return;
+  if ($('pe-setup')) $('pe-setup').value = service.setup_fee || 0;
+  if ($('pe-retainer')) $('pe-retainer').value = service.monthly_retainer || 0;
+  updateProposalTotal();
+}
+
+function syncProposalService() {}
+
+async function saveProposal(redirect) {
+  const title = $('pe-title')?.value.trim();
+  if (!title) { toast('Add a title first.'); return; }
+  const clientId = $('pe-client')?.value;
+  if (!clientId) { toast('Select a client.'); return; }
+  const setup = Math.max(0, parseInt($('pe-setup')?.value) || 0);
+  const ret = Math.max(0, parseInt($('pe-retainer')?.value) || 0);
+  const payload = {
+    title,
+    client_id: clientId,
+    service_id: $('pe-service')?.value || null,
+    status: $('pe-status')?.value || 'Draft',
+    proposal_date: $('pe-date')?.value || todayStr(),
+    expiry_date: $('pe-expiry')?.value || null,
+    executive_summary: $('pe-summary')?.value || null,
+    challenges: $('pe-challenges')?.value || null,
+    solution: $('pe-solution')?.value || null,
+    deliverables: $('pe-deliverables')?.value || null,
+    timeline: $('pe-timeline')?.value || null,
+    investment: $('pe-investment')?.value || null,
+    next_steps: $('pe-next-steps')?.value || null,
+    setup_fee: setup,
+    monthly_retainer: ret,
+    total_amount: setup + ret
+  };
+  let error;
+  if (_currentProposalId) {
+    ({ error } = await sb.from('proposals').update(payload).eq('id', _currentProposalId));
+  } else {
+    payload.proposal_number = docNumber('PROP');
+    const res = await sb.from('proposals').insert(payload).select().single();
+    error = res.error;
+    if (!error) _currentProposalId = res.data.id;
+  }
+  if (error) { toast('Error saving proposal.'); console.error(error); return; }
+  toast('Proposal saved.');
+  const showSOW = payload.status === 'Approved';
+  if ($('pe-gen-sow-btn')) $('pe-gen-sow-btn').style.display = showSOW ? '' : 'none';
+  await loadProposals();
+}
+
+async function downloadProposalPDF() {
+  await saveProposal(false);
+  const proposal = allProposals.find(p => p.id === _currentProposalId);
+  if (!proposal) return;
+  const client = allClients.find(c => c.id === proposal.client_id) || {};
+  await generatePDF(proposalTemplate(proposal, client), `${proposal.proposal_number}.pdf`);
+}
+
+function openSOWEditorFromProposal() {
+  if (!_currentProposalId) return;
+  openSOWEditor(null, _currentProposalId);
+}
+
 function buildDocumentList() {
   return [
     ...allQuotes.map(q => ({ ...q, _type:'Quote', _num:q.quote_number, _date:q.quote_date, _status:q.status, _title:q.service_name||'Quote' })),
