@@ -1251,6 +1251,12 @@ body.sidebar-collapsed .btn-signout::before{
         <div class="mini-panel-body">
           <div id="sow-linked-proposal" class="td-dim" style="margin-bottom:.75rem;font-size:.78rem"></div>
           <div class="modal-body" style="padding:0">
+            <div class="modal-field full">
+              <label>Load Blueprint</label>
+              <select id="sow-blueprint-select" onchange="loadSOWBlueprint(this.value)" style="font-size:.78rem">
+                <option value="">— select a blueprint —</option>
+              </select>
+            </div>
             <div class="modal-field full"><label>Title</label><input id="sow-title" placeholder="Scope of Work title…"></div>
             <div class="modal-field"><label>Status</label><select id="sow-status">
               <option value="Draft">Draft</option><option value="Sent">Sent</option><option value="Approved">Approved</option>
@@ -1283,6 +1289,7 @@ body.sidebar-collapsed .btn-signout::before{
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="sow-blueprints.js"></script>
 <script>
 'use strict';
 const SB_URL = 'https://wdbsmcxzhmdkfjoftulm.supabase.co';
@@ -4360,10 +4367,45 @@ async function downloadProposalPDF() {
 let _currentScopeId = null;
 let _currentScopeProposalId = null;
 
+function initSOWBlueprintSelect() {
+  const sel = $('sow-blueprint-select');
+  if (!sel || typeof SOW_BLUEPRINT_GROUPS === 'undefined') return;
+  sel.innerHTML = '<option value="">— select a blueprint —</option>';
+  SOW_BLUEPRINT_GROUPS.forEach(group => {
+    const og = document.createElement('optgroup');
+    og.label = group.label;
+    group.keys.forEach(key => {
+      const bp = SOW_BLUEPRINTS[key];
+      if (!bp) return;
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = bp.label;
+      og.appendChild(opt);
+    });
+    sel.appendChild(og);
+  });
+}
+
+function loadSOWBlueprint(key) {
+  if (!key || typeof SOW_BLUEPRINTS === 'undefined') return;
+  const bp = SOW_BLUEPRINTS[key];
+  if (!bp) return;
+  if ($('sow-title') && !$('sow-title').value) $('sow-title').value = bp.title;
+  if ($('sow-deliverables')) $('sow-deliverables').value = bp.deliverables;
+  if ($('sow-milestones'))   $('sow-milestones').value   = bp.milestones;
+  if ($('sow-timeline'))     $('sow-timeline').value     = bp.timeline;
+  if ($('sow-responsibilities')) $('sow-responsibilities').value = bp.responsibilities;
+  if ($('sow-assumptions'))  $('sow-assumptions').value  = bp.assumptions;
+  if ($('sow-exclusions'))   $('sow-exclusions').value   = bp.exclusions;
+  toast(`Blueprint loaded: ${bp.label}`);
+}
+
 function openSOWEditor(scopeId, proposalId) {
   _currentScopeId = scopeId || null;
   _currentScopeProposalId = proposalId || null;
   switchPage('sow-editor');
+  initSOWBlueprintSelect();
+  if ($('sow-blueprint-select')) $('sow-blueprint-select').value = '';
   if ($('sow-date')) $('sow-date').value = todayStr();
   const scope = scopeId ? allScopes.find(s => s.id === scopeId) : null;
   const effectiveProposalId = (scope && scope.proposal_id) ? scope.proposal_id : proposalId;
