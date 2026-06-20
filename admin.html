@@ -1123,6 +1123,7 @@ body.sidebar-collapsed .btn-signout::before{
             <button class="filter-tab" data-f="Proposal" onclick="docFilter='Proposal';renderDocumentsTable()">Proposals</button>
             <button class="filter-tab" data-f="SOW" onclick="docFilter='SOW';renderDocumentsTable()">SOW</button>
             <button class="filter-tab" data-f="Welcome Letter" onclick="docFilter='Welcome Letter';renderDocumentsTable()">Welcome Letters</button>
+            <button class="filter-tab" data-f="__agreements" onclick="docFilter='__agreements';renderDocumentsTable()">Agreements</button>
             <button class="filter-tab" data-f="__retainer-statements" onclick="docFilter='__retainer-statements';renderDocumentsTable()">Retainer Statements</button>
             <button class="filter-tab" data-f="__project-briefs" onclick="docFilter='__project-briefs';renderDocumentsTable()">Project Briefs</button>
             <button class="filter-tab" data-f="__completion" onclick="docFilter='__completion';renderDocumentsTable()">Completion Reports</button>
@@ -1485,6 +1486,36 @@ function addDays(date, days) {
   return d.toISOString().split('T')[0];
 }
 let _pdfBusy = false;
+let _pdfLogoDataUrl = null;
+let _pdfLogoLoaded = false;
+function imageToDataUrl(src) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth || img.width;
+        canvas.height = img.naturalHeight || img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      } catch (error) {
+        console.warn('PDF logo conversion failed.', error);
+        resolve(null);
+      }
+    };
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+async function pdfBrandLogo() {
+  if (!_pdfLogoLoaded) {
+    _pdfLogoLoaded = true;
+    _pdfLogoDataUrl = await imageToDataUrl('images/oak-pixel-mark-hires-transparent.png');
+  }
+  return _pdfLogoDataUrl;
+}
 async function generatePDF(templateHTML, filename) {
   if (_pdfBusy) return;
   _pdfBusy = true;
@@ -1606,10 +1637,18 @@ async function generatePDF(templateHTML, filename) {
     };
 
     const docNum = clean(root.querySelector('.pdf-doc-num')?.textContent) || filename.replace(/\.pdf$/i, '');
+    const logo = await pdfBrandLogo();
+    if (logo) {
+      try {
+        doc.addImage(logo, 'PNG', margin, y - 7, 9, 9);
+      } catch (error) {
+        console.warn('PDF logo embed failed.', error);
+      }
+    }
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(17);
+    doc.setFontSize(16);
     setInk();
-    doc.text('Oak & Pixel', margin, y);
+    doc.text('Oak & Pixel Studio', margin + (logo ? 12 : 0), y);
     doc.setFont('courier', 'normal');
     doc.setFontSize(8);
     setMuted();
@@ -1726,7 +1765,7 @@ function _pdfStyles() {
 
 function _pdfHeader(docNum) {
   return `<div class="pdf-header">
-    <div class="pdf-logo">Oak &amp; Pixel</div>
+    <div class="pdf-logo">Oak &amp; Pixel Studio</div>
     <div class="pdf-doc-num">${docNum}</div>
   </div>
   <hr class="pdf-rule">`;
@@ -1941,6 +1980,23 @@ function _documentTemplate({ docNum, client = {}, title, subtitle, tiles = [], s
   </div></body></html>`;
 }
 
+const AGREEMENT_TYPES = [
+  { key: 'msa', label: 'Master Services Agreement (MSA)', number: 'MSA' },
+  { key: 'nda', label: 'NDA', number: 'NDA' },
+  { key: 'debit-order', label: 'Debit Order Mandate', number: 'DOM' }
+];
+
+function agreementNumber(kind, client = {}) {
+  const type = AGREEMENT_TYPES.find(a => a.key === kind) || AGREEMENT_TYPES[0];
+  return `${type.number}-${todayStr().replace(/-/g, '')}-${String(client.id || 'CLIENT').slice(0, 6).toUpperCase()}`;
+}
+
+function serviceContextText(doc, client, docType) {
+  const clientName = clientDisplayName(client);
+  const serviceName = doc.service_name || doc.title || client.selected_plan || 'Oak & Pixel Studio service';
+  return `${docType} prepared by Oak & Pixel Studio for ${clientName}. This document relates to ${serviceName} and should be read together with the agreed service scope, client onboarding details, payment terms, and any approved proposal or scope of work.`;
+}
+
 function quoteTemplate(quote, client) {
   return _documentTemplate({
     docNum: quote.quote_number,
@@ -1952,7 +2008,11 @@ function quoteTemplate(quote, client) {
       { label: 'Valid Until', value: compactDate(quote.expiry_date) },
       { label: 'Status', value: quote.status }
     ],
-    sections: [{ title: 'Service Description', body: quote.description }],
+    sections: [
+      { title: 'Document Context', body: serviceContextText(quote, client, 'Quote') },
+      { title: 'Service Description', body: quote.description || `${quote.service_name || 'The selected service'} includes the setup work, delivery support, and ongoing care required to establish or improve the client digital operating system.` },
+      { title: 'Commercial Notes', body: `Setup fees cover project preparation and implementation work. Monthly retainers cover ongoing service delivery, optimization, support, and agreed recurring tasks. Quote acceptance confirms that Oak & Pixel Studio may prepare the onboarding path, service schedule, and related agreement documents.` }
+    ],
     html: _pdfLineItems(quote)
   });
 }
@@ -1968,7 +2028,11 @@ function invoiceTemplate(invoice, client) {
       { label: 'Due Date', value: compactDate(invoice.due_date) },
       { label: 'Status', value: invoice.payment_status }
     ],
-    sections: [{ title: 'Service Description', body: invoice.description }],
+    sections: [
+      { title: 'Document Context', body: serviceContextText(invoice, client, 'Invoice') },
+      { title: 'Service Description', body: invoice.description || `${invoice.service_name || 'The selected service'} reflects approved setup, retainer, or delivery work for the client account.` },
+      { title: 'Payment Notes', body: `Please use the invoice number as payment reference. Payment confirms continuation of the active service schedule, unless otherwise agreed in writing by Oak & Pixel Studio.` }
+    ],
     html: `${_pdfLineItems(invoice)}${_pdfBankingDetails(invoice)}`
   });
 }
@@ -1993,12 +2057,13 @@ function proposalTemplate(proposal, client) {
       { label: 'Status', value: proposal.status }
     ],
     sections: [
-      { title: 'Executive Summary', body: proposal.executive_summary },
+      { title: 'Document Context', body: serviceContextText(proposal, client, 'Proposal') },
+      { title: 'Executive Summary', body: proposal.executive_summary || `Oak & Pixel Studio proposes a focused digital delivery engagement for ${clientDisplayName(client)}, designed to improve presentation, systems, client experience, and operational clarity.` },
       { title: 'Challenges', body: proposal.challenges },
-      { title: 'Our Solution', body: proposal.solution },
+      { title: 'Our Solution', body: proposal.solution || 'The proposed solution combines premium web experience, workflow structure, service delivery discipline, and ongoing optimization so the client can operate with more confidence online.' },
       { title: 'Deliverables', body: proposal.deliverables },
       { title: 'Timeline', body: proposal.timeline },
-      { title: 'Next Steps', body: proposal.next_steps }
+      { title: 'Next Steps', body: proposal.next_steps || 'Once approved, Oak & Pixel Studio will confirm onboarding requirements, prepare the scope of work, issue the required agreements, and schedule the project kickoff.' }
     ],
     html: investment
   });
@@ -2017,6 +2082,7 @@ function sowTemplate(scope, client, proposal) {
     ],
     numberedSections: true,
     sections: [
+      { title: 'Document Context', body: serviceContextText(scope, client, 'Scope of Work') },
       { title: 'Deliverables', body: scope.deliverables },
       { title: 'Milestones', body: scope.milestones },
       { title: 'Timeline', body: scope.timeline },
@@ -2050,7 +2116,7 @@ function welcomeLetterTemplate(letter, client) {
     ],
     sections: [
       { title: 'Welcome Message', body: letter.welcome_message },
-      { title: 'Important Information', body: letter.important_info }
+      { title: 'Important Information', body: letter.important_info || 'Oak & Pixel Studio will use the onboarding information, selected plan, and assigned services to guide delivery. Please keep contact details, decision makers, brand assets, and billing details current throughout the engagement.' }
     ],
     html: details
   });
@@ -2132,6 +2198,52 @@ function projectBriefTemplate(project, client) {
       { cells: [{ value: 'OPS Plan' }, { value: client.selected_plan || '-' }] },
       { cells: [{ value: 'Start Date' }, { value: compactDate(client.project_start_date) }] }
     ])}`
+  });
+}
+
+function agreementTemplate(kind, client, retainer = {}) {
+  const type = AGREEMENT_TYPES.find(a => a.key === kind) || AGREEMENT_TYPES[0];
+  const clientName = clientDisplayName(client);
+  const plan = retainer.assigned_plan || client.selected_plan || client.project_type || '-';
+  const retainerAmount = Number(retainer.monthly_retainer) > 0 ? money(retainer.monthly_retainer) : '-';
+  const billingDay = retainer.billing_day || '-';
+  const commonTiles = [
+    { label: 'Agreement Date', value: compactDate(todayStr()) },
+    { label: 'Client', value: clientName },
+    { label: 'Status', value: 'Template' }
+  ];
+  const msaSections = [
+    { title: 'Parties', body: `This Master Services Agreement is entered into between Oak & Pixel Studio and ${clientName}. It governs digital strategy, design, development, automation, CRM, retainer, and related service delivery work agreed between the parties.` },
+    { title: 'Services', body: `Oak & Pixel Studio will provide services according to the selected plan, approved proposal, signed scope of work, or written service order. Current plan: ${plan}. Monthly retainer: ${retainerAmount}.` },
+    { title: 'Client Responsibilities', body: 'The client is responsible for timely approvals, accurate business information, access to required systems, brand assets, payment details, and feedback needed for Oak & Pixel Studio to deliver the work.' },
+    { title: 'Fees and Payment', body: `Setup fees, retainers, and additional approved work are payable according to issued quotes and invoices. Retainer billing day: ${billingDay}. Late or failed payments may pause delivery until the account is regularized.` },
+    { title: 'Intellectual Property', body: 'Client-owned materials remain the property of the client. Final approved deliverables transfer to the client after full payment, excluding Oak & Pixel Studio pre-existing tools, reusable methods, templates, libraries, and internal know-how.' },
+    { title: 'Confidentiality', body: 'Both parties must protect confidential information received during the engagement and use it only for the purposes of delivering or receiving the agreed services.' },
+    { title: 'Term and Termination', body: 'The agreement remains active while services, retainers, invoices, or scopes of work are active. Either party may terminate according to the written notice period agreed in the relevant service order or retainer terms.' }
+  ];
+  const ndaSections = [
+    { title: 'Purpose', body: `Oak & Pixel Studio and ${clientName} may exchange confidential business, operational, technical, financial, client, brand, marketing, and systems information for consultation, quoting, onboarding, service delivery, and project execution.` },
+    { title: 'Confidential Information', body: 'Confidential information includes non-public information shared in writing, verbally, visually, digitally, through systems access, or through project materials, regardless of whether it is specifically marked confidential.' },
+    { title: 'Obligations', body: 'Each party agrees to protect confidential information with reasonable care, limit access to people who need it for the engagement, and not disclose it to unauthorized third parties.' },
+    { title: 'Exclusions', body: 'Information is not confidential if it is publicly available through no breach, already known before disclosure, independently developed without use of confidential information, or lawfully received from another source.' },
+    { title: 'Term', body: 'Confidentiality obligations continue for the duration of the engagement and for a reasonable period after the relationship ends, or longer where required by law or separate written agreement.' }
+  ];
+  const debitSections = [
+    { title: 'Mandate Authorization', body: `${clientName} authorizes Oak & Pixel Studio or its nominated payment provider to collect approved recurring service fees, retainers, and related charges according to the accepted service plan, quote, invoice, or retainer schedule.` },
+    { title: 'Billing Details', body: `Assigned plan: ${plan}. Monthly retainer: ${retainerAmount}. Billing day: ${billingDay}. The actual collection amount may vary where additional approved line items, arrears, failed payment recovery, or plan changes apply.` },
+    { title: 'Client Banking Information', body: 'Bank name: ______________________________\nAccount holder: __________________________\nAccount number: __________________________\nBranch code: _____________________________\nAccount type: ____________________________' },
+    { title: 'Payment Terms', body: 'The client must ensure sufficient funds are available on the billing date. Failed, disputed, or reversed collections may result in service pauses, recovery charges, or manual invoice settlement.' },
+    { title: 'Cancellation or Changes', body: 'The mandate may be changed or cancelled according to the agreed retainer terms, provided all outstanding invoices and approved service fees remain payable.' }
+  ];
+  return _documentTemplate({
+    docNum: agreementNumber(kind, client),
+    client,
+    title: type.label,
+    subtitle: `Agreement | ${compactDate(todayStr())}`,
+    tiles: commonTiles,
+    numberedSections: true,
+    sections: kind === 'nda' ? ndaSections : kind === 'debit-order' ? debitSections : msaSections,
+    signatures: true
   });
 }
 
@@ -4153,7 +4265,24 @@ function buildDocumentList() {
       return { ...r, _type:'Retainer Statement', _num:retainerStatementNumber(r), _date:r.next_payment_date || r.created_at, _status:r.payment_status, _title:`${clientDisplayName(client)} Retainer Statement` };
     }),
     ...allProjects.map(p => ({ ...p, _type:'Project Brief', _num:projectBriefNumber(p), _date:p.created_at || p.due_date, _status:PROJECT_COLUMNS.find(([value]) => value === p.status)?.[1] || p.status, _title:p.title||'Project Brief' })),
-  ].sort((a,b) => new Date(b._date) - new Date(a._date));
+  ].sort((a,b) => {
+    const at = new Date(a._date || 0).getTime();
+    const bt = new Date(b._date || 0).getTime();
+    return (Number.isFinite(bt) ? bt : 0) - (Number.isFinite(at) ? at : 0);
+  });
+}
+
+function buildAgreementRows() {
+  return allClients.flatMap(client => AGREEMENT_TYPES.map(type => ({
+    id: `${type.key}:${client.id}`,
+    client_id: client.id,
+    _type: 'Agreement',
+    _agreementKind: type.key,
+    _num: agreementNumber(type.key, client),
+    _date: todayStr(),
+    _status: 'Template',
+    _title: type.label
+  })));
 }
 
 function renderDocumentsTable() {
@@ -4167,10 +4296,10 @@ function renderDocumentsTable() {
     return;
   }
   const search = ($('doc-hub-search')?.value || '').toLowerCase();
-  let rows = buildDocumentList();
+  let rows = docFilter === '__agreements' ? buildAgreementRows() : buildDocumentList();
   if (!showArchived) rows = rows.filter(r => !r.archived);
   if (docFilter !== 'all') {
-    const filterType = docFilter === '__retainer-statements' ? 'Retainer Statement' : docFilter === '__project-briefs' ? 'Project Brief' : docFilter;
+    const filterType = docFilter === '__agreements' ? 'Agreement' : docFilter === '__retainer-statements' ? 'Retainer Statement' : docFilter === '__project-briefs' ? 'Project Brief' : docFilter;
     rows = rows.filter(r => r._type === filterType);
   }
   if (search) rows = rows.filter(r => {
@@ -4178,7 +4307,7 @@ function renderDocumentsTable() {
     return (r._num||'').toLowerCase().includes(search) || clientDisplayName(client).toLowerCase().includes(search) || (r._title||'').toLowerCase().includes(search);
   });
   if (!rows.length) { root.innerHTML = emptyState('No documents found'); return; }
-  const typeBadge = { Quote:'badge-gold', Invoice:'badge-amber', Proposal:'badge-emerald', SOW:'badge-ok', 'Welcome Letter':'', 'Retainer Statement':'badge-amber', 'Project Brief':'badge-ok' };
+  const typeBadge = { Quote:'badge-gold', Invoice:'badge-amber', Proposal:'badge-emerald', SOW:'badge-ok', 'Welcome Letter':'', Agreement:'badge-gold', 'Retainer Statement':'badge-amber', 'Project Brief':'badge-ok' };
   root.innerHTML = `<table class="data-table">
     <thead><tr><th>#</th><th>Type</th><th>Client</th><th>Title</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
     <tbody>${rows.map(r => {
@@ -4198,9 +4327,10 @@ function renderDocumentsTable() {
           ${r._type==='Quote' ? `<button class="btn-ghost btn-sm" onclick="downloadQuotePDF('${r.id}')">PDF</button>` : ''}
           ${r._type==='Invoice' ? `<button class="btn-ghost btn-sm" onclick="downloadInvoicePDF('${r.id}')">PDF</button>` : ''}
           ${r._type==='Welcome Letter' ? `<button class="btn-ghost btn-sm" onclick="downloadWelcomeLetterPDF('${r.id}')">PDF</button>` : ''}
+          ${r._type==='Agreement' ? `<button class="btn-ghost btn-sm" onclick="downloadAgreementPDF('${r._agreementKind}','${r.client_id}')">PDF</button>` : ''}
           ${r._type==='Retainer Statement' ? `<button class="btn-ghost btn-sm" onclick="downloadRetainerStatementPDF('${r.id}')">PDF</button>` : ''}
           ${r._type==='Project Brief' ? `<button class="btn-ghost btn-sm" onclick="downloadProjectBriefPDF('${r.id}')">PDF</button>` : ''}
-          ${!r.archived && !['Retainer Statement','Project Brief'].includes(r._type) ? `<button class="btn-ghost btn-sm" onclick="archiveDocument('${r._type}','${r.id}')">Archive</button>` : ''}
+          ${!r.archived && !['Agreement','Retainer Statement','Project Brief'].includes(r._type) ? `<button class="btn-ghost btn-sm" onclick="archiveDocument('${r._type}','${r.id}')">Archive</button>` : ''}
         </td>
       </tr>`;
     }).join('')}</tbody>
@@ -4227,6 +4357,13 @@ async function downloadSOWDocumentPDF(scopeId) {
   const proposal = scope.proposal_id ? allProposals.find(p => p.id === scope.proposal_id) : null;
   const client = allClients.find(c => c.id === (scope.client_id || proposal?.client_id)) || {};
   await generatePDF(sowTemplate(scope, client, proposal), `${scope.scope_number}.pdf`);
+}
+
+async function downloadAgreementPDF(kind, clientId) {
+  const client = allClients.find(c => c.id === clientId) || {};
+  if (!client.id) return;
+  const retainer = allRetainers.find(r => r.client_id === clientId) || {};
+  await generatePDF(agreementTemplate(kind, client, retainer), `${agreementNumber(kind, client)}.pdf`);
 }
 
 async function downloadRetainerStatementPDF(retainerId) {
