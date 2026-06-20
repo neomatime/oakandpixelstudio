@@ -986,6 +986,23 @@ a{color:inherit;text-decoration:none;}
         <div id="quotes-table-root"></div>
       </section>
 
+      <!-- ══════════════════════════════════ INVOICES PAGE ══════════════════════════════════ -->
+      <section class="page" id="page-invoices">
+        <div class="page-toolbar">
+          <input class="search-input" id="invoices-search" placeholder="Search invoices…" oninput="renderInvoicesTable()">
+          <div class="filter-tabs" id="invoices-tabs">
+            <button class="filter-tab active" data-f="all" onclick="invoicesFilter='all';renderInvoicesTable()">All</button>
+            <button class="filter-tab" data-f="Draft" onclick="invoicesFilter='Draft';renderInvoicesTable()">Draft</button>
+            <button class="filter-tab" data-f="Sent" onclick="invoicesFilter='Sent';renderInvoicesTable()">Sent</button>
+            <button class="filter-tab" data-f="Paid" onclick="invoicesFilter='Paid';renderInvoicesTable()">Paid</button>
+            <button class="filter-tab" data-f="Overdue" onclick="invoicesFilter='Overdue';renderInvoicesTable()">Overdue</button>
+          </div>
+          <button class="btn-ghost" onclick="openInvoiceFromQuote()">From Quote</button>
+          <button class="btn-add" onclick="openClientDocumentModal('invoice',null)">+ New Invoice</button>
+        </div>
+        <div id="invoices-table-root"></div>
+      </section>
+
     </div><!-- /page-content -->
   </main>
 
@@ -2984,6 +3001,141 @@ async function renderServiceDetail() {
       </div>
     </div>
   `;
+}
+
+function renderInvoicesTable() {
+  const root = $('invoices-table-root');
+  if (!root) return;
+  if (!financeSchemaReady) { root.innerHTML = schemaNotice('Apply migration 003 to enable invoices.'); return; }
+  document.querySelectorAll('#invoices-tabs .filter-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.f === invoicesFilter);
+  });
+  const search = ($('invoices-search')?.value || '').toLowerCase();
+  const rows = allInvoices.filter(i => {
+    if (invoicesFilter !== 'all' && i.payment_status !== invoicesFilter) return false;
+    if (search) {
+      const client = allClients.find(c => c.id === i.client_id) || {};
+      return (i.invoice_number || '').toLowerCase().includes(search) || clientDisplayName(client).toLowerCase().includes(search);
+    }
+    return true;
+  });
+  if (!rows.length) { root.innerHTML = emptyState('No invoices found'); return; }
+  root.innerHTML = `<table class="data-table">
+    <thead><tr><th>Invoice #</th><th>Client</th><th>Service</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+    <tbody>${rows.map(inv => {
+      const client = allClients.find(c => c.id === inv.client_id) || {};
+      const badgeCls = { Draft:'', Sent:'badge-pending', Paid:'badge-confirmed', Overdue:'badge-declined', Cancelled:'' }[inv.payment_status] || '';
+      return `<tr>
+        <td class="td-mono">${esc(inv.invoice_number)}</td>
+        <td>${esc(clientDisplayName(client))}</td>
+        <td>${esc(inv.service_name || '—')}</td>
+        <td>${money(inv.total_amount)}</td>
+        <td><span class="badge ${badgeCls}">${esc(inv.payment_status)}</span></td>
+        <td>${compactDate(inv.invoice_date)}</td>
+        <td class="td-actions">
+          <button class="btn-ghost btn-sm" onclick="openEditInvoiceModal('${inv.id}')">Edit</button>
+          <button class="btn-ghost btn-sm" onclick="downloadInvoicePDF('${inv.id}')">PDF</button>
+          <button class="btn-ghost btn-sm btn-danger" onclick="deleteInvoice('${inv.id}')">Delete</button>
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+async function downloadInvoicePDF(invoiceId) {
+  const invoice = allInvoices.find(i => i.id === invoiceId);
+  if (!invoice) return;
+  const client = allClients.find(c => c.id === invoice.client_id) || {};
+  await generatePDF(invoiceTemplate(invoice, client), `${invoice.invoice_number}.pdf`);
+}
+
+async function deleteInvoice(invoiceId) {
+  if (!confirm('Delete this invoice? This cannot be undone.')) return;
+  const { error } = await sb.from('invoices').delete().eq('id', invoiceId);
+  if (error) { toast('Error deleting invoice.'); return; }
+  toast('Invoice deleted.');
+  await loadInvoices();
+}
+
+function openEditInvoiceModal(invoiceId) {
+  const invoice = allInvoices.find(i => i.id === invoiceId);
+  if (!invoice) return;
+  const client = allClients.find(c => c.id === invoice.client_id) || {};
+  showModal(`
+    <div class="modal-hdr">
+      <span class="modal-title">Edit Invoice</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-field full"><label>Invoice Number</label><input readonly value="${esc(invoice.invoice_number)}"></div>
+      <div class="modal-field full"><label>Client</label><input readonly value="${esc(clientDisplayName(client))}"></div>
+      <div class="modal-field"><label>Payment Status</label><select id="ei-status">${INVOICE_STATUSES.map(s => `<option value="${s}" ${s===invoice.payment_status?'selected':''}>${s}</option>`).join('')}</select></div>
+      <div class="modal-field"><label>Invoice Date</label><input id="ei-date" type="date" value="${invoice.invoice_date || ''}"></div>
+      <div class="modal-field"><label>Due Date</label><input id="ei-due" type="date" value="${invoice.due_date || ''}"></div>
+      <div class="modal-field"><label>Setup Fee (R)</label><input id="ei-setup" type="number" value="${invoice.setup_fee || 0}"></div>
+      <div class="modal-field"><label>Monthly Retainer (R)</label><input id="ei-retainer" type="number" value="${invoice.monthly_retainer || 0}"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-add" onclick="updateInvoice('${invoiceId}')">Save Changes</button>
+    </div>
+  `);
+  $('modal-box').classList.add('wide');
+}
+
+async function updateInvoice(invoiceId) {
+  const setup = Math.max(0, parseInt($('ei-setup').value) || 0);
+  const retainer = Math.max(0, parseInt($('ei-retainer').value) || 0);
+  const { error } = await sb.from('invoices').update({
+    payment_status: $('ei-status').value,
+    invoice_date: $('ei-date').value,
+    due_date: $('ei-due').value,
+    setup_fee: setup,
+    monthly_retainer: retainer,
+    total_amount: setup + retainer
+  }).eq('id', invoiceId);
+  if (error) { toast('Error updating invoice.'); return; }
+  closeModal();
+  toast('Invoice updated.');
+  await loadInvoices();
+}
+
+function openInvoiceFromQuote() {
+  const accepted = allQuotes.filter(q => q.status === 'Accepted');
+  if (!accepted.length) { toast('No accepted quotes to convert.'); return; }
+  showModal(`
+    <div class="modal-hdr">
+      <span class="modal-title">Invoice from Quote</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p class="td-dim" style="margin-bottom:1rem">Select an accepted quote to pre-fill invoice details.</p>
+      ${accepted.map(q => {
+        const client = allClients.find(c => c.id === q.client_id) || {};
+        return `<div class="doc-row" style="cursor:pointer" onclick="prefillInvoiceFromQuote('${q.id}')">
+          <div><div class="doc-title">${esc(q.quote_number)}</div><div class="doc-meta">${esc(clientDisplayName(client))} · ${money(q.total_amount)}</div></div>
+          <span class="badge badge-confirmed">Accepted</span>
+        </div>`;
+      }).join('')}
+    </div>
+  `);
+}
+
+function prefillInvoiceFromQuote(quoteId) {
+  const quote = allQuotes.find(q => q.id === quoteId);
+  if (!quote) return;
+  closeModal();
+  const client = allClients.find(c => c.id === quote.client_id) || {};
+  selectedClientId = client.id || null;
+  openClientDocumentModal('invoice', quote.client_id);
+  setTimeout(() => {
+    if ($('doc-service')) {
+      const opt = [...$('doc-service').options].find(o => o.value === quote.service_id);
+      if (opt) { $('doc-service').value = quote.service_id; $('doc-service').dispatchEvent(new Event('change')); }
+    }
+    if ($('doc-setup')) $('doc-setup').value = quote.setup_fee || 0;
+    if ($('doc-retainer')) $('doc-retainer').value = quote.monthly_retainer || 0;
+  }, 100);
 }
 
 function renderQuotesTable() {
