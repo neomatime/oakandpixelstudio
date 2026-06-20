@@ -331,8 +331,9 @@ body.sidebar-collapsed .btn-signout::before{
 .client-source-btn{background:rgba(245,244,241,.025);border:1px solid var(--border);color:rgba(245,244,241,.45);font-family:var(--font-m);font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;padding:.55rem .65rem;transition:all .18s;text-align:center;}
 .client-source-btn:hover{border-color:var(--border-hi);color:var(--off-white);}
 .client-source-btn.active{background:var(--em-dim);border-color:var(--em-mid);color:var(--emerald-l);}
-.proposal-client-panel{display:none;}
-.proposal-client-panel.active{display:block;}
+.proposal-client-panel{display:none !important;}
+.proposal-client-panel.active{display:block !important;}
+.proposal-client-panel[hidden]{display:none !important;}
 #pe-new-client-panel{order:-1;}
 .editor-total { font-family:var(--font-m); font-size:1.1rem; color:var(--gold); padding:.5rem 0; }
 .editor-back { font-size:.78rem; color:var(--mist); margin-bottom:1rem; cursor:pointer; }
@@ -1187,7 +1188,7 @@ body.sidebar-collapsed .btn-signout::before{
             <div class="modal-field full"><label>Client</label><select id="pe-client" onchange="syncProposalService()"><option value="">— Select Client —</option></select></div>
             <div class="modal-field full"><label>Service</label><select id="pe-service" onchange="syncProposalPricing()"><option value="">— Select Service —</option></select></div>
             <div class="modal-field full"><label>Title</label><input id="pe-title" placeholder="Proposal title…"></div>
-            <div class="modal-field full proposal-client-panel" id="pe-new-client-panel">
+            <div class="modal-field full proposal-client-panel" id="pe-new-client-panel" hidden>
               <div class="modal-body" style="padding:0">
                 <div class="modal-field full"><label>Company Name</label><input id="pe-new-company" placeholder="Company name"></div>
                 <div class="modal-field full"><label>Primary Contact</label><input id="pe-new-contact" placeholder="Full name"></div>
@@ -3439,7 +3440,13 @@ function setProposalClientMode(mode) {
   $('pe-client-mode-new')?.classList.toggle('active', _proposalClientMode === 'new');
   const existingField = $('pe-client')?.closest('.modal-field');
   if (existingField) existingField.style.display = _proposalClientMode === 'existing' ? '' : 'none';
-  $('pe-new-client-panel')?.classList.toggle('active', _proposalClientMode === 'new');
+  const newClientPanel = $('pe-new-client-panel');
+  if (newClientPanel) {
+    const showNewClient = _proposalClientMode === 'new';
+    newClientPanel.classList.toggle('active', showNewClient);
+    newClientPanel.hidden = !showNewClient;
+    newClientPanel.setAttribute('aria-hidden', String(!showNewClient));
+  }
 }
 
 async function saveProposalClientFromEntry() {
