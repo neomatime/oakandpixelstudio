@@ -279,6 +279,15 @@ a{color:inherit;text-decoration:none;}
 .detail-toolbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;}
 .detail-actions{display:flex;gap:.5rem;flex-wrap:wrap;}
 .service-detail-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:1rem;align-items:start;}
+.editor-grid { display:grid; grid-template-columns:1.35fr 0.65fr; gap:1.5rem; align-items:start; }
+.editor-meta-panel { position:sticky; top:1.5rem; }
+.editor-section { margin-bottom:1rem; }
+.editor-section label { display:block; font-size:.75rem; text-transform:uppercase; letter-spacing:.06em; color:var(--mist); margin-bottom:.4rem; }
+.editor-section textarea { width:100%; min-height:5rem; background:var(--card); border:1px solid var(--border); border-radius:6px; color:var(--off-white); font-family:var(--font-b); font-size:.85rem; padding:.65rem .8rem; resize:vertical; line-height:1.5; }
+.editor-section textarea:focus { outline:none; border-color:var(--border-hi); }
+.editor-total { font-family:var(--font-m); font-size:1.1rem; color:var(--gold); padding:.5rem 0; }
+.editor-back { font-size:.78rem; color:var(--mist); margin-bottom:1rem; cursor:pointer; }
+.editor-back:hover { color:var(--off-white); }
 .detail-hero{background:var(--card);border:1px solid var(--border);padding:1.4rem;}
 .detail-eyebrow{font-family:var(--font-m);font-size:.54rem;letter-spacing:.12em;text-transform:uppercase;color:var(--emerald-l);margin-bottom:.55rem;}
 .detail-title{font-family:var(--font-d);font-size:1.9rem;font-weight:400;line-height:1.1;margin-bottom:.65rem;color:var(--off-white);}
@@ -1037,6 +1046,75 @@ a{color:inherit;text-decoration:none;}
         </div>
         <div id="doc-hub-root"></div>
       </section>
+
+<!-- ══════════════════════════════════ PROPOSAL EDITOR ══════════════════════════════════ -->
+<section class="page" id="page-proposal-editor">
+  <div id="proposal-back-btn" class="editor-back" onclick="proposalGoBack()">← Back</div>
+  <div class="editor-grid">
+    <!-- Left: content sections -->
+    <div>
+      <div class="mini-panel editor-section">
+        <div class="mini-panel-head"><span class="mini-panel-title">Executive Summary</span></div>
+        <div class="mini-panel-body"><textarea id="pe-summary" placeholder="Briefly describe what you understand about the client's situation…"></textarea></div>
+      </div>
+      <div class="mini-panel editor-section">
+        <div class="mini-panel-head"><span class="mini-panel-title">Challenges</span></div>
+        <div class="mini-panel-body"><textarea id="pe-challenges" placeholder="What pain points or problems does the client face?"></textarea></div>
+      </div>
+      <div class="mini-panel editor-section">
+        <div class="mini-panel-head"><span class="mini-panel-title">Our Solution</span></div>
+        <div class="mini-panel-body"><textarea id="pe-solution" placeholder="How does Oak & Pixel solve those challenges?"></textarea></div>
+      </div>
+      <div class="mini-panel editor-section">
+        <div class="mini-panel-head"><span class="mini-panel-title">Deliverables</span></div>
+        <div class="mini-panel-body"><textarea id="pe-deliverables" placeholder="List what will be delivered…"></textarea></div>
+      </div>
+      <div class="mini-panel editor-section">
+        <div class="mini-panel-head"><span class="mini-panel-title">Timeline</span></div>
+        <div class="mini-panel-body"><textarea id="pe-timeline" placeholder="Outline key phases or milestones…"></textarea></div>
+      </div>
+      <div class="mini-panel editor-section">
+        <div class="mini-panel-head"><span class="mini-panel-title">Investment</span></div>
+        <div class="mini-panel-body">
+          <div class="modal-body" style="padding:0">
+            <div class="modal-field"><label>Setup Fee (R)</label><input id="pe-setup" type="number" min="0" step="1" value="0" oninput="updateProposalTotal()"></div>
+            <div class="modal-field"><label>Monthly Retainer (R)</label><input id="pe-retainer" type="number" min="0" step="1" value="0" oninput="updateProposalTotal()"></div>
+          </div>
+          <div class="editor-total" id="pe-total">Total: R 0</div>
+          <textarea id="pe-investment" placeholder="Additional investment narrative (optional)…" style="margin-top:.5rem"></textarea>
+        </div>
+      </div>
+      <div class="mini-panel editor-section">
+        <div class="mini-panel-head"><span class="mini-panel-title">Next Steps</span></div>
+        <div class="mini-panel-body"><textarea id="pe-next-steps" placeholder="What happens after this proposal is accepted?"></textarea></div>
+      </div>
+    </div>
+    <!-- Right: meta panel -->
+    <div class="editor-meta-panel">
+      <div class="mini-panel">
+        <div class="mini-panel-head"><span class="mini-panel-title">Proposal Details</span></div>
+        <div class="mini-panel-body">
+          <div id="pe-client-display" style="margin-bottom:1rem"></div>
+          <div class="modal-body" style="padding:0">
+            <div class="modal-field full"><label>Client</label><select id="pe-client" onchange="syncProposalService()"><option value="">— Select Client —</option></select></div>
+            <div class="modal-field full"><label>Service</label><select id="pe-service" onchange="syncProposalPricing()"><option value="">— Select Service —</option></select></div>
+            <div class="modal-field full"><label>Title</label><input id="pe-title" placeholder="Proposal title…"></div>
+            <div class="modal-field"><label>Status</label><select id="pe-status">
+              <option value="Draft">Draft</option><option value="Sent">Sent</option><option value="Approved">Approved</option><option value="Rejected">Rejected</option>
+            </select></div>
+            <div class="modal-field"><label>Proposal Date</label><input id="pe-date" type="date"></div>
+            <div class="modal-field"><label>Expiry Date</label><input id="pe-expiry" type="date"></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.5rem;margin-top:1rem">
+        <button class="btn-ghost" onclick="saveProposal(false)">Save Draft</button>
+        <button class="btn-add" onclick="downloadProposalPDF()">Generate PDF</button>
+        <button class="btn-ghost" id="pe-gen-sow-btn" style="display:none" onclick="openSOWEditorFromProposal()">Generate SOW</button>
+      </div>
+    </div>
+  </div>
+</section>
 
     </div><!-- /page-content -->
   </main>
