@@ -987,3 +987,307 @@ const SOW_BLUEPRINT_GROUPS = [
     keys: ['premium-website', 'online-booking', 'lead-capture', 'client-onboarding', 'client-os', 'digital-presence']
   }
 ];
+
+// ─── Proposal Blueprint Library ────────────────────────────────────────────
+// Fills the proposal editor content fields for each OPS plan / service.
+
+const PROPOSAL_BLUEPRINTS = {
+
+  'signature-plan': {
+    label: 'Signature Plan',
+    group: 'Strategic Partnership Plans',
+    summary: `[Client Name] is a [industry] business seeking to establish a credible, conversion-focused digital presence. This proposal outlines a structured engagement through the OPS Signature Plan — a foundational partnership designed to deliver a complete, launch-ready online platform supported by ongoing digital management.`,
+    challenges: `An inconsistent or absent online presence that fails to reflect the quality and credibility of the business.
+Limited digital infrastructure to capture leads, facilitate bookings, or present services clearly to potential clients.
+No structured system for managing ongoing digital presence or content, resulting in stale and unmanaged assets.
+Inability to convert website visitors into enquiries or bookings due to poor user experience or unclear calls to action.`,
+    solution: `The OPS Signature Plan provides a complete foundational solution — from strategy and design through to launch and ongoing management. Rather than a one-off project, this is a structured partnership that delivers a professional website built specifically for conversion, integrated with one client interaction system (booking or lead capture), and supported by monthly digital management.
+
+All work is handled by the OPS team. No technical knowledge is required. The engagement runs with clear milestones and a single point of contact throughout.`,
+    deliverables: `Strategic Discovery session (90 minutes) — brand, audience, and goals workshop.
+Custom-designed and developed website — up to 5 pages, optimised for mobile and desktop.
+One integrated interaction system — Online Booking Experience OR Lead Capture Experience (client's choice).
+Domain connection and deployment.
+Google Analytics setup and post-launch verification.
+OPS Client Onboarding Package — process guides, communication protocols, platform access documentation.
+Monthly Digital Presence Management — 2 structured update cycles per month.
+Monthly performance summary report.`,
+    timeline: `Discovery & Strategy: Week 1–2
+Design Concepts: Week 3–4
+Build & Development: Week 5–8
+Client Review & Revisions: Week 9–10
+Launch & Handover: Week 11–12
+
+Estimated total delivery: 10–12 weeks from signed agreement and receipt of all client assets.`,
+    next_steps: `1. Review and sign the Service Agreement.
+2. Complete the OPS Client Onboarding Questionnaire (provided on signature).
+3. Schedule your Strategic Discovery session — typically within 5 business days of onboarding.
+4. Provide brand assets (logo, colours, approved photography) before the Discovery session.
+5. OPS will confirm the project timeline and first milestone within 2 business days of Discovery.`
+  },
+
+  'growth-plan': {
+    label: 'Growth Plan',
+    group: 'Strategic Partnership Plans',
+    summary: `[Client Name] is an established [industry] business looking to scale its digital operations beyond a foundational presence. This proposal outlines the OPS Growth Plan — a comprehensive engagement combining a multi-page custom website, two integrated client interaction systems, content infrastructure, and full Digital Presence Management to support a business in active growth.`,
+    challenges: `An existing digital presence that no longer reflects the scale or ambition of the business — outdated visuals, limited content, and poor conversion performance.
+Multiple digital tools operating in isolation — booking, enquiries, and content platforms not integrated into a coherent client experience.
+Insufficient content structure to support business development, SEO, or consistent lead generation.
+Reactive rather than proactive digital management — updates handled only when problems arise.`,
+    solution: `The OPS Growth Plan delivers a fully structured digital expansion. A multi-page custom website (up to 8 pages) is built to position the business for its next stage of growth, integrated with both an Online Booking Experience and a Lead Capture Experience for comprehensive client acquisition.
+
+A content-ready infrastructure is included — blog or news section with initial posts — giving the business a publishing platform that supports visibility and authority. Full Digital Presence Management is provided monthly with 3 structured update cycles and access to the OPS Client OS.`,
+    deliverables: `Strategic Discovery session (90 minutes).
+Custom-designed and developed website — up to 8 pages, mobile-optimised.
+Online Booking Experience — integrated and tested.
+Lead Capture Experience — integrated and tested.
+Content infrastructure — blog or news section with 3 initial published posts.
+Domain connection and deployment.
+Google Analytics and Search Console setup.
+OPS Client Onboarding Package.
+OPS Client OS access — centralised platform for managing business operations.
+Monthly Digital Presence Management — 3 structured update cycles per month.
+Monthly performance summary report with recommendations.`,
+    timeline: `Discovery & Strategy: Week 1–2
+Design Concepts: Week 3–4
+Build & Development: Week 5–9
+Content Setup & Integration: Week 10
+Client Review & Revisions: Week 11–12
+Launch & Handover: Week 13–14
+
+Estimated total delivery: 13–14 weeks from signed agreement and receipt of all client assets.`,
+    next_steps: `1. Review and sign the Service Agreement.
+2. Complete the OPS Client Onboarding Questionnaire.
+3. Schedule your Strategic Discovery session.
+4. Provide brand assets and any existing content before the Discovery session.
+5. OPS will confirm the full project plan and timeline within 2 business days of Discovery.`
+  },
+
+  'premium-plan': {
+    label: 'Premium Plan',
+    group: 'Strategic Partnership Plans',
+    summary: `[Client Name] is a high-growth or established [industry] business requiring a fully bespoke, enterprise-grade digital presence. This proposal outlines the OPS Premium Plan — our top-tier partnership delivering a custom multi-page website, complete interaction infrastructure, advanced automations, branded content, and comprehensive managed services for businesses that demand the highest standard of digital execution.`,
+    challenges: `A digital presence that has failed to keep pace with the sophistication of the business — visually inconsistent, technically limited, and unable to support the volume or complexity of client interactions required.
+No central digital operating system for managing bookings, client data, content, and communications in one place.
+High client acquisition potential lost due to poor user journeys, slow response times, or a lack of credibility-building content.
+Operational load associated with managing multiple digital platforms without a dedicated partner or infrastructure.`,
+    solution: `The OPS Premium Plan is a complete, managed digital ecosystem. A fully bespoke website of up to 12 pages is designed and developed to the highest standard — built for performance, conversion, and brand authority. All three OPS interaction systems are integrated: Booking, Lead Capture, and Client Onboarding.
+
+The engagement includes OPS Client OS access, advanced marketing automations, email sequence setup, and video content integration — giving the business a fully operational digital infrastructure managed by OPS on a monthly basis. This is a long-term digital partnership, not a project.`,
+    deliverables: `Extended Strategic Discovery and Brand Audit (2 sessions).
+Fully bespoke website — up to 12 pages, custom animations and micro-interactions.
+Online Booking Experience — fully integrated and tested.
+Lead Capture Experience — fully integrated and tested.
+Client Onboarding System — automated onboarding flow for new clients.
+OPS Client OS — full setup and configuration.
+Advanced marketing automation setup — email sequences, triggers, and lead nurture flows.
+Video integration — homepage or hero video (client-supplied content).
+Branded content package — 5 initial blog posts or case studies.
+Full analytics suite — Google Analytics, Search Console, and heatmap setup.
+Monthly Digital Presence Management — 4 structured update cycles per month.
+Monthly performance and analytics review call.`,
+    timeline: `Discovery & Brand Audit: Week 1–3
+Design Direction & Approval: Week 4–5
+Build & Development: Week 6–12
+Automation & Integration Setup: Week 13–14
+Content & Video Integration: Week 15
+Client Review & Revisions: Week 16–17
+Launch & Handover: Week 18–20
+
+Estimated total delivery: 18–20 weeks from signed agreement and receipt of all client assets.`,
+    next_steps: `1. Review and sign the Service Agreement.
+2. Complete the OPS Premium Onboarding Questionnaire.
+3. Schedule your first Strategic Discovery session.
+4. Provide brand assets, video content (if available), and access to any existing platforms.
+5. OPS will deliver a detailed project plan within 3 business days of the first Discovery session.`
+  },
+
+  'premium-website': {
+    label: 'Premium Website',
+    group: 'Standalone Services',
+    summary: `[Client Name] requires a professionally designed and built website that accurately reflects the quality and credibility of their business. This proposal outlines the OPS Premium Website service — a complete custom web design and development engagement delivering a conversion-focused, mobile-optimised online presence.`,
+    challenges: `An existing website that is outdated, slow, or visually inconsistent with the business's current brand and market positioning.
+Visitors landing on the site are not converting — the layout, messaging, or calls to action are failing to generate enquiries or bookings.
+The current platform is difficult to manage, poorly built, or not optimised for mobile devices.
+The business lacks the internal capability to design and build a professional website to the standard required.`,
+    solution: `OPS designs and builds a custom website from the ground up — no templates, no generic layouts. Every page is designed with the client's audience, brand, and conversion goals in mind. The build process follows a structured design-review-build approach, ensuring the final product is approved at every stage before development begins.
+
+The result is a clean, fast, professionally built website that the business can rely on as its primary digital asset.`,
+    deliverables: `Discovery session — brand, audience, and content brief.
+Custom visual design for all pages (wireframes and mockups presented for approval).
+Custom-developed website — up to 5 pages (Home, About, Services, Contact + 1 optional).
+Mobile-optimised and cross-browser tested.
+Contact form integration.
+Domain connection and deployment.
+Google Analytics setup.
+30-day post-launch support window.`,
+    timeline: `Discovery & Brief: Week 1
+Design Concepts: Week 2–3
+Client Review & Design Approval: Week 4
+Build & Development: Week 5–7
+Client Review & Revisions: Week 8
+Launch: Week 9
+
+Estimated total delivery: 8–9 weeks from signed agreement.`,
+    next_steps: `1. Review and sign the Service Agreement.
+2. Complete the OPS Website Brief form (provided on signature).
+3. Provide all brand assets — logo, colours, approved photography, and page copy.
+4. OPS will confirm the project start date and design timeline within 3 business days.`
+  },
+
+  'online-booking': {
+    label: 'Online Booking Experience',
+    group: 'Standalone Services',
+    summary: `[Client Name] requires a streamlined, professional online booking system that allows clients to schedule appointments or services without requiring manual coordination. This proposal outlines the OPS Online Booking Experience — a fully designed and integrated booking flow built to reduce admin load and improve the client acquisition experience.`,
+    challenges: `Bookings are managed through phone, email, or manual back-and-forth — creating unnecessary admin load and a poor client experience.
+Potential clients who want to book outside of business hours are unable to do so, resulting in lost conversions.
+No centralised view of bookings, availability, or upcoming appointments — increasing the risk of double-bookings or missed sessions.
+The current booking process does not reflect the professionalism or brand of the business.`,
+    solution: `OPS designs and integrates a custom Online Booking Experience — a client-facing flow that matches the business's brand, presents availability clearly, and handles the end-to-end booking process automatically.
+
+The system reduces the manual coordination load on the business owner, provides clients with a seamless self-service experience, and sends automated confirmations and reminders to both parties.`,
+    deliverables: `Discovery session — services, availability structure, and booking logic briefing.
+Custom-designed booking interface — branded to match the business.
+Booking system integration — scheduling logic, availability management, calendar sync.
+Automated confirmation and reminder notifications (email and/or SMS).
+Admin dashboard access — view, manage, and modify bookings.
+Testing across desktop and mobile.
+Deployment and go-live support.
+14-day post-launch support window.`,
+    timeline: `Discovery & Configuration Brief: Week 1
+Design & Setup: Week 2–3
+Integration & Testing: Week 4
+Client Review: Week 5
+Go-Live: Week 6
+
+Estimated total delivery: 5–6 weeks from signed agreement.`,
+    next_steps: `1. Review and sign the Service Agreement.
+2. Complete the OPS Booking Brief — services, availability, and notification preferences.
+3. Provide access to any existing calendar tools or platforms to be integrated.
+4. OPS will confirm the project start date within 2 business days.`
+  },
+
+  'lead-capture': {
+    label: 'Lead Capture Experience',
+    group: 'Standalone Services',
+    summary: `[Client Name] requires a dedicated lead capture system to convert website visitors into qualified enquiries — without relying on a generic contact form. This proposal outlines the OPS Lead Capture Experience — a strategically designed conversion flow that gathers the right information from prospective clients and routes it efficiently to the business.`,
+    challenges: `Website traffic is arriving but not converting — visitors leave without making contact.
+The existing contact form provides no structure, resulting in incomplete or low-quality enquiries that require significant follow-up.
+There is no automated response or acknowledgement system — prospective clients are left without feedback after submitting an enquiry.
+The business has no visibility into enquiry volume, quality, or source.`,
+    solution: `OPS designs and builds a structured Lead Capture Experience — a multi-step enquiry flow that guides potential clients through a discovery-style process, capturing the information the business needs to qualify and respond to leads efficiently.
+
+The experience is branded, mobile-optimised, and integrated with automated response flows — ensuring every lead receives an immediate acknowledgement and the business receives a structured, complete enquiry record.`,
+    deliverables: `Discovery session — ideal client profile, key qualification questions, and response workflow.
+Custom-designed multi-step lead capture flow — branded and mobile-optimised.
+Automated lead acknowledgement — instant confirmation sent to the lead on submission.
+Lead notification routing — structured enquiry delivered to the business via email.
+Lead data capture and storage — enquiry log with submission history.
+Integration with existing CRM or contact platform (where applicable).
+Testing across desktop and mobile.
+Deployment and go-live support.`,
+    timeline: `Discovery & Flow Design: Week 1–2
+Build & Integration: Week 3–4
+Client Review & Testing: Week 5
+Go-Live: Week 6
+
+Estimated total delivery: 5–6 weeks from signed agreement.`,
+    next_steps: `1. Review and sign the Service Agreement.
+2. Complete the OPS Lead Capture Brief — target client profile, questions, and notification preferences.
+3. Provide access to any existing CRM or contact management tools.
+4. OPS will confirm the project timeline within 2 business days.`
+  },
+
+  'client-onboarding': {
+    label: 'Client Onboarding System',
+    group: 'Standalone Services',
+    summary: `[Client Name] requires a structured, professional client onboarding system that guides new clients through the start of an engagement with clarity and confidence. This proposal outlines the OPS Client Onboarding System — a designed process and digital package that replaces ad hoc onboarding with a repeatable, branded experience.`,
+    challenges: `New clients are onboarded inconsistently — some receive detailed information, others receive very little, resulting in confusion about process, expectations, and next steps.
+The onboarding process relies heavily on manual communication and repeated questions, consuming significant time from the business owner.
+Clients begin engagements without a clear understanding of how to communicate, what to expect, and what is required of them — leading to friction early in the relationship.
+There is no standardised documentation, process guide, or welcome experience that reflects the professionalism of the business.`,
+    solution: `OPS designs and delivers a complete Client Onboarding System — a structured process with branded documentation, a digital welcome experience, and clear communication protocols that guide every new client through the start of an engagement.
+
+The system is repeatable and scalable — once built, it runs consistently for every new client without requiring manual recreation. It positions the business as organised, professional, and easy to work with from day one.`,
+    deliverables: `Discovery session — current onboarding process, key information needs, and client communication preferences.
+OPS Client Welcome Package — branded PDF covering welcome, process overview, key contacts, and communication protocols.
+Onboarding questionnaire — structured form for gathering all required client information at the start of an engagement.
+Process guide — step-by-step overview of what happens and when, from signed agreement to first milestone.
+Digital delivery system — automated delivery of onboarding materials on client sign-up.
+Template library — reusable email templates for onboarding communications.`,
+    timeline: `Discovery & Content Brief: Week 1
+Design & Documentation: Week 2–3
+Digital Setup & Automation: Week 4
+Client Review: Week 5
+Go-Live: Week 6
+
+Estimated total delivery: 5–6 weeks from signed agreement.`,
+    next_steps: `1. Review and sign the Service Agreement.
+2. Complete the OPS Onboarding Brief — current process, key information, and brand assets.
+3. OPS will confirm the project timeline and first milestone within 2 business days.`
+  },
+
+  'client-os': {
+    label: 'OPS Client OS',
+    group: 'Standalone Services',
+    summary: `[Client Name] requires a centralised digital operating system that consolidates the core tools and processes of the business into a single, manageable platform. This proposal outlines the OPS Client OS — a configured, branded digital workspace built to support the day-to-day operations of a growing service business.`,
+    challenges: `Business operations are spread across multiple disconnected platforms — calendars, communication tools, project tracking, and client information exist in separate systems with no integration.
+There is no single source of truth for the business — information is duplicated, lost, or inconsistently maintained across platforms.
+The business owner spends significant time on coordination, status-checking, and platform management that could be automated or centralised.
+As the business grows, the current operational setup is not scalable — it relies on manual effort rather than systems.`,
+    solution: `OPS configures and delivers the OPS Client OS — a structured digital workspace customised for the specific operational model of the business.
+
+The system includes client management, project tracking, a service catalogue, financial overview, and communication hub — all configured, branded, and populated with the business's existing data. A detailed training session and documentation ensure the business owner can operate the system independently from day one.`,
+    deliverables: `Discovery session — current tools, operational structure, and key workflow requirements.
+OPS Client OS configuration — custom-built workspace covering client management, project tracking, service catalogue, and financial overview.
+Data migration — existing client and project data imported into the new system.
+Brand customisation — workspace aligned with business brand and terminology.
+Training session — 90-minute walkthrough with the business owner and any relevant team members.
+Operations manual — written documentation covering all key system processes.
+30-day post-delivery support window.`,
+    timeline: `Discovery & Requirements: Week 1
+Configuration & Build: Week 2–3
+Data Migration: Week 4
+Client Review & Revisions: Week 5
+Training & Handover: Week 6
+
+Estimated total delivery: 5–6 weeks from signed agreement.`,
+    next_steps: `1. Review and sign the Service Agreement.
+2. Complete the OPS Operations Brief — current tools, platforms, and workflow overview.
+3. Provide access to existing data (client lists, project records) for migration.
+4. OPS will confirm the project timeline within 2 business days.`
+  },
+
+  'digital-presence': {
+    label: 'Digital Presence Management',
+    group: 'Standalone Services',
+    summary: `[Client Name] requires ongoing professional management of their digital presence — ensuring the website, content, and online assets remain current, performing, and aligned with business activity. This proposal outlines the OPS Digital Presence Management service — a monthly managed service designed to keep the digital presence of a growing business in peak condition.`,
+    challenges: `The website and online assets are updated inconsistently or not at all — content becomes stale, inaccurate, or disconnected from current business activity.
+Without ongoing management, performance issues, broken links, or outdated information go unnoticed until they affect client perception or conversion.
+The business owner does not have the time, tools, or technical skills to manage digital assets effectively alongside running the business.
+There is no structured process for requesting updates, tracking changes, or reviewing digital performance on a regular basis.`,
+    solution: `OPS takes full ownership of the ongoing management of the business's digital presence — handling all updates, monitoring performance, and surfacing opportunities for improvement on a monthly basis.
+
+A structured update cycle ensures changes are made efficiently and consistently. A monthly performance report provides visibility into what is working and what requires attention. The business owner focuses on running the business — OPS handles the digital platform.`,
+    deliverables: `Monthly Digital Presence Management — structured update cycles per month (content updates, image changes, copy edits, service updates).
+Monthly performance summary report — traffic, engagement, and conversion metrics.
+Technical monitoring — uptime, speed, and platform health checks.
+Reactive support — urgent update requests accommodated within agreed SLA.
+Quarterly digital audit — full review of the website and online assets with recommendations.
+Access to the OPS update request system — submit changes with clarity and track progress.`,
+    timeline: `Onboarding & Platform Access: Week 1
+First Update Cycle: Month 1
+
+Ongoing management begins from Month 1, renewable monthly or on agreed contract term.`,
+    next_steps: `1. Review and sign the Digital Presence Management Agreement.
+2. Provide access to the website and any relevant digital platforms.
+3. Complete the OPS Asset Audit form — a brief inventory of current digital assets.
+4. OPS will schedule your first update cycle briefing within 3 business days of onboarding.`
+  }
+
+};
+
+const PROPOSAL_BLUEPRINT_GROUPS = [
+  { label: 'Strategic Partnership Plans', keys: ['signature-plan', 'growth-plan', 'premium-plan'] },
+  { label: 'Standalone Services', keys: ['premium-website', 'online-booking', 'lead-capture', 'client-onboarding', 'client-os', 'digital-presence'] }
+];
