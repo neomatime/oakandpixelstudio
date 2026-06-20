@@ -20,6 +20,7 @@
   --err:#e07070;--err-dim:rgba(224,112,112,.11);
   --amber:#c4963a;--amber-dim:rgba(196,150,58,.12);
   --sidebar-w:230px;
+  --sidebar-collapsed-w:76px;
   --font-d:'Cormorant Garamond',serif;
   --font-b:'Jost',sans-serif;
   --font-m:'DM Mono',monospace;
@@ -68,10 +69,12 @@ a{color:inherit;text-decoration:none;}
   border-right:1px solid var(--border);
   display:flex;flex-direction:column;
   position:fixed;top:0;left:0;height:100vh;z-index:100;
+  transition:width .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s ease;
 }
 .sidebar-brand{
   padding:1.6rem 1.4rem;border-bottom:1px solid var(--border);
   display:flex;align-items:center;gap:.85rem;
+  min-height:82px;position:relative;
 }
 .brand-mark{
   width:32px;height:32px;flex-shrink:0;
@@ -81,6 +84,14 @@ a{color:inherit;text-decoration:none;}
 .brand-mark svg{width:14px;height:14px;stroke:var(--emerald);fill:none;stroke-width:1.5;}
 .brand-name{font-family:var(--font-d);font-size:.95rem;font-weight:400;letter-spacing:.04em;line-height:1.1;}
 .brand-label{font-family:var(--font-m);font-size:.5rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin-top:.15rem;}
+.brand-copy{min-width:0;transition:opacity .18s ease,transform .2s ease;}
+.sidebar-toggle{
+  margin-left:auto;width:28px;height:28px;flex-shrink:0;
+  background:rgba(245,244,241,.04);border:1px solid var(--border-hi);color:rgba(245,244,241,.45);
+  display:flex;align-items:center;justify-content:center;transition:background .18s,color .18s,border-color .18s,transform .22s ease;
+}
+.sidebar-toggle:hover{background:rgba(245,244,241,.08);color:var(--off-white);border-color:rgba(245,244,241,.22);}
+.sidebar-toggle svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.7;transition:transform .22s ease;}
 
 .sidebar-nav{flex:1;padding:.75rem 0;display:flex;flex-direction:column;overflow-y:auto;}
 .nav-label{font-family:var(--font-m);font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(245,244,241,.22);padding:.6rem 1.4rem .3rem;}
@@ -123,8 +134,39 @@ a{color:inherit;text-decoration:none;}
 }
 .btn-signout:hover{border-color:rgba(245,244,241,.35);color:var(--off-white);}
 
+body.sidebar-collapsed{--sidebar-w:var(--sidebar-collapsed-w);}
+body.sidebar-collapsed .sidebar{box-shadow:14px 0 34px rgba(0,0,0,.12);}
+body.sidebar-collapsed .sidebar-brand{padding:1.35rem 1rem;justify-content:center;gap:0;}
+body.sidebar-collapsed .brand-copy{opacity:0;transform:translateX(-6px);width:0;overflow:hidden;pointer-events:none;}
+body.sidebar-collapsed .sidebar-toggle{position:absolute;right:-14px;top:26px;background:var(--sidebar);box-shadow:0 10px 24px rgba(0,0,0,.24);}
+body.sidebar-collapsed .sidebar-toggle svg{transform:rotate(180deg);}
+body.sidebar-collapsed .sidebar-nav{padding:.75rem .65rem;}
+body.sidebar-collapsed .nav-label{
+  padding:.7rem 0 .35rem;text-align:center;font-size:0;letter-spacing:0;
+}
+body.sidebar-collapsed .nav-label::before{
+  content:'';display:block;width:22px;height:1px;background:rgba(245,244,241,.14);margin:0 auto;
+}
+body.sidebar-collapsed .nav-item{
+  justify-content:center;gap:0;padding:.72rem 0;font-size:0;border-radius:2px;
+}
+body.sidebar-collapsed .nav-item:hover{transform:none;background:rgba(245,244,241,.05);}
+body.sidebar-collapsed .nav-item svg{width:17px;height:17px;}
+body.sidebar-collapsed .nav-item.active::before{left:-.65rem;top:8px;bottom:8px;}
+body.sidebar-collapsed .nav-badge{
+  display:none;position:absolute;right:8px;top:7px;min-width:7px;width:7px;height:7px;padding:0;border-radius:999px;font-size:0;
+}
+body.sidebar-collapsed .nav-badge.show{display:block;}
+body.sidebar-collapsed .sidebar-footer{padding:1rem .65rem;}
+body.sidebar-collapsed .user-row{justify-content:center;margin-bottom:.8rem;}
+body.sidebar-collapsed .user-row > div{display:none;}
+body.sidebar-collapsed .btn-signout{font-size:0;padding:.58rem;position:relative;}
+body.sidebar-collapsed .btn-signout::before{
+  content:'Exit';font-family:var(--font-m);font-size:.5rem;letter-spacing:.08em;text-transform:uppercase;
+}
+
 /* ── MAIN ─────────────────────────────────── */
-.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;transition:margin-left .28s cubic-bezier(.2,.8,.2,1);}
 .topbar{
   display:flex;align-items:center;justify-content:space-between;
   padding:1.4rem 2rem 1.1rem;border-bottom:1px solid var(--border);
@@ -361,6 +403,10 @@ a{color:inherit;text-decoration:none;}
 [data-theme="light"] .topbar{background:rgba(245,244,241,.92);}
 [data-theme="light"] .theme-toggle{background:rgba(26,26,24,.05);}
 [data-theme="light"] .theme-toggle:hover{background:rgba(26,26,24,.1);}
+[data-theme="light"] .sidebar-toggle{background:rgba(26,26,24,.04);color:rgba(26,26,24,.42);border-color:rgba(26,26,24,.12);}
+[data-theme="light"] .sidebar-toggle:hover{background:rgba(26,26,24,.08);color:#1A1A18;border-color:rgba(26,26,24,.22);}
+[data-theme="light"] body.sidebar-collapsed .sidebar-toggle{background:var(--sidebar);box-shadow:0 10px 24px rgba(0,0,0,.08);}
+[data-theme="light"] body.sidebar-collapsed .nav-label::before{background:rgba(26,26,24,.14);}
 [data-theme="light"] .nav-item{color:rgba(26,26,24,.5);}
 [data-theme="light"] .nav-item:hover{color:rgba(26,26,24,.8);background:rgba(26,26,24,.05);}
 [data-theme="light"] .nav-item.active{color:var(--emerald);background:rgba(26,92,58,.08);}
@@ -677,10 +723,13 @@ a{color:inherit;text-decoration:none;}
       <div class="brand-mark">
         <img src="images/oak-pixel-mark-hires-transparent.png" style="width:22px;height:22px;object-fit:contain;" alt="OPS">
       </div>
-      <div>
+      <div class="brand-copy">
         <div class="brand-name">Oak &amp; Pixel</div>
         <div class="brand-label">Studio Admin</div>
       </div>
+      <button class="sidebar-toggle" id="sidebar-toggle" type="button" aria-label="Collapse sidebar" aria-expanded="true" title="Collapse sidebar">
+        <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/><path d="M20 4v16"/></svg>
+      </button>
     </div>
 
     <nav class="sidebar-nav">
@@ -1620,9 +1669,34 @@ $('theme-toggle').addEventListener('click', () => {
   setTimeout(renderCharts, 50);
 });
 
+/* â”€â”€ Sidebar â”€â”€ */
+function initSidebar() {
+  document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
+    const labelNode = btn.cloneNode(true);
+    labelNode.querySelectorAll('svg,.nav-badge').forEach(node => node.remove());
+    const label = labelNode.textContent.trim() || btn.dataset.page;
+    btn.setAttribute('title', label);
+    btn.setAttribute('aria-label', label);
+  });
+  applySidebarState(localStorage.getItem('ops-sidebar') === 'collapsed');
+  $('sidebar-toggle')?.addEventListener('click', () => {
+    applySidebarState(!document.body.classList.contains('sidebar-collapsed'));
+  });
+}
+function applySidebarState(collapsed) {
+  document.body.classList.toggle('sidebar-collapsed', collapsed);
+  localStorage.setItem('ops-sidebar', collapsed ? 'collapsed' : 'expanded');
+  const toggle = $('sidebar-toggle');
+  if (!toggle) return;
+  toggle.setAttribute('aria-expanded', String(!collapsed));
+  toggle.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+  toggle.setAttribute('title', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+}
+
 async function init() {
   $('page-date').textContent = new Date().toLocaleDateString('en-ZA', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
   initTheme();
+  initSidebar();
   buildTimePills();
   datePicker = flatpickr('#slot-date', {
     minDate: 'today',
