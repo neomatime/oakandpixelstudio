@@ -2562,6 +2562,8 @@ async function renderClientProfile() {
         <button class="btn-ghost" onclick="openClientOnboarding('${client.id}')">Edit Details</button>
         <button class="btn-ghost" onclick="openClientLogoModal('${client.id}')">Logo</button>
         ${financeSchemaReady ? `<button class="btn-add" onclick="openClientDocumentModal('quote','${client.id}')">Generate Quote</button><button class="btn-add" onclick="openClientDocumentModal('invoice','${client.id}')">Generate Invoice</button>` : ''}
+        ${proposalSchemaReady ? `<button class="btn-ghost" onclick="openProposalEditor(null,'${client.id}',null)">Generate Proposal</button>` : ''}
+        ${proposalSchemaReady ? `<button class="btn-ghost" onclick="openWelcomeLetterModal('${client.id}')">Generate Welcome Letter</button>` : ''}
         <button class="btn-add" onclick="openProjectModal(null,'backlog','${client.id}')">New Task</button>
       </div>
     </div>
@@ -2614,6 +2616,18 @@ async function renderClientProfile() {
         <div class="mini-panel"><div class="mini-panel-head"><span class="mini-panel-title">Services</span></div><div class="mini-panel-body linked-list">${linkedRows(clientServices.map(s => ({ title:s, meta:'Linked through quote or invoice', side:'' })), 'No linked services yet.')}</div></div>
         <div class="mini-panel"><div class="mini-panel-head"><span class="mini-panel-title">Quotes</span></div><div class="mini-panel-body linked-list">${linkedRows(quotes.map(q => ({ title:q.quote_number, meta:q.service_name || 'Service', side:money(q.total_amount) })), financeSchemaReady ? 'No quotes yet.' : 'Finance schema unavailable.')}</div></div>
         <div class="mini-panel"><div class="mini-panel-head"><span class="mini-panel-title">Invoices</span></div><div class="mini-panel-body linked-list">${linkedRows(invoices.map(i => ({ title:i.invoice_number, meta:i.payment_status || 'Draft', side:money(i.total_amount) })), 'No invoices yet.')}</div></div>
+        ${proposalSchemaReady ? `
+<div class="mini-panel">
+  <div class="mini-panel-head"><span class="mini-panel-title">Proposals</span><span class="badge badge-pending">${allProposals.filter(p => p.client_id === client.id).length}</span></div>
+  <div class="mini-panel-body doc-list">
+    ${allProposals.filter(p => p.client_id === client.id).slice(0,5).map(p => `
+      <div class="doc-row" style="cursor:pointer" onclick="openProposalEditor('${p.id}',null,null)">
+        <div><div class="doc-title">${esc(p.proposal_number)}</div><div class="doc-meta">${esc(p.title||'Untitled')} · ${compactDate(p.proposal_date)}</div></div>
+        <span class="badge ${p.status==='Approved'?'badge-confirmed':p.status==='Rejected'?'badge-declined':p.status==='Sent'?'badge-pending':''}">${esc(p.status)}</span>
+      </div>`).join('') || '<p class="td-dim">No proposals yet.</p>'}
+    ${allProposals.filter(p => p.client_id === client.id).length > 0 ? `<div style="margin-top:.5rem"><button class="btn-ghost btn-sm" onclick="docFilter='Proposal';switchPage('documents');renderDocumentsTable()">View all documents →</button></div>` : ''}
+  </div>
+</div>` : ''}
         <div class="mini-panel"><div class="mini-panel-head"><span class="mini-panel-title">Payments</span></div><div class="mini-panel-body linked-list">${linkedRows((paymentsRes.data || []).map(p => ({ title:p.month, meta:p.invoice_number || 'Retainer payment', side:money(p.amount) })), 'No payment history yet.')}</div></div>
         <div class="mini-panel"><div class="mini-panel-head"><span class="mini-panel-title">Bookings</span></div><div class="mini-panel-body linked-list">${linkedRows(bookings.map(b => ({ title:b.service?.name || 'Consultation', meta:b.slot?.date ? compactDate(b.slot.date) : compactDate(b.created_at?.split('T')[0]), side:b.status || '' })), 'No consultations found.')}</div></div>
       </div>
@@ -3114,6 +3128,7 @@ async function renderServiceDetail() {
       <div class="detail-actions">
         <button class="btn-ghost" onclick="openServiceEditModal('${service.id}')">Edit Service</button>
         ${financeSchemaReady ? `<button class="btn-add" onclick="openQuoteModal('${service.id}')">Generate Quote</button><button class="btn-add" onclick="openInvoiceModal('${service.id}')">Generate Invoice</button>` : ''}
+        ${proposalSchemaReady ? `<button class="btn-ghost" onclick="openProposalEditor(null,null,'${service.id}')">Generate Proposal</button>` : ''}
       </div>
     </div>
     <div class="service-detail-grid">
@@ -3369,6 +3384,62 @@ async function downloadSOWPDF() {
 function openSOWEditorFromProposal() {
   if (!_currentProposalId) return;
   openSOWEditor(null, _currentProposalId);
+}
+
+function openWelcomeLetterModal(clientId) {
+  if (!proposalSchemaReady) { toast('Apply migration 007 to enable welcome letters.'); return; }
+  const client = clientById(clientId) || {};
+  const assignedServices = [
+    ...allQuotes.filter(q => q.client_id === clientId).map(q => q.service_name),
+    ...allInvoices.filter(i => i.client_id === clientId).map(i => i.service_name)
+  ].filter((s,i,a) => s && a.indexOf(s) === i);
+  const greeting = `Welcome to Oak & Pixel Studio, ${client.full_name || client.company || 'there'}. We're thrilled to have ${client.company || 'you'} on board and look forward to a great partnership.`;
+  showModal(`
+    <div class="modal-hdr">
+      <span class="modal-title">Generate Welcome Letter</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-field full" style="align-items:center">${clientAvatar(client, 'lg')}</div>
+      <div class="modal-field full"><label>Client</label><input readonly value="${esc(clientDisplayName(client))}"></div>
+      <div class="modal-field full"><label>Plan</label><input readonly value="${esc(client.selected_plan || '—')}"></div>
+      <div class="modal-field full"><label>Start Date</label><input readonly value="${esc(client.project_start_date || '—')}"></div>
+      <div class="modal-field full"><label>Assigned Services</label><input readonly value="${esc(assignedServices.join(', ') || 'None yet')}"></div>
+      <div class="modal-field full"><label>Welcome Message</label><textarea id="wl-message" rows="4">${esc(greeting)}</textarea></div>
+      <div class="modal-field full"><label>Important Information (optional)</label><textarea id="wl-info" rows="3" placeholder="Office hours, key contacts, payment details…"></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-ghost" onclick="saveWelcomeLetter('${clientId}', false)">Save as Draft</button>
+      <button class="btn-add" onclick="saveWelcomeLetter('${clientId}', true)">Save &amp; Generate PDF</button>
+    </div>
+  `);
+  $('modal-box').classList.add('wide');
+}
+
+async function saveWelcomeLetter(clientId, download) {
+  const client = clientById(clientId) || {};
+  const assignedServices = [
+    ...allQuotes.filter(q => q.client_id === clientId).map(q => q.service_name),
+    ...allInvoices.filter(i => i.client_id === clientId).map(i => i.service_name)
+  ].filter((s,i,a) => s && a.indexOf(s) === i);
+  const payload = {
+    letter_number: docNumber('WL'),
+    client_id: clientId,
+    status: download ? 'Sent' : 'Draft',
+    assigned_services: assignedServices,
+    welcome_message: $('wl-message')?.value.trim() || null,
+    important_info: $('wl-info')?.value.trim() || null,
+    sent_at: download ? new Date().toISOString() : null
+  };
+  const { data, error } = await sb.from('welcome_letters').insert(payload).select().single();
+  if (error) { toast('Error saving welcome letter.'); return; }
+  closeModal();
+  toast('Welcome letter saved.');
+  await loadWelcomeLetters();
+  if (download) {
+    await generatePDF(welcomeLetterTemplate(data, client), `${data.letter_number}.pdf`);
+  }
 }
 
 function buildDocumentList() {
