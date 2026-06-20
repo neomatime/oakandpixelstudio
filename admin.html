@@ -1262,6 +1262,7 @@ body.sidebar-collapsed .btn-signout::before{
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 'use strict';
@@ -1487,40 +1488,200 @@ let _pdfBusy = false;
 async function generatePDF(templateHTML, filename) {
   if (_pdfBusy) return;
   _pdfBusy = true;
-  const zone = $('pdf-render-zone');
-  const parsed = new DOMParser().parseFromString(templateHTML, 'text/html');
-  const styles = [...parsed.querySelectorAll('style')].map(style => style.outerHTML).join('');
-  const bodyHTML = parsed.body?.innerHTML?.trim() || templateHTML;
-  zone.innerHTML = `${styles}${bodyHTML}`;
-  Object.assign(zone.style, {
-    display: 'block',
-    position: 'fixed',
-    left: '0',
-    top: '0',
-    width: '210mm',
-    minHeight: '297mm',
-    background: '#fff',
-    color: '#1a1a18',
-    fontFamily: "'Jost', sans-serif",
-    zIndex: '2147483647',
-    pointerEvents: 'none'
-  });
-  await new Promise(requestAnimationFrame);
   try {
-    const printableText = (zone.querySelector('.pdf-wrap')?.textContent || '').trim();
+    const PDF = window.jspdf?.jsPDF || window.jsPDF;
+    if (!PDF) throw new Error('jsPDF is not available.');
+    const parsed = new DOMParser().parseFromString(templateHTML, 'text/html');
+    const root = parsed.querySelector('.pdf-wrap') || parsed.body;
+    const printableText = (root.textContent || '').replace(/\s+/g, ' ').trim();
     if (!printableText) throw new Error('PDF template rendered without printable content.');
-    await html2pdf().set({
-      margin: [15, 15, 15, 15],
-      filename,
-      html2canvas: { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff' },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    }).from(zone).save();
+
+    const doc = new PDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+    const pageW = 210;
+    const pageH = 297;
+    const margin = 16;
+    const contentW = pageW - margin * 2;
+    let y = 18;
+
+    const clean = value => String(value || '').replace(/\s+/g, ' ').trim();
+    const nodeText = el => {
+      if (!el) return '';
+      const clone = el.cloneNode(true);
+      clone.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+      return clone.textContent.replace(/\n\s+/g, '\n').replace(/[ \t]+/g, ' ').trim();
+    };
+    const pageBreak = height => {
+      if (y + height <= pageH - 18) return;
+      doc.addPage();
+      y = 18;
+    };
+    const setInk = () => doc.setTextColor(26, 26, 24);
+    const setMuted = () => doc.setTextColor(107, 107, 100);
+    const writeWrapped = (text, x, maxW, lineH = 5) => {
+      const lines = doc.splitTextToSize(text || '-', maxW);
+      pageBreak(lines.length * lineH + 2);
+      doc.text(lines, x, y);
+      y += lines.length * lineH;
+      return lines;
+    };
+    const drawRule = () => {
+      doc.setDrawColor(184, 149, 90);
+      doc.setLineWidth(0.25);
+      doc.line(margin, y, pageW - margin, y);
+      y += 9;
+    };
+    const drawSectionTitle = text => {
+      pageBreak(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8.5);
+      setInk();
+      doc.text(clean(text).toUpperCase(), margin, y);
+      y += 6;
+    };
+    const drawBody = text => {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      setInk();
+      String(text || '-').split(/\n+/).filter(Boolean).forEach(part => {
+        writeWrapped(part, margin, contentW, 5);
+        y += 2;
+      });
+      y += 2;
+    };
+    const drawTable = table => {
+      const headerCells = [...table.querySelectorAll('thead th')].map(th => clean(th.textContent));
+      const bodyRows = [...table.querySelectorAll('tbody tr')].map(tr => ({
+        total: tr.classList.contains('total'),
+        cells: [...tr.children].map(td => clean(td.textContent))
+      }));
+      const colCount = Math.max(headerCells.length, ...bodyRows.map(r => r.cells.length), 1);
+      const colW = contentW / colCount;
+      pageBreak(14);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      setMuted();
+      doc.setFillColor(250, 249, 244);
+      doc.rect(margin, y - 4, contentW, 8, 'F');
+      headerCells.forEach((h, i) => doc.text(h.toUpperCase(), margin + i * colW + 2, y));
+      y += 7;
+      doc.setDrawColor(224, 223, 216);
+      bodyRows.forEach(row => {
+        doc.setFont('helvetica', row.total ? 'bold' : 'normal');
+        doc.setFontSize(8.7);
+        setInk();
+        const wrapped = Array.from({ length: colCount }, (_, i) => doc.splitTextToSize(row.cells[i] || '-', colW - 4));
+        const rowH = Math.max(8, Math.max(...wrapped.map(lines => lines.length)) * 4.2 + 4);
+        pageBreak(rowH + 2);
+        doc.line(margin, y - 3, pageW - margin, y - 3);
+        wrapped.forEach((lines, i) => doc.text(lines, margin + i * colW + 2, y));
+        y += rowH;
+      });
+      y += 5;
+    };
+    const drawTiles = () => {
+      const tiles = [...root.querySelectorAll('.pdf-tile')].map(tile => ({
+        label: clean(tile.querySelector('.pdf-tile-lbl')?.textContent),
+        value: clean(tile.querySelector('.pdf-tile-val')?.textContent)
+      }));
+      if (!tiles.length) return;
+      const gap = 4;
+      const tileW = (contentW - gap * 2) / 3;
+      for (let i = 0; i < tiles.length; i += 3) {
+        pageBreak(21);
+        tiles.slice(i, i + 3).forEach((tile, idx) => {
+          const x = margin + idx * (tileW + gap);
+          doc.setDrawColor(224, 223, 216);
+          doc.rect(x, y, tileW, 16);
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(7);
+          setMuted();
+          doc.text((tile.label || '-').toUpperCase(), x + 3, y + 5);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(9.5);
+          setInk();
+          doc.text(doc.splitTextToSize(tile.value || '-', tileW - 6), x + 3, y + 11);
+        });
+        y += 22;
+      }
+    };
+
+    const docNum = clean(root.querySelector('.pdf-doc-num')?.textContent) || filename.replace(/\.pdf$/i, '');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(17);
+    setInk();
+    doc.text('Oak & Pixel', margin, y);
+    doc.setFont('courier', 'normal');
+    doc.setFontSize(8);
+    setMuted();
+    doc.text(docNum, pageW - margin, y, { align: 'right' });
+    y += 10;
+    drawRule();
+
+    const clientLines = nodeText(root.querySelector('.pdf-client-lines'));
+    if (clientLines) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      setMuted();
+      const lines = doc.splitTextToSize(clientLines, 78);
+      doc.text(lines, pageW - margin - 78, y);
+      y += Math.max(18, lines.length * 4.5);
+    }
+
+    doc.setFont('times', 'normal');
+    doc.setFontSize(27);
+    setInk();
+    writeWrapped(clean(root.querySelector('.pdf-title')?.textContent) || 'Document', margin, contentW, 9);
+    y += 2;
+    doc.setFont('courier', 'normal');
+    doc.setFontSize(8);
+    setMuted();
+    writeWrapped(clean(root.querySelector('.pdf-subtitle')?.textContent), margin, contentW, 4);
+    y += 8;
+    drawTiles();
+
+    [...root.children].forEach(child => {
+      if (child.matches('.pdf-header,.pdf-client-row,.pdf-title,.pdf-subtitle,.pdf-tiles,.pdf-footer') || child.tagName === 'HR') return;
+      if (child.classList.contains('pdf-section-title')) drawSectionTitle(child.textContent);
+      else if (child.classList.contains('pdf-body-text')) drawBody(nodeText(child));
+      else if (child.matches('table.pdf-items')) drawTable(child);
+      else if (child.classList.contains('pdf-tags')) drawBody(nodeText(child));
+      else if (child.classList.contains('pdf-bank')) {
+        drawSectionTitle(child.querySelector('.pdf-bank-title')?.textContent || 'Banking Details');
+        drawBody(nodeText(child.querySelector('.pdf-bank-body')));
+      } else if (child.classList.contains('pdf-sig-block')) {
+        pageBreak(35);
+        doc.setDrawColor(26, 26, 24);
+        const sigW = (contentW - 16) / 2;
+        doc.line(margin, y + 18, margin + sigW, y + 18);
+        doc.line(margin + sigW + 16, y + 18, pageW - margin, y + 18);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        setInk();
+        doc.text('Oak & Pixel Studio', margin, y + 24);
+        doc.text('Client Signature & Date', margin + sigW + 16, y + 24);
+        y += 32;
+      }
+    });
+
+    const pages = doc.getNumberOfPages();
+    for (let i = 1; i <= pages; i++) {
+      doc.setPage(i);
+      doc.setDrawColor(224, 223, 216);
+      doc.line(margin, pageH - 15, pageW - margin, pageH - 15);
+      doc.setFont('courier', 'normal');
+      doc.setFontSize(7);
+      setMuted();
+      doc.text('Oak & Pixel Studio | hello@oakandpixel.co.za', margin, pageH - 9);
+      doc.text(`Page ${i} of ${pages}`, pageW - margin, pageH - 9, { align: 'right' });
+    }
+
+    doc.save(filename);
   } catch (error) {
     console.error(error);
     toast('PDF could not be generated. Please try again.');
   } finally {
-    zone.innerHTML = '';
-    zone.setAttribute('style', 'display:none;');
+    const zone = $('pdf-render-zone');
+    if (zone) zone.setAttribute('style', 'display:none;');
     _pdfBusy = false;
   }
 }
