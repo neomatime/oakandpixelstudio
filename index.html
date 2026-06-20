@@ -398,11 +398,28 @@ section{position:relative}
   padding:2.4rem;
   display:flex;flex-direction:column;
   min-height:560px;
+  position:relative;
+  overflow:hidden;
+  transition:transform .45s var(--ease-expo),border-color .35s ease,box-shadow .45s ease;
+  will-change:transform;
 }
+.pricing-card::before{
+  content:'';position:absolute;inset:0 0 auto;height:3px;
+  background:linear-gradient(90deg,var(--emerald),var(--gold),transparent);
+  opacity:0;transform:scaleX(.35);transform-origin:left;
+  transition:opacity .35s ease,transform .45s var(--ease-expo);
+}
+.pricing-card:hover{
+  transform:translateY(-10px);
+  border-color:rgba(26,92,58,.24);
+  box-shadow:0 28px 80px rgba(10,10,9,.1);
+}
+.pricing-card:hover::before{opacity:1;transform:scaleX(1);}
 .pricing-card.featured{
   border-color:rgba(26,92,58,.28);
   box-shadow:0 20px 60px rgba(10,10,9,.06);
 }
+.pricing-card.featured:hover{box-shadow:0 32px 90px rgba(26,92,58,.14);}
 .pricing-kicker{
   font-family:var(--font-mono);font-size:.62rem;
   letter-spacing:.16em;text-transform:uppercase;color:var(--emerald);
