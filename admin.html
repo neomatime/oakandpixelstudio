@@ -3018,7 +3018,8 @@ function computeRetainerMetrics() {
   if (!$('rm-mrr')) return;
   const today = todayStr();
   const thisMonthStart = today.slice(0,7) + '-01';
-  const thisMonthEnd = new Date(today.slice(0,4), parseInt(today.slice(5,7)), 0).toISOString().slice(0,10);
+  const lastDay = new Date(today.slice(0,4), parseInt(today.slice(5,7)), 0);
+  const thisMonthEnd = today.slice(0,7) + '-' + String(lastDay.getDate()).padStart(2,'0');
   const active = allRetainers.filter(r => r.payment_status !== 'Cancelled');
   const mrr = active.reduce((s,r) => s + (Number(r.monthly_retainer)||0), 0);
   const due = allRetainers.filter(r => r.next_payment_date && r.next_payment_date >= thisMonthStart && r.next_payment_date <= thisMonthEnd).length;
@@ -3044,8 +3045,8 @@ function renderRetainersTable() {
         <td>${esc(clientDisplayName(client))}</td>
         <td>${esc(r.assigned_plan || '—')}</td>
         <td>${money(r.monthly_retainer)}</td>
-        <td>${r.billing_day || '—'}</td>
-        <td>${compactDate(r.next_payment_date) || '—'}</td>
+        <td>${esc(String(r.billing_day ?? '—'))}</td>
+        <td>${esc(compactDate(r.next_payment_date) || '—')}</td>
         <td><span class="badge ${badgeCls}">${esc(r.payment_status || 'Pending')}</span></td>
         <td class="td-actions">
           <button class="btn-ghost btn-sm" onclick="openRetainerModal('${r.client_id}')">History</button>
@@ -3092,7 +3093,8 @@ async function saveRetainerPayment(retainerId) {
     invoice_number: docNumber('RET')
   });
   if (error) { toast('Error recording payment.'); return; }
-  await sb.from('retainers').update({ payment_status: status, last_payment_date: date }).eq('id', retainerId);
+  const { error: updateErr } = await sb.from('retainers').update({ payment_status: status, last_payment_date: date }).eq('id', retainerId);
+  if (updateErr) { toast('Payment recorded but status update failed.'); }
   closeModal();
   toast('Payment recorded.');
   await Promise.all([loadRetainers(), loadRetainerOverview()]);
