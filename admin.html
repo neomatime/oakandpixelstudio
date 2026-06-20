@@ -1022,16 +1022,16 @@ a{color:inherit;text-decoration:none;}
       <section class="page" id="page-documents">
         <div class="page-toolbar">
           <input class="search-input" id="doc-hub-search" placeholder="Search documents…" oninput="renderDocumentsTable()">
-          <div class="filter-tabs">
-            <button class="filter-tab active" onclick="docFilter='all';renderDocumentsTable()">All</button>
-            <button class="filter-tab" onclick="docFilter='Quote';renderDocumentsTable()">Quotes</button>
-            <button class="filter-tab" onclick="docFilter='Invoice';renderDocumentsTable()">Invoices</button>
-            <button class="filter-tab" onclick="docFilter='Proposal';renderDocumentsTable()">Proposals</button>
-            <button class="filter-tab" onclick="docFilter='SOW';renderDocumentsTable()">SOW</button>
-            <button class="filter-tab" onclick="docFilter='Welcome Letter';renderDocumentsTable()">Welcome Letters</button>
-            <button class="filter-tab" onclick="docFilter='__retainer-statements';renderDocumentsTable()">Retainer Statements</button>
-            <button class="filter-tab" onclick="docFilter='__project-briefs';renderDocumentsTable()">Project Briefs</button>
-            <button class="filter-tab" onclick="docFilter='__completion';renderDocumentsTable()">Completion Reports</button>
+          <div class="filter-tabs" id="doc-tabs">
+            <button class="filter-tab active" data-f="all" onclick="docFilter='all';renderDocumentsTable()">All</button>
+            <button class="filter-tab" data-f="Quote" onclick="docFilter='Quote';renderDocumentsTable()">Quotes</button>
+            <button class="filter-tab" data-f="Invoice" onclick="docFilter='Invoice';renderDocumentsTable()">Invoices</button>
+            <button class="filter-tab" data-f="Proposal" onclick="docFilter='Proposal';renderDocumentsTable()">Proposals</button>
+            <button class="filter-tab" data-f="SOW" onclick="docFilter='SOW';renderDocumentsTable()">SOW</button>
+            <button class="filter-tab" data-f="Welcome Letter" onclick="docFilter='Welcome Letter';renderDocumentsTable()">Welcome Letters</button>
+            <button class="filter-tab" data-f="__retainer-statements" onclick="docFilter='__retainer-statements';renderDocumentsTable()">Retainer Statements</button>
+            <button class="filter-tab" data-f="__project-briefs" onclick="docFilter='__project-briefs';renderDocumentsTable()">Project Briefs</button>
+            <button class="filter-tab" data-f="__completion" onclick="docFilter='__completion';renderDocumentsTable()">Completion Reports</button>
           </div>
           <label class="filter-tab" style="cursor:pointer"><input type="checkbox" id="doc-show-archived" onchange="showArchived=this.checked;renderDocumentsTable()" style="margin-right:.3rem">Archived</label>
         </div>
@@ -3051,6 +3051,9 @@ function buildDocumentList() {
 function renderDocumentsTable() {
   const root = $('doc-hub-root');
   if (!root) return;
+  document.querySelectorAll('#doc-tabs .filter-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.f === docFilter);
+  });
   if (['__retainer-statements','__project-briefs','__completion'].includes(docFilter)) {
     root.innerHTML = emptyState('Coming soon', 'This document type will be available in a future update.');
     return;
