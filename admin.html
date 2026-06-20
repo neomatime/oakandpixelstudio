@@ -327,6 +327,13 @@ body.sidebar-collapsed .btn-signout::before{
 .editor-section label { display:block; font-size:.75rem; text-transform:uppercase; letter-spacing:.06em; color:var(--mist); margin-bottom:.4rem; }
 .editor-section textarea { width:100%; min-height:5rem; background:var(--card); border:1px solid var(--border); border-radius:6px; color:var(--off-white); font-family:var(--font-b); font-size:.85rem; padding:.65rem .8rem; resize:vertical; line-height:1.5; }
 .editor-section textarea:focus { outline:none; border-color:var(--border-hi); }
+.client-source-toggle{display:grid;grid-template-columns:1fr 1fr;gap:.35rem;margin-bottom:.85rem;}
+.client-source-btn{background:rgba(245,244,241,.025);border:1px solid var(--border);color:rgba(245,244,241,.45);font-family:var(--font-m);font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;padding:.55rem .65rem;transition:all .18s;text-align:center;}
+.client-source-btn:hover{border-color:var(--border-hi);color:var(--off-white);}
+.client-source-btn.active{background:var(--em-dim);border-color:var(--em-mid);color:var(--emerald-l);}
+.proposal-client-panel{display:none;}
+.proposal-client-panel.active{display:block;}
+#pe-new-client-panel{order:-1;}
 .editor-total { font-family:var(--font-m); font-size:1.1rem; color:var(--gold); padding:.5rem 0; }
 .editor-back { font-size:.78rem; color:var(--mist); margin-bottom:1rem; cursor:pointer; }
 .editor-back:hover { color:var(--off-white); }
@@ -461,6 +468,9 @@ body.sidebar-collapsed .btn-signout::before{
 [data-theme="light"] .filter-tab.active, [data-theme="light"] .filter-tab:hover { border-color:var(--gold); color:var(--gold); }
 [data-theme="light"] .editor-section textarea { background:rgba(255,255,255,.9); border-color:rgba(10,10,9,.12); color:var(--bg); }
 [data-theme="light"] .editor-section textarea:focus { border-color:var(--border-hi); }
+[data-theme="light"] .client-source-btn{background:rgba(26,26,24,.025);color:rgba(26,26,24,.5);border-color:rgba(26,26,24,.12);}
+[data-theme="light"] .client-source-btn:hover{color:#1A1A18;border-color:rgba(26,26,24,.22);}
+[data-theme="light"] .client-source-btn.active{background:var(--em-dim);border-color:var(--em-mid);color:var(--emerald);}
 [data-theme="light"] .editor-total { color:var(--gold); }
 [data-theme="light"] .editor-back { color:rgba(10,10,9,.5); }
 [data-theme="light"] .editor-back:hover { color:var(--bg); }
@@ -1169,10 +1179,23 @@ body.sidebar-collapsed .btn-signout::before{
         <div class="mini-panel-head"><span class="mini-panel-title">Proposal Details</span></div>
         <div class="mini-panel-body">
           <div id="pe-client-display" style="margin-bottom:1rem"></div>
+          <div class="client-source-toggle" role="group" aria-label="Client source">
+            <button class="client-source-btn active" id="pe-client-mode-existing" type="button" onclick="setProposalClientMode('existing')">Existing Client</button>
+            <button class="client-source-btn" id="pe-client-mode-new" type="button" onclick="setProposalClientMode('new')">New Client</button>
+          </div>
           <div class="modal-body" style="padding:0">
             <div class="modal-field full"><label>Client</label><select id="pe-client" onchange="syncProposalService()"><option value="">— Select Client —</option></select></div>
             <div class="modal-field full"><label>Service</label><select id="pe-service" onchange="syncProposalPricing()"><option value="">— Select Service —</option></select></div>
             <div class="modal-field full"><label>Title</label><input id="pe-title" placeholder="Proposal title…"></div>
+            <div class="modal-field full proposal-client-panel" id="pe-new-client-panel">
+              <div class="modal-body" style="padding:0">
+                <div class="modal-field full"><label>Company Name</label><input id="pe-new-company" placeholder="Company name"></div>
+                <div class="modal-field full"><label>Primary Contact</label><input id="pe-new-contact" placeholder="Full name"></div>
+                <div class="modal-field full"><label>Email Address</label><input id="pe-new-email" type="email" placeholder="name@company.com"></div>
+                <div class="modal-field"><label>Phone</label><input id="pe-new-phone" placeholder="+27"></div>
+                <div class="modal-field"><label>Plan</label><select id="pe-new-plan"><option value="Signature">Signature</option><option value="Growth">Growth</option><option value="Premium">Premium</option></select></div>
+              </div>
+            </div>
             <div class="modal-field"><label>Status</label><select id="pe-status">
               <option value="Draft">Draft</option><option value="Sent">Sent</option><option value="Approved">Approved</option><option value="Rejected">Rejected</option>
             </select></div>
@@ -3323,9 +3346,12 @@ async function renderServiceDetail() {
 
 let _currentProposalId = null;
 let _proposalBackContext = null;
+let _proposalClientMode = 'existing';
+let _proposalNewClientId = null;
 
 function openProposalEditor(proposalId, clientId, serviceId) {
   _currentProposalId = proposalId || null;
+  _proposalNewClientId = null;
   _proposalBackContext = clientId ? { type:'client', id:clientId } : { type:'documents' };
   const proposal = proposalId ? allProposals.find(p => p.id === proposalId) : null;
   switchPage('proposal-editor');
@@ -3338,6 +3364,7 @@ function openProposalEditor(proposalId, clientId, serviceId) {
   const svcSel = $('pe-service');
   if (svcSel) { svcSel.innerHTML = '<option value="">— Select Service —</option>' + allServices.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join(''); }
   if (proposal) {
+    setProposalClientMode('existing');
     $('pe-summary').value = proposal.executive_summary || '';
     $('pe-challenges').value = proposal.challenges || '';
     $('pe-solution').value = proposal.solution || '';
@@ -3354,7 +3381,10 @@ function openProposalEditor(proposalId, clientId, serviceId) {
     const showSOW = proposal.status === 'Approved';
     if ($('pe-gen-sow-btn')) $('pe-gen-sow-btn').style.display = showSOW ? '' : 'none';
   } else {
+    setProposalClientMode('existing');
     ['pe-summary','pe-challenges','pe-solution','pe-deliverables','pe-timeline','pe-investment','pe-next-steps','pe-title'].forEach(id => { if ($(id)) $(id).value = ''; });
+    ['pe-new-company','pe-new-contact','pe-new-email','pe-new-phone'].forEach(id => { if ($(id)) $(id).value = ''; });
+    if ($('pe-new-plan')) $('pe-new-plan').value = 'Signature';
     if ($('pe-setup')) $('pe-setup').value = 0;
     if ($('pe-retainer')) $('pe-retainer').value = 0;
     if ($('pe-status')) $('pe-status').value = 'Draft';
@@ -3403,11 +3433,70 @@ function syncProposalPricing() {
 
 function syncProposalService() {}
 
+function setProposalClientMode(mode) {
+  _proposalClientMode = mode === 'new' ? 'new' : 'existing';
+  $('pe-client-mode-existing')?.classList.toggle('active', _proposalClientMode === 'existing');
+  $('pe-client-mode-new')?.classList.toggle('active', _proposalClientMode === 'new');
+  const existingField = $('pe-client')?.closest('.modal-field');
+  if (existingField) existingField.style.display = _proposalClientMode === 'existing' ? '' : 'none';
+  $('pe-new-client-panel')?.classList.toggle('active', _proposalClientMode === 'new');
+}
+
+async function saveProposalClientFromEntry() {
+  const company = $('pe-new-company')?.value.trim();
+  const fullName = $('pe-new-contact')?.value.trim();
+  const email = $('pe-new-email')?.value.trim();
+  const phone = $('pe-new-phone')?.value.trim();
+  const plan = $('pe-new-plan')?.value || 'Signature';
+  if (!company || !fullName || !email) {
+    toast('Company, primary contact, and email are required for a new client.');
+    return null;
+  }
+  const payload = {
+    company,
+    full_name: fullName,
+    email,
+    phone: phone || null,
+    company_email: email,
+    company_phone: phone || null,
+    selected_plan: plan,
+    project_type: plan,
+    client_status: 'Pending',
+    project_start_date: todayStr(),
+    notes: 'Created from proposal editor.',
+    brief: 'Created from proposal editor.'
+  };
+  const query = _proposalNewClientId
+    ? sb.from('clients').update(payload).eq('id', _proposalNewClientId).select().single()
+    : sb.from('clients').insert(payload).select().single();
+  let { data, error } = await query;
+  if (error) {
+    const fallback = { ...payload };
+    delete fallback.client_status;
+    const retry = _proposalNewClientId
+      ? sb.from('clients').update(fallback).eq('id', _proposalNewClientId).select().single()
+      : sb.from('clients').insert(fallback).select().single();
+    ({ data, error } = await retry);
+  }
+  if (error) {
+    toast('Error creating client. Apply the client schema migration first.');
+    return null;
+  }
+  _proposalNewClientId = data.id;
+  await loadClients();
+  const clientSel = $('pe-client');
+  if (clientSel && ![...clientSel.options].some(opt => opt.value === data.id)) {
+    clientSel.insertAdjacentHTML('beforeend', `<option value="${data.id}">${esc(clientDisplayName(data))}</option>`);
+  }
+  if (clientSel) clientSel.value = data.id;
+  return data.id;
+}
+
 async function saveProposal(redirect) {
   const title = $('pe-title')?.value.trim();
   if (!title) { toast('Add a title first.'); return; }
-  const clientId = $('pe-client')?.value;
-  if (!clientId) { toast('Select a client.'); return; }
+  const clientId = _proposalClientMode === 'new' ? await saveProposalClientFromEntry() : $('pe-client')?.value;
+  if (!clientId) { toast(_proposalClientMode === 'new' ? 'Complete the new client entry first.' : 'Select a client.'); return; }
   const setup = Math.max(0, parseInt($('pe-setup')?.value) || 0);
   const ret = Math.max(0, parseInt($('pe-retainer')?.value) || 0);
   const payload = {
