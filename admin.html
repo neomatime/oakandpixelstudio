@@ -1386,7 +1386,7 @@ async function loadInvoices() {
   renderInvoicesTable();
 }
 async function loadRetainers() {
-  if (!financeSchemaReady) return;
+  if (!retainerSchemaReady) return;
   const { data, error } = await sb.from('retainers').select('*').order('created_at', { ascending: false });
   if (error) { if (isSchemaError(error)) retainerSchemaReady = false; return; }
   allRetainers = data || [];
@@ -1400,13 +1400,13 @@ async function loadProposals() {
 async function loadScopes() {
   if (!proposalSchemaReady) return;
   const { data, error } = await sb.from('scopes').select('*').order('created_at', { ascending: false });
-  if (error) return;
+  if (error) { if (isSchemaError(error)) proposalSchemaReady = false; return; }
   allScopes = data || [];
 }
 async function loadWelcomeLetters() {
   if (!proposalSchemaReady) return;
   const { data, error } = await sb.from('welcome_letters').select('*').order('created_at', { ascending: false });
-  if (error) return;
+  if (error) { if (isSchemaError(error)) proposalSchemaReady = false; return; }
   allWelcomeLetters = data || [];
 }
 
