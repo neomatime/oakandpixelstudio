@@ -1489,7 +1489,7 @@ function quoteTemplate(quote, client) {
     <div class="pdf-tiles">
       <div class="pdf-tile"><div class="pdf-tile-lbl">Quote Date</div><div class="pdf-tile-val">${compactDate(quote.quote_date)}</div></div>
       <div class="pdf-tile"><div class="pdf-tile-lbl">Valid Until</div><div class="pdf-tile-val">${compactDate(quote.expiry_date) || '—'}</div></div>
-      <div class="pdf-tile"><div class="pdf-tile-lbl">Status</div><div class="pdf-tile-val">${quote.status}</div></div>
+      <div class="pdf-tile"><div class="pdf-tile-lbl">Status</div><div class="pdf-tile-val">${esc(quote.status)}</div></div>
     </div>
     ${_pdfLineItems(quote)}
     ${_pdfFooter()}
@@ -1505,7 +1505,7 @@ function invoiceTemplate(invoice, client) {
     <div class="pdf-tiles">
       <div class="pdf-tile"><div class="pdf-tile-lbl">Invoice Date</div><div class="pdf-tile-val">${compactDate(invoice.invoice_date)}</div></div>
       <div class="pdf-tile"><div class="pdf-tile-lbl">Due Date</div><div class="pdf-tile-val">${compactDate(invoice.due_date) || '—'}</div></div>
-      <div class="pdf-tile"><div class="pdf-tile-lbl">Status</div><div class="pdf-tile-val">${invoice.payment_status}</div></div>
+      <div class="pdf-tile"><div class="pdf-tile-lbl">Status</div><div class="pdf-tile-val">${esc(invoice.payment_status)}</div></div>
     </div>
     ${_pdfLineItems(invoice)}
     ${_pdfFooter()}
@@ -1704,10 +1704,15 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && $('modal-overlay').style.display !== 'none') closeModal();
 });
 
+async function loadProposalEcosystem() {
+  await loadProposals();
+  await Promise.all([loadScopes(), loadWelcomeLetters()]);
+}
+
 /* ── Load all data ── */
 async function loadAll() {
   startLoad();
-  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadContacts(), loadClients(), loadProjects(), loadRecentActivity(), loadRetainerOverview(), loadQuotes(), loadInvoices(), loadRetainers(), loadProposals(), loadScopes(), loadWelcomeLetters()]);
+  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadContacts(), loadClients(), loadProjects(), loadRecentActivity(), loadRetainerOverview(), loadQuotes(), loadInvoices(), loadRetainers(), loadProposalEcosystem()]);
   endLoad();
 }
 
@@ -3500,11 +3505,19 @@ function renderDocumentsTable() {
           ${r._type==='SOW' ? `<button class="btn-ghost btn-sm" onclick="openSOWEditor('${r.id}',null)">View</button>` : ''}
           ${r._type==='Quote' ? `<button class="btn-ghost btn-sm" onclick="downloadQuotePDF('${r.id}')">PDF</button>` : ''}
           ${r._type==='Invoice' ? `<button class="btn-ghost btn-sm" onclick="downloadInvoicePDF('${r.id}')">PDF</button>` : ''}
+          ${r._type==='Welcome Letter' ? `<button class="btn-ghost btn-sm" onclick="downloadWelcomeLetterPDF('${r.id}')">PDF</button>` : ''}
           ${!r.archived ? `<button class="btn-ghost btn-sm" onclick="archiveDocument('${r._type}','${r.id}')">Archive</button>` : ''}
         </td>
       </tr>`;
     }).join('')}</tbody>
   </table>`;
+}
+
+async function downloadWelcomeLetterPDF(letterId) {
+  const letter = allWelcomeLetters.find(w => w.id === letterId);
+  if (!letter) return;
+  const client = allClients.find(c => c.id === letter.client_id) || {};
+  await generatePDF(welcomeLetterTemplate(letter, client), `${letter.letter_number}.pdf`);
 }
 
 async function archiveDocument(type, id) {
