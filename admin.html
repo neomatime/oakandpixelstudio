@@ -1003,6 +1003,17 @@ a{color:inherit;text-decoration:none;}
         <div id="invoices-table-root"></div>
       </section>
 
+      <!-- ══════════════════════════════════ RETAINERS PAGE ══════════════════════════════════ -->
+      <section class="page" id="page-retainers">
+        <div class="stat-strip" id="retainer-metrics" style="margin-bottom:1.5rem">
+          <div class="stat-card"><div class="stat-label">Total MRR</div><div class="stat-value" id="rm-mrr">R 0</div></div>
+          <div class="stat-card"><div class="stat-label">Active Retainers</div><div class="stat-value" id="rm-active">0</div></div>
+          <div class="stat-card"><div class="stat-label">Due This Month</div><div class="stat-value" id="rm-due">0</div></div>
+          <div class="stat-card"><div class="stat-label">Outstanding</div><div class="stat-value" id="rm-overdue">0</div></div>
+        </div>
+        <div id="retainers-table-root"></div>
+      </section>
+
     </div><!-- /page-content -->
   </main>
 
@@ -3001,6 +3012,90 @@ async function renderServiceDetail() {
       </div>
     </div>
   `;
+}
+
+function computeRetainerMetrics() {
+  if (!$('rm-mrr')) return;
+  const today = todayStr();
+  const thisMonthStart = today.slice(0,7) + '-01';
+  const thisMonthEnd = new Date(today.slice(0,4), parseInt(today.slice(5,7)), 0).toISOString().slice(0,10);
+  const active = allRetainers.filter(r => r.payment_status !== 'Cancelled');
+  const mrr = active.reduce((s,r) => s + (Number(r.monthly_retainer)||0), 0);
+  const due = allRetainers.filter(r => r.next_payment_date && r.next_payment_date >= thisMonthStart && r.next_payment_date <= thisMonthEnd).length;
+  const overdue = allRetainers.filter(r => r.payment_status === 'Overdue').length;
+  $('rm-mrr').textContent = money(mrr);
+  $('rm-active').textContent = active.length;
+  $('rm-due').textContent = due;
+  $('rm-overdue').textContent = overdue;
+}
+
+function renderRetainersTable() {
+  const root = $('retainers-table-root');
+  if (!root) return;
+  computeRetainerMetrics();
+  if (!retainerSchemaReady) { root.innerHTML = schemaNotice('Apply migration 003 to enable retainers.'); return; }
+  if (!allRetainers.length) { root.innerHTML = emptyState('No retainers found', 'Create retainers from a client profile.'); return; }
+  root.innerHTML = `<table class="data-table">
+    <thead><tr><th>Client</th><th>Plan</th><th>Monthly</th><th>Billing Day</th><th>Next Payment</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${allRetainers.map(r => {
+      const client = allClients.find(c => c.id === r.client_id) || {};
+      const badgeCls = { Paid:'badge-confirmed', Pending:'badge-pending', Overdue:'badge-declined', Failed:'badge-declined' }[r.payment_status] || '';
+      return `<tr>
+        <td>${esc(clientDisplayName(client))}</td>
+        <td>${esc(r.assigned_plan || '—')}</td>
+        <td>${money(r.monthly_retainer)}</td>
+        <td>${r.billing_day || '—'}</td>
+        <td>${compactDate(r.next_payment_date) || '—'}</td>
+        <td><span class="badge ${badgeCls}">${esc(r.payment_status || 'Pending')}</span></td>
+        <td class="td-actions">
+          <button class="btn-ghost btn-sm" onclick="openRetainerModal('${r.client_id}')">History</button>
+          <button class="btn-ghost btn-sm" onclick="openRecordPaymentModal('${r.id}')">Record Payment</button>
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+function openRecordPaymentModal(retainerId) {
+  const retainer = allRetainers.find(r => r.id === retainerId);
+  if (!retainer) return;
+  const client = allClients.find(c => c.id === retainer.client_id) || {};
+  showModal(`
+    <div class="modal-hdr">
+      <span class="modal-title">Record Payment</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-field full"><label>Client</label><input readonly value="${esc(clientDisplayName(client))}"></div>
+      <div class="modal-field"><label>Month (e.g. June 2026)</label><input id="rp-month" placeholder="June 2026"></div>
+      <div class="modal-field"><label>Amount (R)</label><input id="rp-amount" type="number" value="${retainer.monthly_retainer || 0}"></div>
+      <div class="modal-field"><label>Payment Date</label><input id="rp-date" type="date" value="${todayStr()}"></div>
+      <div class="modal-field"><label>Status</label><select id="rp-status">
+        ${PAYMENT_STATUSES.map(s => `<option value="${s}">${s}</option>`).join('')}
+      </select></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-add" onclick="saveRetainerPayment('${retainerId}')">Record</button>
+    </div>
+  `);
+}
+
+async function saveRetainerPayment(retainerId) {
+  const month = $('rp-month').value.trim();
+  const amount = Math.max(0, parseInt($('rp-amount').value) || 0);
+  const date = $('rp-date').value;
+  const status = $('rp-status').value;
+  if (!month) { toast('Enter a month.'); return; }
+  const { error } = await sb.from('retainer_payments').insert({
+    retainer_id: retainerId, month, amount, payment_date: date, payment_status: status,
+    invoice_number: docNumber('RET')
+  });
+  if (error) { toast('Error recording payment.'); return; }
+  await sb.from('retainers').update({ payment_status: status, last_payment_date: date }).eq('id', retainerId);
+  closeModal();
+  toast('Payment recorded.');
+  await Promise.all([loadRetainers(), loadRetainerOverview()]);
 }
 
 function renderInvoicesTable() {
