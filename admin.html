@@ -836,6 +836,28 @@ select{color-scheme:dark;}
 .btn-ghost:hover:not(.btn-loading){transform:translateY(-1px);}
 .kanban-add-task{transition:all .18s,transform .12s;}
 .kanban-add-task:hover{transform:translateY(-1px);}
+.pipeline-wrap{overflow-x:auto;height:calc(100vh - 120px);padding:.75rem;}
+.pipeline-board{display:flex;gap:.75rem;align-items:flex-start;min-width:max-content;height:100%;}
+.pipeline-col{width:215px;flex-shrink:0;display:flex;flex-direction:column;background:rgba(245,244,241,.025);border:1px solid var(--border);}
+.pipeline-col-head{display:flex;align-items:center;justify-content:space-between;padding:.6rem .75rem;border-bottom:1px solid var(--border);}
+.pipeline-col-title{font-family:var(--font-m);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,244,241,.46);}
+.pipeline-col-count{font-family:var(--font-m);font-size:.55rem;color:var(--mist);background:rgba(245,244,241,.05);padding:.15rem .4rem;}
+.pipeline-col-body{padding:.5rem;display:flex;flex-direction:column;gap:.45rem;overflow-y:auto;flex:1;}
+.pipeline-card{background:var(--card);border:1px solid rgba(255,255,255,.07);border-radius:5px;padding:.6rem .7rem;cursor:pointer;transition:border-color .15s;}
+.pipeline-card:hover{border-color:rgba(255,255,255,.18);}
+.pipeline-card-top{display:flex;align-items:center;gap:.35rem;margin-bottom:.3rem;}
+.pipeline-health{font-size:.75rem;line-height:1;flex-shrink:0;}
+.pipeline-name{font-size:.78rem;font-weight:500;color:var(--off-white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pipeline-card .badge{font-size:.52rem;padding:.08rem .28rem;margin-bottom:.28rem;display:inline-block;}
+.pipeline-meta{font-size:.62rem;color:rgba(245,244,241,.35);margin-bottom:.15rem;}
+.pipeline-action{font-size:.62rem;color:var(--gold);font-style:italic;}
+.pipeline-empty{font-size:.68rem;color:rgba(245,244,241,.22);padding:.4rem;text-align:center;margin:0;}
+[data-theme="light"] .pipeline-col{background:rgba(26,26,24,.025);border-color:rgba(26,26,24,.1);}
+[data-theme="light"] .pipeline-col-title{color:rgba(26,26,24,.5);}
+[data-theme="light"] .pipeline-col-count{color:rgba(26,26,24,.5);background:rgba(26,26,24,.07);}
+[data-theme="light"] .pipeline-card{background:#fff;border-color:rgba(26,26,24,.1);}
+[data-theme="light"] .pipeline-name{color:var(--black);}
+[data-theme="light"] .pipeline-meta{color:rgba(26,26,24,.4);}
 </style>
 </head>
 <body>
@@ -923,6 +945,11 @@ select{color-scheme:dark;}
         <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M16 3.13a4 4 0 010 7.75"/><polyline points="17 21 19 23 23 19"/></svg>
         Clients
         <span class="nav-badge" id="clients-badge"></span>
+      </button>
+
+      <button class="nav-item" data-page="pipeline">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="4" height="18" rx="1"/><rect x="10" y="3" width="4" height="13" rx="1"/><rect x="17" y="3" width="4" height="9" rx="1"/></svg>
+        Pipeline
       </button>
     </nav>
 
@@ -1190,6 +1217,12 @@ select{color-scheme:dark;}
 
       <section class="page" id="page-client-profile">
         <div id="client-profile-root"><p class="loading-row">Select a client to view their profile.</p></div>
+      </section>
+
+      <section class="page" id="page-pipeline">
+        <div class="pipeline-wrap">
+          <div class="pipeline-board" id="pipeline-board"></div>
+        </div>
       </section>
 
       <!-- ═══════════════════════════════════ QUOTES PAGE ═══════════════════════════════════ -->
@@ -2896,7 +2929,7 @@ $('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') $(
 $('logout-btn').addEventListener('click', () => sb.auth.signOut());
 
 /* ── Navigation ── */
-const PAGE_TITLES = { overview:'Overview', bookings:'Bookings', availability:'Availability', projects:'Projects', services:'Services', 'service-detail':'Service Details', contacts:'Contacts', clients:'Clients', 'client-profile':'Client Profile', quotes:'Quotes', invoices:'Invoices', retainers:'Retainers', documents:'Documents', 'proposal-editor':'Proposal', 'sow-editor':'Scope of Work' };
+const PAGE_TITLES = { overview:'Overview', bookings:'Bookings', availability:'Availability', projects:'Projects', services:'Services', 'service-detail':'Service Details', contacts:'Contacts', clients:'Clients', 'client-profile':'Client Profile', pipeline:'Pipeline', quotes:'Quotes', invoices:'Invoices', retainers:'Retainers', documents:'Documents', 'proposal-editor':'Proposal', 'sow-editor':'Scope of Work' };
 
 document.addEventListener('click', e => {
   const btn = e.target.closest('.nav-item[data-page]');
@@ -2915,6 +2948,7 @@ function switchPage(name) {
   if (name === 'invoices') renderInvoicesTable();
   if (name === 'retainers') renderRetainersTable();
   if (name === 'documents') renderDocumentsTable();
+  if (name === 'pipeline') renderPipelinePage();
   enhanceOpsSelects($('page-' + name) || document);
 }
 
@@ -4274,6 +4308,39 @@ function renderClients() {
   c.querySelectorAll('.retainer-client').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); openRetainerModal(btn.dataset.id); }));
   c.querySelectorAll('.edit-client').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); openClientOnboarding(btn.dataset.id); }));
   c.querySelectorAll('.delete-client').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); deleteClient(btn.dataset.id); }));
+}
+
+function renderPipelinePage() {
+  const board = document.getElementById('pipeline-board');
+  if (!board) return;
+  const healthEmoji = { green: '🟢', amber: '🟡', red: '🔴' };
+  board.innerHTML = LIFECYCLE_STAGES.map(stage => {
+    const clients = allClients.filter(c => (c.lifecycle_stage || 'Lead') === stage);
+    const cards = clients.map(client => {
+      const health = clientHealth(client);
+      const days = client.stage_entered_at
+        ? Math.floor((Date.now() - new Date(client.stage_entered_at).getTime()) / 86400000)
+        : 0;
+      const action = nextAction(client);
+      const plan = esc(client.selected_plan || client.project_type || '');
+      return `<div class="pipeline-card" onclick="openClientProfile('${client.id}')">
+        <div class="pipeline-card-top">
+          <span class="pipeline-health">${healthEmoji[health]}</span>
+          <span class="pipeline-name">${esc(clientDisplayName(client))}</span>
+        </div>
+        ${plan ? `<span class="badge">${plan}</span><br>` : ''}
+        <div class="pipeline-meta">${days}d in stage</div>
+        <div class="pipeline-action">${esc(action)}</div>
+      </div>`;
+    }).join('');
+    return `<div class="pipeline-col">
+      <div class="pipeline-col-head">
+        <span class="pipeline-col-title">${stage}</span>
+        <span class="pipeline-col-count">${clients.length}</span>
+      </div>
+      <div class="pipeline-col-body">${cards || '<p class="pipeline-empty">No clients</p>'}</div>
+    </div>`;
+  }).join('');
 }
 
 function openClientOnboarding(id = null) {
