@@ -1818,6 +1818,7 @@ function _pdfStyles() {
     .pdf-bank{border:1px solid #e0dfd8;background:#faf9f4;padding:.85rem 1rem;margin:0 0 1.5rem}
     .pdf-bank-title{font-size:8pt;text-transform:uppercase;letter-spacing:.08em;color:#6b6b64;margin-bottom:.35rem}
     .pdf-bank-body{font-size:10pt;line-height:1.55;color:#1A1A18;white-space:pre-line}
+    .pdf-bank-lbl{font-weight:600;color:#6b6b64}
     .pdf-footer{margin-top:2rem;padding-top:1rem;border-top:1px solid #e0dfd8;font-size:8pt;color:#6b6b64;display:flex;justify-content:space-between}
     .pdf-section-title{font-size:9pt;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem;color:#2d2d2b}
     .pdf-body-text{font-size:10pt;margin-bottom:1rem;color:#2d2d2b}
@@ -1880,11 +1881,18 @@ function _pdfFooter() {
 }
 
 function _pdfBankingDetails(invoice) {
-  const details = (invoice.banking_details || '').trim();
-  if (!details) return '';
+  const rows = [
+    ['Bank Name',          invoice.bank_name],
+    ['Account Holder',     invoice.account_holder],
+    ['Account Number',     invoice.account_number],
+    ['Branch Code',        invoice.branch_code],
+    ['Account Type',       invoice.account_type],
+    ['Payment Reference',  invoice.payment_reference],
+  ].filter(([, v]) => v);
+  if (!rows.length) return '';
   return `<div class="pdf-bank">
     <div class="pdf-bank-title">Banking Details</div>
-    <div class="pdf-bank-body">${esc(details)}</div>
+    <div class="pdf-bank-body">${rows.map(([l,v]) => `<span class="pdf-bank-lbl">${l}:</span> ${esc(v)}`).join('<br>')}</div>
   </div>`;
 }
 
@@ -5156,7 +5164,13 @@ function openEditInvoiceModal(invoiceId) {
       <div class="modal-field"><label>Due Date</label><input id="ei-due" type="date" value="${invoice.due_date || ''}"></div>
       <div class="modal-field"><label>Setup Fee (R)</label><input id="ei-setup" type="number" value="${invoice.setup_fee || 0}"></div>
       <div class="modal-field"><label>Monthly Retainer (R)</label><input id="ei-retainer" type="number" value="${invoice.monthly_retainer || 0}"></div>
-      <div class="modal-field full"><label>Banking Details</label><textarea id="ei-banking" rows="4" placeholder="Bank name, account holder, account number, branch code, payment reference">${esc(invoice.banking_details || '')}</textarea></div>
+      <div class="modal-field full" style="margin-top:.25rem"><label style="font-size:.68rem;letter-spacing:.1em;color:var(--gold);margin-bottom:.5rem">BANKING DETAILS</label></div>
+      <div class="modal-field"><label>Bank Name</label><input id="ei-bank-name" placeholder="e.g. FNB, Standard Bank" value="${esc(invoice.bank_name || '')}"></div>
+      <div class="modal-field"><label>Account Holder</label><input id="ei-account-holder" placeholder="Full name on account" value="${esc(invoice.account_holder || '')}"></div>
+      <div class="modal-field"><label>Account Number</label><input id="ei-account-number" placeholder="Account number" value="${esc(invoice.account_number || '')}"></div>
+      <div class="modal-field"><label>Branch Code</label><input id="ei-branch-code" placeholder="6-digit branch code" value="${esc(invoice.branch_code || '')}"></div>
+      <div class="modal-field"><label>Account Type</label><select id="ei-account-type"><option value="">— Select —</option>${['Current','Cheque','Savings'].map(t=>`<option value="${t}" ${invoice.account_type===t?'selected':''}>${t}</option>`).join('')}</select></div>
+      <div class="modal-field"><label>Payment Reference</label><input id="ei-payment-reference" placeholder="Invoice number or client name" value="${esc(invoice.payment_reference || '')}"></div>
     </div>
     <div class="modal-foot">
       <button class="btn-ghost" onclick="closeModal()">Cancel</button>
@@ -5179,12 +5193,17 @@ async function updateInvoice(invoiceId) {
     setup_fee: setup,
     monthly_retainer: retainer,
     total_amount: setup + retainer + extraTotal,
-    banking_details: $('ei-banking').value.trim() || null
+    bank_name: $('ei-bank-name').value.trim() || null,
+    account_holder: $('ei-account-holder').value.trim() || null,
+    account_number: $('ei-account-number').value.trim() || null,
+    branch_code: $('ei-branch-code').value.trim() || null,
+    account_type: $('ei-account-type').value || null,
+    payment_reference: $('ei-payment-reference').value.trim() || null,
   };
   let { error } = await sb.from('invoices').update(payload).eq('id', invoiceId);
   let bankingSkipped = false;
   if (error && isSchemaError(error)) {
-    delete payload.banking_details;
+    ['bank_name','account_holder','account_number','branch_code','account_type','payment_reference'].forEach(k => delete payload[k]);
     const retry = await sb.from('invoices').update(payload).eq('id', invoiceId);
     error = retry.error;
     bankingSkipped = !error;
