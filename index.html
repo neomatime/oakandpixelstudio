@@ -3652,7 +3652,6 @@ document.querySelectorAll('.service-card').forEach(card => {
   const SB_URL = 'https://wdbsmcxzhmdkfjoftulm.supabase.co';
   const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkYnNtY3h6aG1ka2Zqb2Z0dWxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDEwMTQsImV4cCI6MjA5NzM3NzAxNH0.xo9x29q_QVmDl81soUI3OMDzJBKmqEme-I6v5IZmeN0';
   const grid = document.getElementById('public-services-grid');
-  const contactSelect = document.getElementById('project-type-select');
   if (!grid) return;
 
   const fallbackCards = grid.innerHTML;
@@ -3706,15 +3705,6 @@ document.querySelectorAll('.service-card').forEach(card => {
     </div>`;
   }
 
-  function updateContactSelect(services) {
-    if (!contactSelect || !services.length) return;
-    const current = contactSelect.value;
-    contactSelect.innerHTML = '<option value="" disabled selected>Select a service</option>' +
-      services.map(service => `<option>${esc(service.name)}</option>`).join('') +
-      '<option>Not sure yet - let&rsquo;s talk</option>';
-    if ([...contactSelect.options].some(option => option.value === current)) contactSelect.value = current;
-  }
-
   function updatePricingCards(services) {
     document.querySelectorAll('.pricing-card[data-plan]').forEach(card => {
       const plan = normalize(card.dataset.plan);
@@ -3735,12 +3725,6 @@ document.querySelectorAll('.service-card').forEach(card => {
   function wireServiceClicks() {
     grid.querySelectorAll('.service-card').forEach(card => {
       card.addEventListener('click', () => {
-        const select = document.getElementById('project-type-select');
-        const name = card.dataset.service || card.querySelector('.service-name')?.textContent || '';
-        if (select && name) {
-          const option = [...select.options].find(opt => opt.textContent === name);
-          if (option) select.value = option.value;
-        }
         document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
       });
     });
