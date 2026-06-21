@@ -1724,7 +1724,7 @@ async function generatePDF(templateHTML, filename, { returnBase64 = false } = {}
       }
     }
     doc.setFont('times', 'normal');
-    doc.setFontSize(16);
+    doc.setFontSize(20);
     setInk();
     doc.text('Oak & Pixel Studio', margin + (logo ? 12 : 0), y);
     doc.setFont('courier', 'normal');
@@ -1734,7 +1734,7 @@ async function generatePDF(templateHTML, filename, { returnBase64 = false } = {}
     y += 10;
     drawRule();
 
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('times', 'normal');
     doc.setFontSize(27);
     setInk();
     writeWrapped(clean(root.querySelector('.pdf-title')?.textContent) || 'Document', margin, contentW, 9);
