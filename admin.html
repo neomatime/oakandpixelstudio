@@ -622,6 +622,13 @@ body.sidebar-collapsed .btn-signout::before{
 .onboarding-hint{font-size:.72rem;color:rgba(245,244,241,.34);max-width:320px;}
 .onboarding-actions{display:flex;gap:.5rem;}
 .modal-box.wide{width:min(760px,94vw);}
+.signature-pad-wrap{grid-column:1/-1;border:1px solid var(--border-hi);background:rgba(245,244,241,.025);padding:.85rem;}
+.signature-pad-top{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.7rem;}
+.signature-status{font-family:var(--font-m);font-size:.55rem;letter-spacing:.11em;text-transform:uppercase;color:rgba(245,244,241,.42);}
+.signature-status.ready{color:var(--emerald-l);}
+.signature-pad-canvas{display:block;width:100%;height:180px;background:#fff;border:1px solid rgba(26,26,24,.16);cursor:crosshair;touch-action:none;}
+.signature-preview{grid-column:1/-1;border:1px solid var(--border);background:rgba(245,244,241,.025);padding:.85rem;min-height:80px;display:flex;align-items:center;justify-content:center;}
+.signature-preview img{max-width:260px;max-height:70px;object-fit:contain;filter:contrast(1.08);}
 
 /* --- PROJECTS KANBAN --- */
 .kanban-toolbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;}
@@ -1134,6 +1141,7 @@ body.sidebar-collapsed .btn-signout::before{
           <input class="search-input" id="doc-hub-search" placeholder="Search documents…" oninput="renderDocumentsTable()">
           <button class="btn-add" onclick="openProposalEditor()">New Proposal</button>
           <button class="btn-ghost" style="margin-left:.4rem" onclick="openSOWEditor(null,null)">New SOW</button>
+          <button class="btn-ghost" style="margin-left:.4rem" onclick="openSignatureSettingsModal()">OPS Signature</button>
           <div class="filter-tabs" id="doc-tabs">
             <button class="filter-tab active" data-f="all" onclick="docFilter='all';renderDocumentsTable()">All</button>
             <button class="filter-tab" data-f="Quote" onclick="docFilter='Quote';renderDocumentsTable()">Quotes</button>
@@ -1544,6 +1552,8 @@ let _pdfLogoDataUrl = null;
 let _pdfLogoLoaded = false;
 let _pdfSignatureDataUrl = null;
 let _pdfSignatureLoaded = false;
+const OPS_SIGNATURE_KEY = 'ops-command-center-signature';
+const OPS_SIGNATURE_DATE_KEY = 'ops-command-center-signature-date';
 function imageToDataUrl(src, maxPx = 200) {
   return new Promise(resolve => {
     const img = new Image();
@@ -1577,9 +1587,43 @@ async function pdfBrandLogo() {
 async function pdfSignature() {
   if (!_pdfSignatureLoaded) {
     _pdfSignatureLoaded = true;
-    _pdfSignatureDataUrl = await imageToDataUrl('images/neo-signature.png', 500);
+    _pdfSignatureDataUrl = getStoredOpsSignature();
   }
   return _pdfSignatureDataUrl;
+}
+function getStoredOpsSignature() {
+  try {
+    return localStorage.getItem(OPS_SIGNATURE_KEY) || null;
+  } catch (error) {
+    return null;
+  }
+}
+function getStoredOpsSignatureDate() {
+  try {
+    return localStorage.getItem(OPS_SIGNATURE_DATE_KEY) || '';
+  } catch (error) {
+    return '';
+  }
+}
+function setStoredOpsSignature(dataUrl) {
+  try {
+    localStorage.setItem(OPS_SIGNATURE_KEY, dataUrl);
+    localStorage.setItem(OPS_SIGNATURE_DATE_KEY, new Date().toISOString());
+  } catch (error) {
+    toast('Signature could not be saved in this browser.');
+    return false;
+  }
+  _pdfSignatureLoaded = false;
+  _pdfSignatureDataUrl = null;
+  return true;
+}
+function removeStoredOpsSignature() {
+  try {
+    localStorage.removeItem(OPS_SIGNATURE_KEY);
+    localStorage.removeItem(OPS_SIGNATURE_DATE_KEY);
+  } catch (error) {}
+  _pdfSignatureLoaded = false;
+  _pdfSignatureDataUrl = null;
 }
 async function generatePDF(templateHTML, filename, { returnBase64 = false } = {}) {
   if (_pdfBusy) return null;
@@ -1722,6 +1766,26 @@ async function generatePDF(templateHTML, filename, { returnBase64 = false } = {}
       doc.text(lines, margin + 6, y + 14);
       y += blockH + 8;
     };
+    const drawOpsSignatureBlock = () => {
+      if (!signature) return;
+      pageBreak(36);
+      doc.setDrawColor(224, 223, 216);
+      doc.setFillColor(250, 249, 244);
+      doc.rect(margin, y, contentW, 28, 'FD');
+      try { doc.addImage(signature, 'PNG', margin + 5, y + 3, 48, 16); } catch(e) {}
+      doc.setFont('courier', 'normal');
+      doc.setFontSize(7);
+      setMuted();
+      doc.text('DIGITALLY SIGNED BY', margin + 60, y + 8);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      setInk();
+      doc.text('Neo Matime', margin + 60, y + 15);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.text('Founder & CEO, Oak & Pixel Studio', margin + 60, y + 21);
+      y += 36;
+    };
 
     const docNum = clean(root.querySelector('.pdf-doc-num')?.textContent) || filename.replace(/\.pdf$/i, '');
     const [logo, signature] = await Promise.all([pdfBrandLogo(), pdfSignature()]);
@@ -1765,6 +1829,8 @@ async function generatePDF(templateHTML, filename, { returnBase64 = false } = {}
       else if (child.classList.contains('pdf-bank')) {
         drawSectionTitle(child.querySelector('.pdf-bank-title')?.textContent || 'Banking Details');
         drawBody(nodeText(child.querySelector('.pdf-bank-body')));
+      } else if (child.classList.contains('pdf-ops-signature')) {
+        drawOpsSignatureBlock();
       } else if (child.classList.contains('pdf-sig-block')) {
         pageBreak(50);
         const sigW = (contentW - 16) / 2;
@@ -2075,7 +2141,7 @@ function _documentTemplate({ docNum, client = {}, title, subtitle, tiles = [], s
     ${signatures ? `<div class="pdf-sig-block">
       <div class="pdf-sig-col"><strong>Oak &amp; Pixel Studio</strong><br><br><br>Signature &amp; Date</div>
       <div class="pdf-sig-col"><strong>${esc(client.company || client.full_name || 'Client')}</strong><br><br><br>Signature &amp; Date</div>
-    </div>` : ''}
+    </div>` : '<div class="pdf-ops-signature"></div>'}
     ${_pdfFooter()}
   </div></body></html>`;
 }
@@ -2705,6 +2771,166 @@ function closeModal() {
   $('modal-box').innerHTML = '';
   $('modal-box').classList.remove('wide','confirm');
 }
+let _signaturePad = null;
+function openSignatureSettingsModal() {
+  const saved = getStoredOpsSignature();
+  const savedAt = getStoredOpsSignatureDate();
+  const savedLabel = savedAt ? `Saved ${fmtDate(savedAt.split('T')[0])}` : 'Saved signature';
+  showModal(`
+    <div class="modal-hdr">
+      <span class="modal-title">OPS Signature</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-field full">
+        <label>Current Signature</label>
+        <div class="signature-preview" id="ops-signature-preview">
+          ${saved ? `<img src="${saved}" alt="Saved OPS signature">` : `<span class="signature-status">No saved signature</span>`}
+        </div>
+      </div>
+      <div class="signature-pad-wrap">
+        <div class="signature-pad-top">
+          <span class="signature-status${saved ? ' ready' : ''}" id="ops-signature-status">${saved ? savedLabel : 'Draw signature'}</span>
+          <button class="btn-ghost" type="button" onclick="clearSignaturePad()">Clear Pad</button>
+        </div>
+        <canvas class="signature-pad-canvas" id="ops-signature-canvas"></canvas>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" onclick="removeOpsSignature()">Remove Saved</button>
+      <div class="modal-foot-right">
+        <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn-add" onclick="saveSignaturePad()">Save Signature</button>
+      </div>
+    </div>
+  `);
+  $('modal-box').classList.add('wide');
+  requestAnimationFrame(initSignaturePad);
+}
+function initSignaturePad() {
+  const canvas = $('ops-signature-canvas');
+  if (!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  canvas.width = Math.max(1, Math.round(rect.width * dpr));
+  canvas.height = Math.max(1, Math.round(rect.height * dpr));
+  const ctx = canvas.getContext('2d');
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = '#0A0A09';
+  ctx.lineWidth = Math.max(3, 2.6 * dpr);
+  _signaturePad = { canvas, ctx, drawing: false, hasMarks: false };
+
+  const existing = getStoredOpsSignature();
+  if (existing) {
+    const img = new Image();
+    img.onload = () => {
+      const maxW = canvas.width * 0.82;
+      const maxH = canvas.height * 0.58;
+      const scale = Math.min(maxW / img.width, maxH / img.height, 1);
+      const w = img.width * scale;
+      const h = img.height * scale;
+      ctx.drawImage(img, (canvas.width - w) / 2, (canvas.height - h) / 2, w, h);
+      _signaturePad.hasMarks = true;
+    };
+    img.src = existing;
+  }
+
+  const point = event => {
+    const box = canvas.getBoundingClientRect();
+    return {
+      x: (event.clientX - box.left) * (canvas.width / box.width),
+      y: (event.clientY - box.top) * (canvas.height / box.height)
+    };
+  };
+  const start = event => {
+    event.preventDefault();
+    canvas.setPointerCapture?.(event.pointerId);
+    const p = point(event);
+    _signaturePad.drawing = true;
+    _signaturePad.hasMarks = true;
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+  };
+  const move = event => {
+    if (!_signaturePad?.drawing) return;
+    event.preventDefault();
+    const p = point(event);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+  };
+  const stop = event => {
+    if (!_signaturePad) return;
+    _signaturePad.drawing = false;
+    canvas.releasePointerCapture?.(event.pointerId);
+  };
+  canvas.addEventListener('pointerdown', start);
+  canvas.addEventListener('pointermove', move);
+  canvas.addEventListener('pointerup', stop);
+  canvas.addEventListener('pointercancel', stop);
+  canvas.addEventListener('pointerleave', stop);
+}
+function clearSignaturePad() {
+  if (!_signaturePad) return;
+  _signaturePad.ctx.clearRect(0, 0, _signaturePad.canvas.width, _signaturePad.canvas.height);
+  _signaturePad.hasMarks = false;
+  const status = $('ops-signature-status');
+  if (status) {
+    status.textContent = 'Draw signature';
+    status.classList.remove('ready');
+  }
+}
+function signatureCanvasToDataUrl(canvas) {
+  const ctx = canvas.getContext('2d');
+  const { width, height } = canvas;
+  const pixels = ctx.getImageData(0, 0, width, height).data;
+  let minX = width, minY = height, maxX = -1, maxY = -1;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (pixels[(y * width + x) * 4 + 3] > 10) {
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x);
+        maxY = Math.max(maxY, y);
+      }
+    }
+  }
+  if (maxX < 0 || maxY < 0) return null;
+  const pad = Math.ceil(12 * Math.max(1, window.devicePixelRatio || 1));
+  const cropW = maxX - minX + 1;
+  const cropH = maxY - minY + 1;
+  const out = document.createElement('canvas');
+  out.width = cropW + pad * 2;
+  out.height = cropH + pad * 2;
+  out.getContext('2d').drawImage(canvas, minX, minY, cropW, cropH, pad, pad, cropW, cropH);
+  return out.toDataURL('image/png');
+}
+function saveSignaturePad() {
+  if (!_signaturePad?.hasMarks) {
+    toast('Add a signature first.');
+    return;
+  }
+  const dataUrl = signatureCanvasToDataUrl(_signaturePad.canvas);
+  if (!dataUrl) {
+    toast('Add a signature first.');
+    return;
+  }
+  if (!setStoredOpsSignature(dataUrl)) return;
+  closeModal();
+  toast('OPS signature saved.');
+}
+async function removeOpsSignature() {
+  const ok = await opsConfirm({
+    title: 'Remove OPS signature?',
+    message: 'Generated documents will no longer include a saved OPS signature until a new one is added.',
+    confirmText: 'Remove',
+    tone: 'danger'
+  });
+  if (!ok) return;
+  removeStoredOpsSignature();
+  closeModal();
+  toast('OPS signature removed.');
+}
 function opsConfirm({ title, message, meta, confirmText = 'Confirm', cancelText = 'Cancel', tone = 'emerald' }) {
   return new Promise(resolve => {
     const box = $('modal-box');
@@ -2725,6 +2951,7 @@ function opsConfirm({ title, message, meta, confirmText = 'Confirm', cancelText 
         <button class="${tone === 'danger' ? 'btn-danger' : 'btn-add'}" id="confirm-ok">${esc(confirmText)}</button>
       </div>
     `);
+    box.classList.remove('wide');
     box.classList.add('confirm');
     const finish = value => {
       $('modal-overlay').removeEventListener('click', onBackdrop);
