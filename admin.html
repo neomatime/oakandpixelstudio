@@ -1542,6 +1542,8 @@ function addDays(date, days) {
 let _pdfBusy = false;
 let _pdfLogoDataUrl = null;
 let _pdfLogoLoaded = false;
+let _pdfSignatureDataUrl = null;
+let _pdfSignatureLoaded = false;
 function imageToDataUrl(src, maxPx = 200) {
   return new Promise(resolve => {
     const img = new Image();
@@ -1571,6 +1573,13 @@ async function pdfBrandLogo() {
     _pdfLogoDataUrl = await imageToDataUrl('images/oak-pixel-mark-hires-transparent.png');
   }
   return _pdfLogoDataUrl;
+}
+async function pdfSignature() {
+  if (!_pdfSignatureLoaded) {
+    _pdfSignatureLoaded = true;
+    _pdfSignatureDataUrl = await imageToDataUrl('images/neo-signature.png', 500);
+  }
+  return _pdfSignatureDataUrl;
 }
 async function generatePDF(templateHTML, filename, { returnBase64 = false } = {}) {
   if (_pdfBusy) return null;
@@ -1715,7 +1724,7 @@ async function generatePDF(templateHTML, filename, { returnBase64 = false } = {}
     };
 
     const docNum = clean(root.querySelector('.pdf-doc-num')?.textContent) || filename.replace(/\.pdf$/i, '');
-    const logo = await pdfBrandLogo();
+    const [logo, signature] = await Promise.all([pdfBrandLogo(), pdfSignature()]);
     if (logo) {
       try {
         doc.addImage(logo, 'PNG', margin, y - 7, 9, 9);
@@ -1757,17 +1766,25 @@ async function generatePDF(templateHTML, filename, { returnBase64 = false } = {}
         drawSectionTitle(child.querySelector('.pdf-bank-title')?.textContent || 'Banking Details');
         drawBody(nodeText(child.querySelector('.pdf-bank-body')));
       } else if (child.classList.contains('pdf-sig-block')) {
-        pageBreak(35);
-        doc.setDrawColor(26, 26, 24);
+        pageBreak(50);
         const sigW = (contentW - 16) / 2;
-        doc.line(margin, y + 18, margin + sigW, y + 18);
-        doc.line(margin + sigW + 16, y + 18, pageW - margin, y + 18);
-        doc.setFont('helvetica', 'normal');
+        if (signature) {
+          try { doc.addImage(signature, 'PNG', margin, y, 48, 17); } catch(e) {}
+        }
+        doc.setDrawColor(26, 26, 24);
+        doc.line(margin, y + 20, margin + sigW, y + 20);
+        doc.line(margin + sigW + 16, y + 20, pageW - margin, y + 20);
+        doc.setFont('helvetica', 'bold');
         doc.setFontSize(8.5);
         setInk();
-        doc.text('Oak & Pixel Studio', margin, y + 24);
-        doc.text('Client Signature & Date', margin + sigW + 16, y + 24);
-        y += 32;
+        doc.text('Neo Matime', margin, y + 26);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Founder & CEO, Oak & Pixel Studio', margin, y + 31);
+        doc.setFont('helvetica', 'bold');
+        doc.text(clean(child.querySelector('.pdf-sig-col:last-child strong')?.textContent) || 'Client', margin + sigW + 16, y + 26);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Authorised Signatory & Date', margin + sigW + 16, y + 31);
+        y += 40;
       }
     });
 
@@ -2241,7 +2258,8 @@ function proposalTemplate(proposal, client) {
       { title: 'Risk and Compliance Notes', body: `${riskProtectionText()} ${complianceNoteText()}` },
       { title: 'Next Steps and Acceptance', body: proposal.next_steps || `${acceptanceText('proposal')} Once approved, Oak & Pixel Studio will confirm onboarding requirements, prepare the scope of work, issue the required agreements, and schedule the project kickoff.` }
     ],
-    html: investment
+    html: investment,
+    signatures: true
   });
 }
 
@@ -2343,7 +2361,8 @@ function welcomeLetterTemplate(letter, client) {
       { title: 'Compliance Notes', body: complianceNoteText() },
       { title: 'Acknowledgement', body: `${acceptanceText('welcome letter')} This acknowledgement helps both parties begin with shared expectations while the formal commercial documents continue to govern fees, scope, delivery, and acceptance.` }
     ],
-    html: `${details}${checklist}`
+    html: `${details}${checklist}`,
+    signatures: true
   });
 }
 
