@@ -142,6 +142,13 @@ CREATE TABLE IF NOT EXISTS clients (
   company_email     TEXT,
   company_phone     TEXT,
   company_address   TEXT,
+  address_line1     TEXT,
+  address_line2     TEXT,
+  address_suburb    TEXT,
+  address_city      TEXT,
+  address_province  TEXT,
+  address_postal_code TEXT,
+  address_country   TEXT,
   position          TEXT,
   selected_plan     TEXT,
   project_start_date DATE,
@@ -156,6 +163,13 @@ ALTER TABLE clients ADD COLUMN IF NOT EXISTS industry           TEXT;
 ALTER TABLE clients ADD COLUMN IF NOT EXISTS company_email      TEXT;
 ALTER TABLE clients ADD COLUMN IF NOT EXISTS company_phone      TEXT;
 ALTER TABLE clients ADD COLUMN IF NOT EXISTS company_address    TEXT;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS address_line1      TEXT;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS address_line2      TEXT;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS address_suburb     TEXT;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS address_city       TEXT;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS address_province   TEXT;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS address_postal_code TEXT;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS address_country    TEXT;
 ALTER TABLE clients ADD COLUMN IF NOT EXISTS position           TEXT;
 ALTER TABLE clients ADD COLUMN IF NOT EXISTS selected_plan      TEXT;
 ALTER TABLE clients ADD COLUMN IF NOT EXISTS project_start_date DATE;

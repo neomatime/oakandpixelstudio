@@ -359,6 +359,7 @@ body.sidebar-collapsed .btn-signout::before{
 .info-row{display:flex;justify-content:space-between;gap:1rem;font-size:.78rem;}
 .info-row span:first-child{color:rgba(245,244,241,.38);}
 .info-row span:last-child{text-align:right;color:var(--off-white);}
+.info-row.address-row span:last-child{line-height:1.45;}
 .doc-list{display:grid;gap:.55rem;}
 .doc-row{border:1px solid var(--border);padding:.65rem .75rem;display:flex;justify-content:space-between;gap:1rem;align-items:center;}
 .data-table { width:100%; border-collapse:collapse; font-size:.82rem; }
@@ -669,6 +670,12 @@ select{color-scheme:dark;}
 .onboarding-field textarea{min-height:96px;resize:vertical;line-height:1.5;}
 .onboarding-field input:focus,.onboarding-field select:focus,.onboarding-field textarea:focus{border-color:var(--emerald);}
 .onboarding-field select option{background:var(--card);}
+.address-capture{grid-column:1/-1;border:1px solid var(--border);background:rgba(245,244,241,.02);padding:.85rem;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.75rem;}
+.address-capture-title{grid-column:1/-1;font-family:var(--font-m);font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:.65rem;}
+.address-capture-title::after{content:'';height:1px;background:var(--border);flex:1;}
+.address-capture .onboarding-field{min-width:0;}
+.address-capture .span-4{grid-column:1/-1;}
+.address-capture .span-2{grid-column:span 2;}
 .onboarding-foot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);margin-top:1.2rem;padding-top:1rem;}
 .onboarding-hint{font-size:.72rem;color:rgba(245,244,241,.34);max-width:320px;}
 .onboarding-actions{display:flex;gap:.5rem;}
@@ -750,6 +757,8 @@ select{color-scheme:dark;}
 [data-theme="light"] .profile-title,[data-theme="light"] .linked-title{color:#1A1A18;}
 [data-theme="light"] .onboarding-field label{color:rgba(26,26,24,.45);}
 [data-theme="light"] .onboarding-step{background:rgba(26,26,24,.025);}
+[data-theme="light"] .address-capture{background:rgba(26,26,24,.025);border-color:rgba(26,26,24,.1);}
+[data-theme="light"] .address-capture-title::after{background:rgba(26,26,24,.1);}
 [data-theme="light"] .project-card{background:#fff;}
 [data-theme="light"] .project-pill{color:rgba(26,26,24,.55);}
 [data-theme="light"] .kanban-title{color:rgba(26,26,24,.5);}
@@ -766,6 +775,8 @@ select{color-scheme:dark;}
   .booking-slot-panel{grid-template-columns:1fr;}
   .onboarding-steps{grid-template-columns:1fr;}
   .onboarding-panel.active{grid-template-columns:1fr;}
+  .address-capture{grid-template-columns:1fr;}
+  .address-capture .span-2,.address-capture .span-4{grid-column:1/-1;}
   .kanban-board{grid-template-columns:repeat(5,240px);}
   .service-detail-grid{grid-template-columns:1fr;}
   .detail-metrics{grid-template-columns:1fr;}
@@ -1624,6 +1635,55 @@ function esc(v) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
+function clientAddressParts(client = {}) {
+  const legacy = client.company_address || '';
+  const hasStructured = [
+    client.address_line1,
+    client.address_line2,
+    client.address_suburb,
+    client.address_city,
+    client.address_province,
+    client.address_postal_code,
+    client.address_country,
+  ].some(Boolean);
+  if (!hasStructured && legacy) {
+    const lines = String(legacy).split(/\r?\n/).map(v => v.trim()).filter(Boolean);
+    const cityParts = (lines[2] || '').split(',').map(v => v.trim()).filter(Boolean);
+    return {
+      line1: lines[0] || legacy,
+      line2: lines[1] || '',
+      suburb: cityParts[0] || '',
+      city: cityParts[1] || '',
+      province: cityParts[2] || '',
+      postalCode: cityParts[3] || '',
+      country: lines[3] || 'South Africa',
+    };
+  }
+  return {
+    line1: client.address_line1 || legacy || '',
+    line2: client.address_line2 || '',
+    suburb: client.address_suburb || '',
+    city: client.address_city || '',
+    province: client.address_province || '',
+    postalCode: client.address_postal_code || '',
+    country: client.address_country || 'South Africa',
+  };
+}
+function composeClientAddress(parts = {}) {
+  const cityLine = [parts.suburb, parts.city, parts.province, parts.postalCode].map(v => String(v || '').trim()).filter(Boolean).join(', ');
+  const hasAddressDetail = [parts.line1, parts.line2, parts.suburb, parts.city, parts.province, parts.postalCode].some(v => String(v || '').trim());
+  return [parts.line1, parts.line2, cityLine, hasAddressDetail ? parts.country : '']
+    .map(v => String(v || '').trim())
+    .filter(Boolean)
+    .join('\n');
+}
+function clientAddressText(client = {}) {
+  return composeClientAddress(clientAddressParts(client));
+}
+function clientAddressHTML(client = {}) {
+  const text = clientAddressText(client);
+  return text ? text.split('\n').map(esc).join('<br>') : 'Not set';
+}
 function compactDate(ds) {
   return ds ? fmtDate(ds) : '—';
 }
@@ -2024,6 +2084,7 @@ function _pdfClientBlock(client) {
   const logo = client.logo_url
     ? `<img src="${esc(client.logo_url)}" alt="${esc(client.company || client.full_name || 'Client')} logo">`
     : esc(clientInitials(client));
+  const address = clientAddressText(client);
   return `<div class="pdf-client-row">
     <div></div>
     <div class="pdf-client-info">
@@ -2031,7 +2092,7 @@ function _pdfClientBlock(client) {
       <div class="pdf-client-lines">
         <strong>${esc(client.company || client.full_name || '')}</strong><br>
         ${client.full_name ? `${esc(client.full_name)}${client.position ? `, ${esc(client.position)}` : ''}<br>` : ''}
-        ${client.company_address ? esc(client.company_address) + '<br>' : ''}
+        ${address ? address.split('\n').map(esc).join('<br>') + '<br>' : ''}
         ${esc(client.company_email || client.email || '')}<br>
         ${esc(client.company_phone || client.phone || '')}
       </div>
@@ -4199,6 +4260,7 @@ function openClientOnboarding(id = null) {
   onboardingStep = 0;
   const client = id ? clientById(id) : {};
   const isEdit = Boolean(id);
+  const address = clientAddressParts(client);
   showModal(`
     <div class="modal-hdr">
       <span class="modal-title">${isEdit ? 'Edit Client' : 'New Client Onboarding'}</span>
@@ -4216,7 +4278,16 @@ function openClientOnboarding(id = null) {
         <div class="onboarding-field"><label>Website</label><input id="oc-website" value="${esc(client.website)}" placeholder="https://"></div>
         <div class="onboarding-field"><label>Company Email</label><input id="oc-company-email" type="email" value="${esc(client.company_email || client.email)}"></div>
         <div class="onboarding-field"><label>Company Phone</label><input id="oc-company-phone" value="${esc(client.company_phone || client.phone)}"></div>
-        <div class="onboarding-field full"><label>Company Address</label><input id="oc-address" value="${esc(client.company_address)}"></div>
+        <div class="address-capture">
+          <div class="address-capture-title">Registered / Trading Address</div>
+          <div class="onboarding-field span-4"><label>Address Line 1</label><input id="oc-address-line1" value="${esc(address.line1)}" placeholder="Street number and street name"></div>
+          <div class="onboarding-field span-4"><label>Address Line 2</label><input id="oc-address-line2" value="${esc(address.line2)}" placeholder="Building, floor, suite, unit, or complex"></div>
+          <div class="onboarding-field span-2"><label>Suburb / Area</label><input id="oc-address-suburb" value="${esc(address.suburb)}" placeholder="Suburb or area"></div>
+          <div class="onboarding-field span-2"><label>City / Town</label><input id="oc-address-city" value="${esc(address.city)}" placeholder="City or town"></div>
+          <div class="onboarding-field span-2"><label>Province / State</label><input id="oc-address-province" value="${esc(address.province)}" placeholder="Province"></div>
+          <div class="onboarding-field"><label>Postal Code</label><input id="oc-address-postal" value="${esc(address.postalCode)}" inputmode="numeric" placeholder="0000"></div>
+          <div class="onboarding-field"><label>Country</label><input id="oc-address-country" value="${esc(address.country)}" placeholder="South Africa"></div>
+        </div>
       </div>
       <div class="onboarding-panel" data-panel="1">
         <div class="onboarding-field full"><label>Full Name</label><input id="oc-name" value="${esc(client.full_name)}"></div>
@@ -4261,13 +4332,30 @@ async function saveClient(id = '') {
   const saveBtn = $('onboarding-save');
   btnLoad(saveBtn, true, id ? 'Saving…' : 'Creating…');
   const notes = $('oc-notes').value.trim();
+  const addressParts = {
+    line1:      $('oc-address-line1')?.value.trim() || '',
+    line2:      $('oc-address-line2')?.value.trim() || '',
+    suburb:     $('oc-address-suburb')?.value.trim() || '',
+    city:       $('oc-address-city')?.value.trim() || '',
+    province:   $('oc-address-province')?.value.trim() || '',
+    postalCode: $('oc-address-postal')?.value.trim() || '',
+    country:    $('oc-address-country')?.value.trim() || '',
+  };
+  const composedAddress = composeClientAddress(addressParts);
   const payload = {
     company:            $('oc-company').value.trim(),
     industry:           $('oc-industry').value.trim() || null,
     website:            $('oc-website').value.trim() || null,
     company_email:      $('oc-company-email').value.trim() || null,
     company_phone:      $('oc-company-phone').value.trim() || null,
-    company_address:    $('oc-address').value.trim() || null,
+    company_address:    composedAddress || null,
+    address_line1:      addressParts.line1 || null,
+    address_line2:      addressParts.line2 || null,
+    address_suburb:     addressParts.suburb || null,
+    address_city:       addressParts.city || null,
+    address_province:   addressParts.province || null,
+    address_postal_code: addressParts.postalCode || null,
+    address_country:    addressParts.country || null,
     full_name:          $('oc-name').value.trim(),
     position:           $('oc-position').value.trim() || null,
     email:              $('oc-email').value.trim(),
@@ -4288,9 +4376,29 @@ async function saveClient(id = '') {
   let { error } = await query;
   if (error) {
     const fallback = { ...payload };
-    delete fallback.company_address;
+    delete fallback.address_line1;
+    delete fallback.address_line2;
+    delete fallback.address_suburb;
+    delete fallback.address_city;
+    delete fallback.address_province;
+    delete fallback.address_postal_code;
+    delete fallback.address_country;
     delete fallback.client_status;
     query = id ? sb.from('clients').update(fallback).eq('id', id) : sb.from('clients').insert(fallback);
+    ({ error } = await query);
+  }
+  if (error) {
+    const legacyFallback = { ...payload };
+    delete legacyFallback.company_address;
+    delete legacyFallback.address_line1;
+    delete legacyFallback.address_line2;
+    delete legacyFallback.address_suburb;
+    delete legacyFallback.address_city;
+    delete legacyFallback.address_province;
+    delete legacyFallback.address_postal_code;
+    delete legacyFallback.address_country;
+    delete legacyFallback.client_status;
+    query = id ? sb.from('clients').update(legacyFallback).eq('id', id) : sb.from('clients').insert(legacyFallback);
     ({ error } = await query);
   }
   if (error) { btnLoad(saveBtn, false); toast('Error saving client. Apply the client schema migration first.'); return; }
@@ -4373,7 +4481,7 @@ async function renderClientProfile() {
             <div class="info-row"><span>Website</span><span>${esc(client.website || 'Not set')}</span></div>
             <div class="info-row"><span>Company Email</span><span>${esc(client.company_email || client.email || 'Not set')}</span></div>
             <div class="info-row"><span>Company Phone</span><span>${esc(client.company_phone || client.phone || 'Not set')}</span></div>
-            <div class="info-row"><span>Address</span><span>${esc(client.company_address || 'Not set')}</span></div>
+            <div class="info-row address-row"><span>Address</span><span>${clientAddressHTML(client)}</span></div>
             <div class="info-row"><span>Start Date</span><span>${compactDate(client.project_start_date)}</span></div>
           </div>
         </div>
