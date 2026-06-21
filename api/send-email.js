@@ -30,7 +30,7 @@ module.exports = async (req, res) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Oak & Pixel Studio <hello@oakandpixel.co.za>',
+        from: 'Oak & Pixel Studio <info@oakandpixel.co.za>',
         to: [to],
         subject,
         html: htmlBody || '<p>Please find your document attached.</p>',
