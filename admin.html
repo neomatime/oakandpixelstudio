@@ -656,7 +656,7 @@ select{color-scheme:dark;}
 .linked-title{font-family:var(--font-m);font-size:.68rem;color:var(--off-white);}
 .linked-meta{font-size:.66rem;color:rgba(245,244,241,.42);margin-top:.14rem;}
 .onboarding-shell{padding:1.35rem 1.5rem 1.5rem;}
-.onboarding-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:1.25rem;}
+.onboarding-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.5rem;margin-bottom:1.25rem;}
 .onboarding-step{border:1px solid var(--border);background:rgba(245,244,241,.025);padding:.75rem;}
 .onboarding-step.active{border-color:var(--emerald);background:var(--em-dim);}
 .onboarding-step-num{font-family:var(--font-m);font-size:.52rem;color:var(--emerald-l);letter-spacing:.12em;text-transform:uppercase;margin-bottom:.25rem;}
@@ -676,10 +676,45 @@ select{color-scheme:dark;}
 .address-capture .onboarding-field{min-width:0;}
 .address-capture .span-4{grid-column:1/-1;}
 .address-capture .span-2{grid-column:span 2;}
+.client-assets-root{grid-column:1/-1;display:grid;gap:1rem;}
+.assets-guidance{border:1px solid var(--border);background:rgba(245,244,241,.025);padding:1rem;display:grid;gap:.35rem;}
+.assets-guidance-title{font-family:var(--font-d);font-size:1.2rem;line-height:1.1;}
+.assets-guidance-copy{font-size:.78rem;color:rgba(245,244,241,.45);max-width:680px;}
+.asset-groups{display:grid;gap:.8rem;}
+.asset-group{border:1px solid var(--border);background:rgba(245,244,241,.018);}
+.asset-group-head{padding:.75rem .9rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+.asset-group-title{font-family:var(--font-m);font-size:.58rem;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);}
+.asset-group-count{font-family:var(--font-m);font-size:.52rem;color:rgba(245,244,241,.32);}
+.asset-card{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(220px,.9fr);gap:.75rem;padding:.85rem .9rem;border-bottom:1px solid var(--border);}
+.asset-card:last-child{border-bottom:none;}
+.asset-title{font-family:var(--font-d);font-size:1.02rem;line-height:1.1;color:var(--off-white);}
+.asset-meta{margin-top:.22rem;font-size:.7rem;color:rgba(245,244,241,.42);}
+.asset-required{color:var(--gold);font-family:var(--font-m);font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;margin-left:.35rem;}
+.asset-dropzone{border:1px dashed rgba(245,244,241,.18);background:rgba(245,244,241,.025);min-height:96px;padding:.75rem;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;transition:border-color .18s,background .18s;}
+.asset-dropzone.drag-over{border-color:var(--emerald);background:var(--em-dim);}
+.asset-drop-title{font-family:var(--font-m);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,244,241,.55);}
+.asset-drop-sub{font-size:.68rem;color:rgba(245,244,241,.35);margin-top:.2rem;}
+.asset-preview{display:flex;align-items:center;gap:.65rem;width:100%;text-align:left;}
+.asset-preview-thumb{width:42px;height:42px;border:1px solid var(--border-hi);background:rgba(245,244,241,.04);display:flex;align-items:center;justify-content:center;overflow:hidden;font-family:var(--font-m);font-size:.55rem;color:var(--gold);flex-shrink:0;}
+.asset-preview-thumb img{width:100%;height:100%;object-fit:cover;}
+.asset-preview-name{font-size:.76rem;color:var(--off-white);word-break:break-word;}
+.asset-preview-sub{font-size:.64rem;color:rgba(245,244,241,.38);}
+.asset-actions{display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;margin-top:.55rem;}
+.asset-actions .ops-select-wrap{width:auto;min-width:140px;}
+.asset-status-select{min-width:140px;}
+.asset-file-input{display:none;}
+.asset-access-grid,.asset-checklist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;}
+.asset-check-item{border:1px solid var(--border);background:rgba(245,244,241,.02);padding:.75rem;display:flex;align-items:center;gap:.65rem;font-size:.78rem;color:rgba(245,244,241,.7);}
+.asset-check-item input{accent-color:var(--emerald);}
+.onboarding-review{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.review-card{border:1px solid var(--border);background:rgba(245,244,241,.02);padding:1rem;}
+.review-title{font-family:var(--font-m);font-size:.58rem;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem;}
+.review-list{display:grid;gap:.45rem;font-size:.78rem;color:rgba(245,244,241,.65);}
 .onboarding-foot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);margin-top:1.2rem;padding-top:1rem;}
 .onboarding-hint{font-size:.72rem;color:rgba(245,244,241,.34);max-width:320px;}
 .onboarding-actions{display:flex;gap:.5rem;}
 .modal-box.wide{width:min(760px,94vw);}
+.modal-box.wide.client-onboarding{width:min(920px,94vw);}
 .booking-slot-panel{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);gap:.85rem;align-items:start;}
 .booking-time-field{display:flex;flex-direction:column;gap:.3rem;min-width:0;}
 .booking-time-field label{font-family:var(--font-m);font-size:.54rem;letter-spacing:.11em;text-transform:uppercase;color:rgba(245,244,241,.32);}
@@ -759,6 +794,11 @@ select{color-scheme:dark;}
 [data-theme="light"] .onboarding-step{background:rgba(26,26,24,.025);}
 [data-theme="light"] .address-capture{background:rgba(26,26,24,.025);border-color:rgba(26,26,24,.1);}
 [data-theme="light"] .address-capture-title::after{background:rgba(26,26,24,.1);}
+[data-theme="light"] .assets-guidance,[data-theme="light"] .asset-group,[data-theme="light"] .asset-check-item,[data-theme="light"] .review-card{background:rgba(26,26,24,.025);border-color:rgba(26,26,24,.1);}
+[data-theme="light"] .assets-guidance-copy,[data-theme="light"] .asset-meta,[data-theme="light"] .asset-drop-sub,[data-theme="light"] .asset-preview-sub,[data-theme="light"] .review-list{color:rgba(26,26,24,.5);}
+[data-theme="light"] .asset-title,[data-theme="light"] .asset-preview-name,[data-theme="light"] .assets-guidance-title{color:#1A1A18;}
+[data-theme="light"] .asset-dropzone{background:rgba(26,26,24,.025);border-color:rgba(26,26,24,.16);}
+[data-theme="light"] .asset-check-item{color:rgba(26,26,24,.72);}
 [data-theme="light"] .project-card{background:#fff;}
 [data-theme="light"] .project-pill{color:rgba(26,26,24,.55);}
 [data-theme="light"] .kanban-title{color:rgba(26,26,24,.5);}
@@ -777,6 +817,7 @@ select{color-scheme:dark;}
   .onboarding-panel.active{grid-template-columns:1fr;}
   .address-capture{grid-template-columns:1fr;}
   .address-capture .span-2,.address-capture .span-4{grid-column:1/-1;}
+  .asset-card,.asset-access-grid,.asset-checklist,.onboarding-review{grid-template-columns:1fr;}
   .kanban-board{grid-template-columns:repeat(5,240px);}
   .service-detail-grid{grid-template-columns:1fr;}
   .detail-metrics{grid-template-columns:1fr;}
@@ -1502,6 +1543,49 @@ let editBookingSlots = [];
 let datePicker;
 let trendChart;
 let confirmedCount = 0;
+let onboardingClientId = null;
+let onboardingAssetState = {};
+let onboardingAccessState = {};
+let onboardingChecklistState = {};
+let onboardingAssetSchemaReady = true;
+const ONBOARDING_TOTAL_STEPS = 5;
+const ASSET_ACCEPT = '.pdf,.png,.jpg,.jpeg,.svg,.docx,.xlsx';
+const ASSET_STATUSES = ['Missing','Pending','Uploaded','Approved'];
+const CLIENT_REPOSITORY_FOLDERS = ['Branding Assets','Company Information','Website Content','Media Assets','Platform Access Notes','OPS Documents'];
+const OPS_DOCUMENT_SLOTS = ['Proposal','Quote','Scope of Work','Invoice','Welcome Letter','Monthly Retainer Statement'];
+const CLIENT_ASSET_REQUESTS = [
+  { key:'company_logo', folder:'Branding Assets', name:'Company logo', required:true, hint:'Primary logo file for profiles, documents, website, and project cards.' },
+  { key:'brand_guidelines', folder:'Branding Assets', name:'Brand guidelines', hint:'Any visual identity guide, style guide, or brand reference document.' },
+  { key:'brand_colours', folder:'Branding Assets', name:'Brand colours', hint:'Colour palette, swatches, or a short note with preferred brand colours.', rule:'website' },
+  { key:'brand_fonts', folder:'Branding Assets', name:'Brand fonts', hint:'Font files, font names, or brand typography guidance.', rule:'website' },
+  { key:'company_profile', folder:'Company Information', name:'Company profile / brochure', hint:'Useful background material for tone, positioning, and service context.' },
+  { key:'registration_certificate', folder:'Company Information', name:'Company registration certificate', hint:'Optional company registration document where relevant.' },
+  { key:'company_address_details', folder:'Company Information', name:'Company address details', hint:'Address support document, lease details, or official address note if needed.' },
+  { key:'company_description', folder:'Website Content', name:'Company description', hint:'About copy, elevator pitch, or company story.', rule:'website' },
+  { key:'existing_website_content', folder:'Website Content', name:'Existing website content', hint:'Current page copy, sitemap, or exported content.', rule:'website' },
+  { key:'service_descriptions', folder:'Website Content', name:'Service descriptions', hint:'Descriptions of services, packages, outcomes, and FAQs.', rule:'content' },
+  { key:'team_member_information', folder:'Website Content', name:'Team member information', hint:'Names, roles, bios, and profile details.', rule:'team' },
+  { key:'lead_qualification_questions', folder:'Website Content', name:'Lead qualification questions', hint:'Questions OPS should ask prospects before routing or booking.', rule:'lead' },
+  { key:'existing_workflows', folder:'Website Content', name:'Existing workflows', hint:'How enquiries, onboarding, payments, approvals, or operations currently work.', rule:'system' },
+  { key:'business_process_notes', folder:'Website Content', name:'Business process notes', hint:'Internal notes that help OPS structure the client operating system.', rule:'system' },
+  { key:'professional_images', folder:'Media Assets', name:'Professional images', hint:'Photography and images approved for public use.', rule:'website' },
+  { key:'team_photographs', folder:'Media Assets', name:'Team photographs', hint:'Team or founder images for web and profile sections.', rule:'team' },
+  { key:'product_photographs', folder:'Media Assets', name:'Product photographs', hint:'Product, venue, service, or portfolio imagery.', rule:'website' },
+  { key:'marketing_assets', folder:'Media Assets', name:'Marketing assets', hint:'Ads, social media creatives, campaign visuals, and collateral.', rule:'presence' },
+  { key:'existing_digital_channels', folder:'Platform Access Notes', name:'Existing digital channels', hint:'List of active social, listing, newsletter, or digital channels.', rule:'presence' }
+];
+const ACCESS_NOTE_ITEMS = [
+  { key:'domain_provider', label:'Domain provider information', placeholder:'Provider name, account owner, DNS notes, and access request status. No passwords.' },
+  { key:'hosting_provider', label:'Hosting provider information', placeholder:'Hosting provider, package, account owner, and access request status. No passwords.' },
+  { key:'existing_website', label:'Existing website information', placeholder:'Platform/CMS, current site notes, admin contact, and handover notes. No passwords.' }
+];
+const INTERNAL_CHECKLIST_ITEMS = [
+  { key:'logo_received', label:'Logo received' },
+  { key:'brand_assets_received', label:'Brand assets received' },
+  { key:'content_received', label:'Content received' },
+  { key:'images_received', label:'Images received' },
+  { key:'access_requirements_received', label:'Access requirements received' }
+];
 const PROJECT_COLUMNS = [
   ['backlog', 'Backlog'],
   ['todo', 'To Do'],
@@ -4343,11 +4427,191 @@ function renderPipelinePage() {
   }).join('');
 }
 
-function openClientOnboarding(id = null) {
+function normalizeAssetRuleText(value = '') {
+  return String(value || '').toLowerCase();
+}
+function selectedOnboardingPlanText() {
+  return normalizeAssetRuleText($('oc-plan')?.value || '');
+}
+function assetRuleMatches(rule, selected = selectedOnboardingPlanText()) {
+  if (!rule) return true;
+  if (rule === 'website') return /website|signature|growth|premium/.test(selected);
+  if (rule === 'lead') return /lead|capture/.test(selected);
+  if (rule === 'system') return /operating system|crm|workflow|automation|payment/.test(selected);
+  if (rule === 'presence') return /digital presence|presence|marketing|management/.test(selected);
+  if (rule === 'team') return /website|team|operating system|crm|signature|growth|premium/.test(selected);
+  if (rule === 'content') return /website|lead|booking|signature|growth|premium/.test(selected);
+  return selected.includes(rule);
+}
+function requestedClientAssets() {
+  const selected = selectedOnboardingPlanText();
+  return CLIENT_ASSET_REQUESTS.filter(item => item.required || !item.rule || assetRuleMatches(item.rule, selected));
+}
+function assetStatusOptions(status = 'Missing') {
+  return ASSET_STATUSES.map(s => `<option value="${s}"${s === status ? ' selected' : ''}>${s}</option>`).join('');
+}
+function safePathSegment(value = '') {
+  return String(value || 'item').trim().replace(/[^a-z0-9._-]+/gi, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'item';
+}
+function fileExtension(fileName = '') {
+  return String(fileName).split('.').pop().toLowerCase();
+}
+function isAcceptedAssetFile(file) {
+  return ['pdf','png','jpg','jpeg','svg','docx','xlsx'].includes(fileExtension(file?.name || ''));
+}
+async function loadClientAssetDocuments(clientId) {
+  if (!clientId || !onboardingAssetSchemaReady) return [];
+  const { data, error } = await sb.from('client_documents').select('*').eq('client_id', clientId).order('created_at', { ascending: true });
+  if (error) { onboardingAssetSchemaReady = false; return []; }
+  return Promise.all((data || []).map(async row => {
+    if (row.file_path) {
+      const signed = await sb.storage.from('client-documents').createSignedUrl(row.file_path, 3600);
+      if (!signed.error) row.preview_url = signed.data?.signedUrl;
+    }
+    return row;
+  }));
+}
+function initOnboardingAssetState(existingDocs = []) {
+  onboardingAssetState = {};
+  onboardingAccessState = {};
+  onboardingChecklistState = {};
+  existingDocs.forEach(doc => {
+    if (doc.record_type === 'access_note') {
+      onboardingAccessState[String(doc.document_key || '').replace('access_', '')] = doc.notes || '';
+      return;
+    }
+    if (doc.record_type === 'checklist') {
+      onboardingChecklistState[String(doc.document_key || '').replace('check_', '')] = doc.status === 'Approved' || doc.status === 'Uploaded';
+      return;
+    }
+    if (doc.record_type && doc.record_type !== 'document') return;
+    if (!doc.document_key) return;
+    onboardingAssetState[doc.document_key] = { status: doc.status || 'Missing', existing: doc, file: null, previewUrl: doc.preview_url || '', deleteExisting: false };
+  });
+  INTERNAL_CHECKLIST_ITEMS.forEach(item => { if (typeof onboardingChecklistState[item.key] !== 'boolean') onboardingChecklistState[item.key] = false; });
+  ACCESS_NOTE_ITEMS.forEach(item => { if (typeof onboardingAccessState[item.key] !== 'string') onboardingAccessState[item.key] = ''; });
+}
+function ensureAssetState(key) {
+  if (!onboardingAssetState[key]) onboardingAssetState[key] = { status:'Missing', existing:null, file:null, previewUrl:'', deleteExisting:false };
+  return onboardingAssetState[key];
+}
+function assetPreviewHTML(key) {
+  const state = ensureAssetState(key);
+  const fileName = state.file?.name || state.existing?.file_name || '';
+  const fileType = state.file?.type || state.existing?.file_type || fileExtension(fileName).toUpperCase();
+  const preview = state.previewUrl;
+  if (!fileName || state.deleteExisting) return `<div><div class="asset-drop-title">Drop file or click to upload</div><div class="asset-drop-sub">PDF, PNG, JPG, JPEG, SVG, DOCX, XLSX</div></div>`;
+  const isImage = /image\//.test(fileType) || ['png','jpg','jpeg','svg'].includes(fileExtension(fileName));
+  const thumb = isImage && preview ? `<img src="${esc(preview)}" alt="${esc(fileName)} preview">` : esc(fileExtension(fileName).toUpperCase() || 'FILE');
+  return `<div class="asset-preview"><div class="asset-preview-thumb">${thumb}</div><div><div class="asset-preview-name">${esc(fileName)}</div><div class="asset-preview-sub">${esc(fileType || 'Document')} - ${state.file ? 'Pending upload' : state.existing?.uploaded_at ? compactDate(state.existing.uploaded_at.split('T')[0]) : 'Saved'}</div></div></div>`;
+}
+function assetCardHTML(item) {
+  const state = ensureAssetState(item.key);
+  return `<div class="asset-card" data-asset-key="${esc(item.key)}"><div><div class="asset-title">${esc(item.name)}${item.required ? '<span class="asset-required">Mandatory</span>' : ''}</div><div class="asset-meta">${esc(item.hint || '')}</div><div class="asset-actions"><select class="asset-status-select" data-asset-status="${esc(item.key)}">${assetStatusOptions(state.status)}</select><button class="act-btn" type="button" onclick="triggerAssetUpload('${item.key}')">Replace</button><button class="act-btn delete" type="button" onclick="removeOnboardingAsset('${item.key}')">Delete</button></div></div><div class="asset-dropzone" data-asset-drop="${esc(item.key)}">${assetPreviewHTML(item.key)}<input class="asset-file-input" id="asset-file-${esc(item.key)}" type="file" accept="${ASSET_ACCEPT}" data-asset-file="${esc(item.key)}"></div></div>`;
+}
+function renderClientAssetsStep() {
+  const root = $('client-assets-root');
+  if (!root) return;
+  const assets = requestedClientAssets();
+  const groups = CLIENT_REPOSITORY_FOLDERS.map(folder => [folder, assets.filter(item => item.folder === folder)]).filter(([,items]) => items.length);
+  root.innerHTML = `<div class="assets-guidance"><div class="assets-guidance-title">Prepare the client workspace</div><div class="assets-guidance-copy">Capture only the assets that matter for the selected service. OPS will use these to prepare the delivery workspace, documents, and implementation plan.</div></div><div class="asset-groups">${groups.map(([folder, items]) => `<section class="asset-group"><div class="asset-group-head"><span class="asset-group-title">${esc(folder)}</span><span class="asset-group-count">${items.length} request${items.length === 1 ? '' : 's'}</span></div>${items.map(assetCardHTML).join('')}</section>`).join('')}<section class="asset-group"><div class="asset-group-head"><span class="asset-group-title">Platform Access Notes</span><span class="asset-group-count">No passwords</span></div><div class="asset-access-grid" style="padding:.85rem .9rem">${ACCESS_NOTE_ITEMS.map(item => `<div class="onboarding-field"><label>${esc(item.label)}</label><textarea data-access-note="${esc(item.key)}" placeholder="${esc(item.placeholder)}">${esc(onboardingAccessState[item.key] || '')}</textarea></div>`).join('')}</div></section><section class="asset-group"><div class="asset-group-head"><span class="asset-group-title">Internal OPS Checklist</span><span class="asset-group-count">Delivery readiness</span></div><div class="asset-checklist" style="padding:.85rem .9rem">${INTERNAL_CHECKLIST_ITEMS.map(item => `<label class="asset-check-item"><input type="checkbox" data-asset-check="${esc(item.key)}"${onboardingChecklistState[item.key] ? ' checked' : ''}>${esc(item.label)}</label>`).join('')}</div></section></div>`;
+  enhanceOpsSelects(root);
+  wireClientAssetControls(root);
+}
+function wireClientAssetControls(root = document) {
+  root.querySelectorAll('[data-asset-status]').forEach(sel => sel.addEventListener('change', () => { ensureAssetState(sel.dataset.assetStatus).status = sel.value; }));
+  root.querySelectorAll('[data-access-note]').forEach(input => input.addEventListener('input', () => { onboardingAccessState[input.dataset.accessNote] = input.value; }));
+  root.querySelectorAll('[data-asset-check]').forEach(input => input.addEventListener('change', () => { onboardingChecklistState[input.dataset.assetCheck] = input.checked; }));
+  root.querySelectorAll('[data-asset-file]').forEach(input => input.addEventListener('change', () => { const file = input.files?.[0]; if (file) setOnboardingAssetFile(input.dataset.assetFile, file); }));
+  root.querySelectorAll('[data-asset-drop]').forEach(zone => {
+    zone.addEventListener('click', e => { if (e.target.closest('button,select,.ops-select-wrap')) return; $('asset-file-' + zone.dataset.assetDrop)?.click(); });
+    ['dragenter','dragover'].forEach(eventName => zone.addEventListener(eventName, e => { e.preventDefault(); zone.classList.add('drag-over'); }));
+    ['dragleave','drop'].forEach(eventName => zone.addEventListener(eventName, e => { e.preventDefault(); zone.classList.remove('drag-over'); }));
+    zone.addEventListener('drop', e => { const file = e.dataTransfer?.files?.[0]; if (file) setOnboardingAssetFile(zone.dataset.assetDrop, file); });
+  });
+}
+function triggerAssetUpload(key) { $('asset-file-' + key)?.click(); }
+function setOnboardingAssetFile(key, file) {
+  if (!isAcceptedAssetFile(file)) { toast('Unsupported file type. Use PDF, PNG, JPG, JPEG, SVG, DOCX, or XLSX.'); return; }
+  const state = ensureAssetState(key);
+  if (state.previewUrl && state.file) URL.revokeObjectURL(state.previewUrl);
+  state.file = file;
+  state.previewUrl = URL.createObjectURL(file);
+  state.status = 'Pending';
+  state.deleteExisting = false;
+  renderClientAssetsStep();
+}
+function removeOnboardingAsset(key) {
+  const state = ensureAssetState(key);
+  if (state.previewUrl && state.file) URL.revokeObjectURL(state.previewUrl);
+  state.file = null;
+  state.previewUrl = '';
+  state.status = 'Missing';
+  state.deleteExisting = Boolean(state.existing?.file_path);
+  renderClientAssetsStep();
+}
+function syncClientAssetRequests() { renderClientAssetsStep(); renderClientReview(); }
+function renderClientReview() {
+  const root = $('client-review-root');
+  if (!root) return;
+  const assets = requestedClientAssets();
+  const ready = assets.filter(item => ['Uploaded','Approved'].includes(ensureAssetState(item.key).status)).length;
+  const checklistDone = INTERNAL_CHECKLIST_ITEMS.filter(item => onboardingChecklistState[item.key]).length;
+  root.innerHTML = `<div class="onboarding-review"><div class="review-card"><div class="review-title">Client</div><div class="review-list"><span>${esc($('oc-company')?.value || 'Company not set')}</span><span>${esc($('oc-name')?.value || 'Contact not set')}</span><span>${esc($('oc-plan')?.value || 'Service not selected')}</span></div></div><div class="review-card"><div class="review-title">Assets</div><div class="review-list"><span>${ready} of ${assets.length} requested items uploaded or approved</span><span>${checklistDone} of ${INTERNAL_CHECKLIST_ITEMS.length} internal checks complete</span><span>Repository: ${esc($('oc-company')?.value || 'Client Name')}</span></div></div><div class="review-card"><div class="review-title">Repository Structure</div><div class="review-list">${CLIENT_REPOSITORY_FOLDERS.map(folder => `<span>${esc(folder)}</span>`).join('')}</div></div><div class="review-card"><div class="review-title">OPS Documents</div><div class="review-list">${OPS_DOCUMENT_SLOTS.map(doc => `<span>${esc(doc)}</span>`).join('')}</div></div></div>`;
+}
+async function upsertClientDocumentRow(row) {
+  const { error } = await sb.from('client_documents').upsert(row, { onConflict:'client_id,document_key' });
+  if (error) throw error;
+}
+async function ensureClientDocumentRepository(clientId) {
+  const folderRows = CLIENT_REPOSITORY_FOLDERS.map(folder => ({ client_id:clientId, record_type:'folder', folder, document_key:'folder_' + safePathSegment(folder).toLowerCase(), document_name:folder, status:'Pending' }));
+  const docRows = OPS_DOCUMENT_SLOTS.map(name => ({ client_id:clientId, record_type:'generated_slot', folder:'OPS Documents', document_key:'ops_doc_' + safePathSegment(name).toLowerCase(), document_name:name, status:'Missing' }));
+  const { error } = await sb.from('client_documents').upsert([...folderRows, ...docRows], { onConflict:'client_id,document_key' });
+  if (error) throw error;
+}
+async function saveOnboardingAssets(clientId) {
+  if (!clientId || !onboardingAssetSchemaReady) return;
+  try {
+    await ensureClientDocumentRepository(clientId);
+    for (const item of requestedClientAssets()) {
+      const state = ensureAssetState(item.key);
+      let row = { client_id:clientId, record_type:'document', folder:item.folder, document_key:item.key, document_name:item.name, status:state.status || 'Missing' };
+      if (state.deleteExisting && state.existing?.file_path) {
+        await sb.storage.from('client-documents').remove([state.existing.file_path]);
+        row = { ...row, file_name:null, file_type:null, file_path:null, uploaded_at:null };
+      }
+      if (state.file) {
+        const path = `${clientId}/${safePathSegment(item.folder)}/${Date.now()}-${safePathSegment(state.file.name)}`;
+        const { error: uploadError } = await sb.storage.from('client-documents').upload(path, state.file, { upsert:true });
+        if (uploadError) throw uploadError;
+        row = { ...row, file_name:state.file.name, file_type:state.file.type || fileExtension(state.file.name).toUpperCase(), file_path:path, status:'Uploaded', uploaded_at:new Date().toISOString() };
+        if (item.key === 'company_logo' && /^image\//.test(state.file.type || '')) {
+          const ext = fileExtension(state.file.name) || 'png';
+          const logoPath = `${clientId}/${Date.now()}.${ext}`;
+          const logoUpload = await sb.storage.from('client-logos').upload(logoPath, state.file, { upsert:true });
+          if (!logoUpload.error) {
+            const { data } = sb.storage.from('client-logos').getPublicUrl(logoPath);
+            await sb.from('clients').update({ logo_url:data.publicUrl }).eq('id', clientId);
+          }
+        }
+      }
+      await upsertClientDocumentRow(row);
+    }
+    for (const item of ACCESS_NOTE_ITEMS) await upsertClientDocumentRow({ client_id:clientId, record_type:'access_note', folder:'Platform Access Notes', document_key:'access_' + item.key, document_name:item.label, status:onboardingAccessState[item.key] ? 'Pending' : 'Missing', notes:onboardingAccessState[item.key] || null });
+    for (const item of INTERNAL_CHECKLIST_ITEMS) await upsertClientDocumentRow({ client_id:clientId, record_type:'checklist', folder:'OPS Documents', document_key:'check_' + item.key, document_name:item.label, status:onboardingChecklistState[item.key] ? 'Approved' : 'Missing' });
+  } catch (error) {
+    onboardingAssetSchemaReady = false;
+    toast('Client saved. Apply migration 012 and create the client-documents bucket to persist asset uploads.');
+  }
+}
+async function openClientOnboarding(id = null) {
   onboardingStep = 0;
   const client = id ? clientById(id) : {};
   const isEdit = Boolean(id);
   const address = clientAddressParts(client);
+  onboardingClientId = id || null;
+  const existingAssetDocs = id ? await loadClientAssetDocuments(id) : [];
+  initOnboardingAssetState(existingAssetDocs);
   showModal(`
     <div class="modal-hdr">
       <span class="modal-title">${isEdit ? 'Edit Client' : 'New Client Onboarding'}</span>
@@ -4357,7 +4621,9 @@ function openClientOnboarding(id = null) {
       <div class="onboarding-steps">
         <div class="onboarding-step active" data-step="0"><div class="onboarding-step-num">Step 01</div><div class="onboarding-step-title">Business</div></div>
         <div class="onboarding-step" data-step="1"><div class="onboarding-step-num">Step 02</div><div class="onboarding-step-title">Contact</div></div>
-        <div class="onboarding-step" data-step="2"><div class="onboarding-step-num">Step 03</div><div class="onboarding-step-title">OPS</div></div>
+        <div class="onboarding-step" data-step="2"><div class="onboarding-step-num">Step 03</div><div class="onboarding-step-title">Plan</div></div>
+        <div class="onboarding-step" data-step="3"><div class="onboarding-step-num">Step 04</div><div class="onboarding-step-title">Assets</div></div>
+        <div class="onboarding-step" data-step="4"><div class="onboarding-step-num">Step 05</div><div class="onboarding-step-title">Review</div></div>
       </div>
       <div class="onboarding-panel active" data-panel="0">
         <div class="onboarding-field full"><label>Company Name</label><input id="oc-company" value="${esc(client.company)}"></div>
@@ -4383,10 +4649,16 @@ function openClientOnboarding(id = null) {
         <div class="onboarding-field"><label>Phone Number</label><input id="oc-phone" value="${esc(client.phone || client.company_phone)}"></div>
       </div>
       <div class="onboarding-panel" data-panel="2">
-        <div class="onboarding-field"><label>Selected Service / Plan</label><select id="oc-plan">${clientPlanOptionHTML(client.selected_plan || client.project_type)}</select></div>
+        <div class="onboarding-field"><label>Selected Service / Plan</label><select id="oc-plan" onchange="syncClientAssetRequests()">${clientPlanOptionHTML(client.selected_plan || client.project_type)}</select></div>
         <div class="onboarding-field"><label>Client Status</label><select id="oc-status">${['Active','Pending','Paused','Archived'].map(s => `<option value="${s}"${(client.client_status || 'Active') === s ? ' selected' : ''}>${s}</option>`).join('')}</select></div>
         <div class="onboarding-field"><label>Project Start Date</label><input id="oc-start" type="date" value="${esc(client.project_start_date)}"></div>
         <div class="onboarding-field full"><label>Notes</label><textarea id="oc-notes">${esc(client.notes || client.brief)}</textarea></div>
+      </div>
+      <div class="onboarding-panel" data-panel="3">
+        <div id="client-assets-root" class="client-assets-root"></div>
+      </div>
+      <div class="onboarding-panel" data-panel="4">
+        <div id="client-review-root" class="client-assets-root"></div>
       </div>
       <div class="onboarding-foot">
         <p class="onboarding-hint">Capture the essentials now. You can refine the client record as the engagement develops.</p>
@@ -4398,12 +4670,16 @@ function openClientOnboarding(id = null) {
       </div>
     </div>
   `);
-  $('modal-box').classList.add('wide');
+  $('modal-box').classList.add('wide', 'client-onboarding');
+  renderClientAssetsStep();
+  renderClientReview();
   syncOnboarding();
 }
 
 function moveOnboarding(delta) {
-  onboardingStep = Math.max(0, Math.min(2, onboardingStep + delta));
+  onboardingStep = Math.max(0, Math.min(ONBOARDING_TOTAL_STEPS - 1, onboardingStep + delta));
+  renderClientAssetsStep();
+  renderClientReview();
   syncOnboarding();
 }
 
@@ -4411,8 +4687,10 @@ function syncOnboarding() {
   document.querySelectorAll('.onboarding-step').forEach(s => s.classList.toggle('active', Number(s.dataset.step) === onboardingStep));
   document.querySelectorAll('.onboarding-panel').forEach(p => p.classList.toggle('active', Number(p.dataset.panel) === onboardingStep));
   $('onboarding-prev').style.visibility = onboardingStep === 0 ? 'hidden' : 'visible';
-  $('onboarding-next').style.display = onboardingStep === 2 ? 'none' : 'inline-block';
-  $('onboarding-save').style.display = onboardingStep === 2 ? 'inline-block' : 'none';
+  $('onboarding-next').style.display = onboardingStep === ONBOARDING_TOTAL_STEPS - 1 ? 'none' : 'inline-block';
+  $('onboarding-save').style.display = onboardingStep === ONBOARDING_TOTAL_STEPS - 1 ? 'inline-block' : 'none';
+  if (onboardingStep === 3) renderClientAssetsStep();
+  if (onboardingStep === 4) renderClientReview();
 }
 
 async function saveClient(id = '') {
@@ -4459,8 +4737,8 @@ async function saveClient(id = '') {
     toast('Company, primary contact, and email are required.');
     return;
   }
-  let query = id ? sb.from('clients').update(payload).eq('id', id) : sb.from('clients').insert(payload);
-  let { error } = await query;
+  let query = id ? sb.from('clients').update(payload).eq('id', id).select().single() : sb.from('clients').insert(payload).select().single();
+  let { data: savedClient, error } = await query;
   if (error) {
     const fallback = { ...payload };
     delete fallback.address_line1;
@@ -4471,8 +4749,8 @@ async function saveClient(id = '') {
     delete fallback.address_postal_code;
     delete fallback.address_country;
     delete fallback.client_status;
-    query = id ? sb.from('clients').update(fallback).eq('id', id) : sb.from('clients').insert(fallback);
-    ({ error } = await query);
+    query = id ? sb.from('clients').update(fallback).eq('id', id).select().single() : sb.from('clients').insert(fallback).select().single();
+    ({ data: savedClient, error } = await query);
   }
   if (error) {
     const legacyFallback = { ...payload };
@@ -4485,10 +4763,12 @@ async function saveClient(id = '') {
     delete legacyFallback.address_postal_code;
     delete legacyFallback.address_country;
     delete legacyFallback.client_status;
-    query = id ? sb.from('clients').update(legacyFallback).eq('id', id) : sb.from('clients').insert(legacyFallback);
-    ({ error } = await query);
+    query = id ? sb.from('clients').update(legacyFallback).eq('id', id).select().single() : sb.from('clients').insert(legacyFallback).select().single();
+    ({ data: savedClient, error } = await query);
   }
   if (error) { btnLoad(saveBtn, false); toast('Error saving client. Apply the client schema migration first.'); return; }
+  const savedClientId = id || savedClient?.id;
+  if (savedClientId) await saveOnboardingAssets(savedClientId);
   closeModal();
   toast(id ? 'Client updated.' : 'Client created.');
   await Promise.all([loadClients(), loadStats(), loadRecentActivity()]);
