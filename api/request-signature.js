@@ -65,7 +65,7 @@ module.exports = async (req, res) => {
         subject: `Please sign: ${label} ${doc_number} — Oak & Pixel Studio`,
         html: buildInviteEmail(label, doc_number, client_company, signingUrl),
       }),
-    }).catch(() => null);
+    }).catch(e => console.error('[request-signature] Resend error:', e));
   }
 
   return res.status(200).json({ ok: true, token });

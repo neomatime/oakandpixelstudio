@@ -3408,7 +3408,8 @@ async function loadWelcomeLetters() {
 }
 
 async function loadSigningRequests() {
-  const { data } = await sb.from('signing_requests').select('*');
+  const { data, error } = await sb.from('signing_requests').select('*');
+  if (error) console.warn('[loadSigningRequests]', error.message);
   allSigningRequests = data || [];
 }
 

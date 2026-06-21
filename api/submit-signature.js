@@ -23,6 +23,7 @@ module.exports = async (req, res) => {
       `${supabaseUrl}/rest/v1/signing_requests?token=eq.${encodeURIComponent(token)}&select=*`,
       { headers: { Authorization: `Bearer ${supabaseKey}`, apikey: supabaseKey } }
     );
+    if (!r.ok) return res.status(502).json({ error: 'Database error' });
     rows = await r.json();
   } catch {
     return res.status(502).json({ error: 'Database error' });
@@ -36,25 +37,32 @@ module.exports = async (req, res) => {
   }
 
   // Store signature
-  const patchRes = await fetch(
-    `${supabaseUrl}/rest/v1/signing_requests?id=eq.${row.id}`,
-    {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${supabaseKey}`,
-        apikey: supabaseKey,
-        Prefer: 'return=minimal',
-      },
-      body: JSON.stringify({
-        client_signature_data_url,
-        client_signed_at:     new Date().toISOString(),
-        client_signed_by_name,
-      }),
-    }
-  ).catch(() => null);
+  let patchRes;
+  try {
+    patchRes = await fetch(
+      `${supabaseUrl}/rest/v1/signing_requests?id=eq.${row.id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${supabaseKey}`,
+          apikey: supabaseKey,
+          Prefer: 'return=minimal',
+        },
+        body: JSON.stringify({
+          client_signature_data_url,
+          client_signed_at:     new Date().toISOString(),
+          client_signed_by_name,
+          token:               null,
+          token_expires_at:    null,
+        }),
+      }
+    );
+  } catch {
+    return res.status(502).json({ error: 'Failed to store signature' });
+  }
 
-  if (!patchRes || !patchRes.ok) {
+  if (!patchRes.ok) {
     return res.status(502).json({ error: 'Failed to store signature' });
   }
 
@@ -76,7 +84,9 @@ module.exports = async (req, res) => {
           attachments: [{ filename, content: signed_pdf_base64 }],
         }),
       });
-    } catch {}
+    } catch (e) {
+      console.error('[submit-signature] Resend error:', e);
+    }
   };
 
   await Promise.all([sendEmail(row.client_email), sendEmail('info@oakandpixel.co.za')]);
