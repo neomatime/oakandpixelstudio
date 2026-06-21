@@ -5715,6 +5715,77 @@ async function _dispatchEmail({ templateHTML, filename, docType, clientName, doc
   toast(`Sent to ${to}`);
 }
 
+async function requestSignatureForDoc(docType, docId, agreementKind) {
+  let doc, client, docNumber, proposalId = null, scopeId = null;
+
+  if (docType === 'Proposal') {
+    doc    = allProposals.find(p => p.id === docId);
+    client = allClients.find(c => c.id === doc?.client_id) || {};
+    docNumber  = doc?.proposal_number || '';
+    proposalId = docId;
+  } else if (docType === 'SOW') {
+    doc    = allScopes.find(s => s.id === docId);
+    const prop = doc?.proposal_id ? allProposals.find(p => p.id === doc.proposal_id) : null;
+    client = allClients.find(c => c.id === (prop?.client_id || doc?.client_id)) || {};
+    docNumber = doc?.scope_number || '';
+    scopeId   = docId;
+  } else if (docType === 'Agreement') {
+    client    = allClients.find(c => c.id === docId) || {};
+    docNumber = agreementNumber(agreementKind, client);
+  }
+
+  if (!client || !client.id) { toast('Client not found.'); return; }
+
+  const clientEmail = client.email || client.company_email || '';
+  if (!clientEmail) { toast('Client has no email address on record.'); return; }
+
+  const existing = allSigningRequests.find(s => {
+    if (docType === 'Proposal')  return s.proposal_id   === proposalId;
+    if (docType === 'SOW')       return s.scope_id       === scopeId;
+    if (docType === 'Agreement') return s.agreement_kind === agreementKind && s.client_id === client.id;
+    return false;
+  });
+
+  if (existing?.client_signed_at) { toast('This document is already signed.'); return; }
+
+  const isResend = !!(existing?.token);
+  const action   = isResend ? 'Resend signing invite' : 'Send signing invite';
+  const ok = await opsConfirm({
+    title: `${action}?`,
+    message: `Send a signing link for ${docType} ${docNumber} to ${clientEmail}.`,
+    confirmText: action,
+    tone: 'emerald',
+  });
+  if (!ok) return;
+
+  const opsSignature = getStoredOpsSignature();
+
+  try {
+    const res = await fetch('/api/request-signature', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        doc_type:               docType,
+        doc_number:             docNumber,
+        client_id:              client.id,
+        client_email:           clientEmail,
+        client_company:         clientDisplayName(client),
+        proposal_id:            proposalId,
+        scope_id:               scopeId,
+        agreement_kind:         docType === 'Agreement' ? agreementKind : null,
+        ops_signature_data_url: opsSignature,
+        send_email:             true,
+      }),
+    });
+    if (!res.ok) { const e = await res.json().catch(()=>({})); toast(e.error || 'Failed to send signing invite.'); return; }
+    toast('Signing invite sent to ' + clientEmail + '.');
+    await loadSigningRequests();
+    renderDocumentsTable();
+  } catch {
+    toast('Network error. Please try again.');
+  }
+}
+
 async function sendProposalEmail(proposalId) {
   const proposal = allProposals.find(p => p.id === proposalId);
   if (!proposal) return;
@@ -5844,6 +5915,7 @@ function renderDocumentsTable() {
           ${r._type==='Retainer Statement' ? `<button class="btn-ghost btn-sm" onclick="downloadRetainerStatementPDF('${r.id}')">PDF</button>` : ''}
           ${r._type==='Project Brief' ? `<button class="btn-ghost btn-sm" onclick="downloadProjectBriefPDF('${r.id}')">PDF</button>` : ''}
           ${r._type==='Project Completion Report' ? `<button class="btn-ghost btn-sm" onclick="downloadProjectCompletionPDF('${r.id}')">PDF</button>` : ''}
+          ${SIGNABLE_TYPES.includes(r._type) && signingStatusFor(r) !== 'signed' ? `<button class="btn-ghost btn-sm" onclick="requestSignatureForDoc('${r._type}','${r._type==='Agreement' ? r.client_id : r.id}','${r._agreementKind||''}')">Sign</button>` : ''}
           ${!r.archived && !['Agreement','Retainer Statement','Project Brief','Project Completion Report'].includes(r._type) ? `<button class="btn-ghost btn-sm" onclick="archiveDocument('${r._type}','${r.id}')">Archive</button>` : ''}
         </td>
       </tr>`;
