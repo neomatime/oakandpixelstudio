@@ -4292,10 +4292,10 @@ async function loadApplications() {
   const { data } = await sb.from('applications').select('*').order('created_at', { ascending: false });
   allApplications = data || [];
   renderApplications();
-  const newCount = allApplications.filter(a => a.status === 'new').length;
+  const pendingCount = allApplications.filter(a => a.status === 'new' || a.status === 'reviewing').length;
   const badge = $('new-application-badge');
   if (badge) {
-    if (newCount > 0) { badge.textContent = newCount; badge.classList.add('show'); }
+    if (pendingCount > 0) { badge.textContent = pendingCount; badge.classList.add('show'); }
     else badge.classList.remove('show');
   }
 }
