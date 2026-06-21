@@ -785,6 +785,84 @@ section{position:relative}
 .form-char-count.near-limit{ color:#e0a84a; }
 .form-char-count.at-limit{ color:#c0614a; }
 
+/* ─── PARTNERSHIP APPLICATION ────────────────────────────── */
+.app-step-indicator{
+  font-family:var(--font-mono);font-size:.6rem;letter-spacing:.15em;
+  text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:.75rem;
+}
+.app-progress-bar{
+  height:2px;background:rgba(255,255,255,.08);border-radius:1px;
+  margin-bottom:2rem;overflow:hidden;
+}
+.app-progress-fill{height:100%;background:var(--emerald-l);transition:width .4s cubic-bezier(.16,1,.3,1)}
+.app-step{display:none}
+.app-step.active{display:block}
+.app-nav{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:1.75rem;gap:1rem;
+}
+.app-btn-back{
+  font-family:var(--font-mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(255,255,255,.3);background:none;border:none;cursor:pointer;
+  transition:color .2s;padding:0;flex-shrink:0;
+}
+.app-btn-back:hover{color:rgba(255,255,255,.7)}
+.app-btn-next{
+  flex:1;
+  background:var(--white);color:var(--black);
+  padding:.9rem 1.5rem;border-radius:2px;
+  font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;font-weight:400;
+  transition:background .25s,color .25s;cursor:pointer;border:none;
+}
+.app-btn-next:hover{background:var(--emerald);color:var(--white)}
+.app-btn-next:disabled{opacity:.5;cursor:not-allowed}
+.app-toggle-group-label{
+  font-family:var(--font-mono);font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;
+  color:rgba(255,255,255,.25);margin:1.25rem 0 .6rem;
+}
+.app-toggle-cards{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.25rem}
+.app-toggle-card{
+  padding:.5rem 1rem;border:1px solid rgba(255,255,255,.12);border-radius:2px;
+  font-family:var(--font-mono);font-size:.68rem;letter-spacing:.1em;
+  color:rgba(255,255,255,.5);background:rgba(255,255,255,.03);
+  cursor:pointer;transition:border-color .2s,background .2s,color .2s;
+  user-select:none;
+}
+.app-toggle-card:hover{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.8)}
+.app-toggle-card.selected{
+  border-color:var(--emerald-l);background:rgba(45,122,82,.12);color:var(--white);
+}
+.app-radio-cards{display:flex;flex-direction:column;gap:.5rem}
+.app-radio-card{
+  padding:.85rem 1rem;border:1px solid rgba(255,255,255,.12);border-radius:2px;
+  font-family:var(--font-mono);font-size:.72rem;letter-spacing:.1em;
+  color:rgba(255,255,255,.5);background:rgba(255,255,255,.03);
+  cursor:pointer;transition:border-color .2s,background .2s,color .2s;
+  user-select:none;
+}
+.app-radio-card:hover{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.8)}
+.app-radio-card.selected{
+  border-color:var(--emerald-l);background:rgba(45,122,82,.12);color:var(--white);
+}
+.app-error{
+  display:block;font-family:var(--font-mono);font-size:.6rem;
+  letter-spacing:.08em;color:#c0614a;margin-top:.5rem;min-height:.9em;
+}
+.app-success{
+  display:none;padding:3rem 0;text-align:center;
+}
+.app-success-rule{
+  width:40px;height:1px;background:var(--emerald-l);margin:0 auto 2rem;
+}
+.app-success-title{
+  font-family:var(--font-display);font-size:1.5rem;font-weight:300;
+  color:var(--white);margin-bottom:1.25rem;letter-spacing:-.01em;
+}
+.app-success-body{
+  font-family:var(--font-mono);font-size:.7rem;letter-spacing:.08em;
+  color:rgba(255,255,255,.4);line-height:1.9;max-width:340px;margin:0 auto;
+}
+
 /* ─── FOOTER ─────────────────────────────────────────── */
 footer{
   background:var(--graphite);border-top:1px solid rgba(255,255,255,.06);
@@ -2118,12 +2196,11 @@ footer{
           Begin Here
         </div>
         <h2 class="contact-headline">
-          Let's build<br>
-          something<br>
-          <em>remarkable.</em>
+          Let's Explore<br>
+          A Partnership
         </h2>
         <p class="contact-body">
-          We take on a select number of engagements each year. If you're working on something that demands the highest standard, we'd like to hear about it.
+          We intentionally partner with a limited number of businesses to design and operate digital infrastructure that creates long-term value. Complete the application below and we'll determine if we're a good fit for one another.
         </p>
         <div class="contact-detail">
           <div class="contact-item"><a href="mailto:info@oakandpixel.co.za">info@oakandpixel.co.za</a></div>
@@ -2139,68 +2216,141 @@ footer{
         <p style="margin-top:.85rem;font-family:var(--font-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.25);">30-min session · No obligation</p>
       </div>
       <div class="contact-right reveal reveal-delay-2">
-        <div class="form-group">
-          <label class="form-label">Full Name</label>
-          <input type="text" class="form-input" id="contact-name" placeholder="Your full name" autocomplete="name">
-          <span class="form-error" id="error-name"></span>
+
+        <!-- Success state — hidden until submission succeeds -->
+        <div class="app-success" id="app-success">
+          <div class="app-success-rule"></div>
+          <p class="app-success-title">Application Received</p>
+          <p class="app-success-body">Thank you for applying to work with Oak &amp; Pixel Studio. Every application is carefully reviewed to ensure mutual alignment before we begin a partnership journey. We will contact you regarding the next steps.</p>
         </div>
-        <div class="form-group">
-          <label class="form-label">Company Name</label>
-          <input type="text" class="form-input" id="contact-company" placeholder="Your business or organisation" autocomplete="organization">
-          <span class="form-error" id="error-company"></span>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Email Address</label>
-          <input type="email" class="form-input" id="contact-email" placeholder="your@email.com" autocomplete="email">
-          <span class="form-error" id="error-email"></span>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Contact Number</label>
-          <input type="tel" class="form-input" id="contact-phone" value="+27-" autocomplete="tel">
-          <span class="form-error" id="error-phone"></span>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Business Website <span style="opacity:.4;font-size:.75em;">(optional)</span></label>
-          <input type="url" class="form-input" id="contact-website" placeholder="https://yourbusiness.co.za" autocomplete="url">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Service Interested In</label>
-          <select class="form-select" id="project-type-select">
-            <option value="" disabled selected>Select a service</option>
-            <option>Signature Plan — Premium Website &amp; Presence</option>
-            <option>Growth Plan — Full Customer Journey</option>
-            <option>Premium Plan — Bespoke Digital Ecosystem</option>
-            <option>Premium Website</option>
-            <option>Online Booking Experience</option>
-            <option>Lead Capture Experience</option>
-            <option>Client Onboarding Experience</option>
-            <option>CRM &amp; Payment Integration</option>
-            <option>Digital Presence Management</option>
-            <option>Not sure yet — let's talk</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Estimated Budget</label>
-          <select class="form-select" id="contact-budget">
-            <option value="" disabled selected>Select a budget range</option>
-            <option>Under R25,000</option>
-            <option>R25,000 – R40,000</option>
-            <option>R40,000 – R65,000</option>
-            <option>R65,000 – R100,000</option>
-            <option>R100,000+</option>
-            <option>To be discussed</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Project Description</label>
-          <textarea class="form-textarea" id="contact-brief" placeholder="Tell us about your business, what you need, and your goals..." maxlength="500"></textarea>
-          <span class="form-char-count" id="brief-count">0 / 500</span>
-          <span class="form-error" id="error-brief"></span>
-        </div>
-        <button class="form-submit" id="contact-submit-btn">Start Your Project</button>
-        <p class="form-status" id="contact-form-status"></p>
-        <p class="form-note">All enquiries are reviewed within 48 hours. Confidentiality assured.</p>
-      </div>
+
+        <!-- Wizard -->
+        <div id="app-wizard">
+          <div class="app-step-indicator" id="app-step-label">STEP 1 OF 6</div>
+          <div class="app-progress-bar">
+            <div class="app-progress-fill" id="app-progress-fill" style="width:16.67%"></div>
+          </div>
+
+          <!-- Step 1: Business Information -->
+          <div class="app-step active" id="app-step-1">
+            <div class="form-group">
+              <label class="form-label">Company Name</label>
+              <input type="text" class="form-input" id="app-company-name" placeholder="Your company name" autocomplete="organization">
+              <span class="app-error" id="app-err-company-name"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Industry</label>
+              <input type="text" class="form-input" id="app-industry" placeholder="e.g. Legal, Real Estate, Healthcare">
+              <span class="app-error" id="app-err-industry"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Company Website <span style="opacity:.4;font-size:.75em;">(optional)</span></label>
+              <input type="url" class="form-input" id="app-website" placeholder="https://yourcompany.co.za" autocomplete="url">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Number of Employees</label>
+              <select class="form-select" id="app-employees">
+                <option value="" disabled selected>Select a range</option>
+                <option>1 – 5</option>
+                <option>6 – 20</option>
+                <option>21 – 50</option>
+                <option>51 – 200</option>
+                <option>200+</option>
+              </select>
+              <span class="app-error" id="app-err-employees"></span>
+            </div>
+          </div>
+
+          <!-- Step 2: Primary Contact -->
+          <div class="app-step" id="app-step-2">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-input" id="app-full-name" placeholder="Your full name" autocomplete="name">
+              <span class="app-error" id="app-err-full-name"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Job Title</label>
+              <input type="text" class="form-input" id="app-job-title" placeholder="e.g. Founder, Director, CEO">
+              <span class="app-error" id="app-err-job-title"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input type="email" class="form-input" id="app-email" placeholder="your@email.com" autocomplete="email">
+              <span class="app-error" id="app-err-email"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone Number</label>
+              <input type="tel" class="form-input" id="app-phone" value="+27-" autocomplete="tel">
+              <span class="app-error" id="app-err-phone"></span>
+            </div>
+          </div>
+
+          <!-- Step 3: Services of Interest -->
+          <div class="app-step" id="app-step-3">
+            <p class="app-toggle-group-label">Strategic Partnership Plans</p>
+            <div class="app-toggle-cards">
+              <div class="app-toggle-card" data-value="Signature Plan">Signature Plan</div>
+              <div class="app-toggle-card" data-value="Growth Plan">Growth Plan</div>
+              <div class="app-toggle-card" data-value="Premium Plan">Premium Plan</div>
+            </div>
+            <p class="app-toggle-group-label">Standalone Services</p>
+            <div class="app-toggle-cards">
+              <div class="app-toggle-card" data-value="Premium Website">Premium Website</div>
+              <div class="app-toggle-card" data-value="Online Booking Experience">Online Booking Experience</div>
+              <div class="app-toggle-card" data-value="Lead Capture Experience">Lead Capture Experience</div>
+              <div class="app-toggle-card" data-value="Client Onboarding Experience">Client Onboarding Experience</div>
+              <div class="app-toggle-card" data-value="Client Operating System">Client Operating System</div>
+              <div class="app-toggle-card" data-value="Digital Presence Management">Digital Presence Management</div>
+            </div>
+            <span class="app-error" id="app-err-services"></span>
+          </div>
+
+          <!-- Step 4: Business Challenges -->
+          <div class="app-step" id="app-step-4">
+            <div class="form-group">
+              <label class="form-label">Business Challenges</label>
+              <textarea class="form-textarea" id="app-challenges" placeholder="What operational, digital, or growth challenges are you currently experiencing?" style="height:160px;resize:none"></textarea>
+              <span class="app-error" id="app-err-challenges"></span>
+            </div>
+          </div>
+
+          <!-- Step 5: Desired Start Date -->
+          <div class="app-step" id="app-step-5">
+            <div class="form-group">
+              <label class="form-label">When are you looking to start?</label>
+              <select class="form-select" id="app-start-date">
+                <option value="" disabled selected>Select a timeframe</option>
+                <option>Immediately</option>
+                <option>Within 30 Days</option>
+                <option>Within 60 Days</option>
+                <option>Within 90 Days</option>
+                <option>Exploring Options</option>
+              </select>
+              <span class="app-error" id="app-err-start-date"></span>
+            </div>
+          </div>
+
+          <!-- Step 6: Investment Readiness -->
+          <div class="app-step" id="app-step-6">
+            <div class="form-group">
+              <label class="form-label">Which investment range best aligns with your expectations?</label>
+              <div class="app-radio-cards" id="app-investment">
+                <div class="app-radio-card" data-value="R10,000 – R25,000">R10,000 – R25,000</div>
+                <div class="app-radio-card" data-value="R25,000 – R50,000">R25,000 – R50,000</div>
+                <div class="app-radio-card" data-value="R50,000 – R100,000">R50,000 – R100,000</div>
+                <div class="app-radio-card" data-value="R100,000+">R100,000+</div>
+              </div>
+              <span class="app-error" id="app-err-investment"></span>
+            </div>
+          </div>
+
+          <div class="app-nav">
+            <button class="app-btn-back" id="app-btn-back" style="visibility:hidden">← Back</button>
+            <button class="app-btn-next" id="app-btn-next">Next →</button>
+          </div>
+        </div><!-- /#app-wizard -->
+
+      </div><!-- /.contact-right -->
     </div>
   </div>
 </section>
