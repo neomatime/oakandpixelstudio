@@ -1034,6 +1034,12 @@ select{color-scheme:dark;}
         <span class="nav-badge" id="new-contact-badge"></span>
       </button>
 
+      <button class="nav-item" data-page="applications">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6M9 8h6M9 16h4M5 20V4a1 1 0 011-1h12a1 1 0 011 1v16l-3-2-3 2-3-2-3 2z"/></svg>
+        Applications
+        <span class="nav-badge" id="new-application-badge"></span>
+      </button>
+
       <button class="nav-item" data-page="clients">
         <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M16 3.13a4 4 0 010 7.75"/><polyline points="17 21 19 23 23 19"/></svg>
         Clients
@@ -1287,6 +1293,13 @@ select{color-scheme:dark;}
             </div>
           </div>
           <div id="contacts-table"><p class="loading-row">Loading…</p></div>
+        </div>
+      </section>
+
+      <!-- ── APPLICATIONS ── -->
+      <section class="page" id="page-applications">
+        <div class="card">
+          <div id="applications-table"><p class="loading-row">Loading…</p></div>
         </div>
       </section>
 
@@ -1572,6 +1585,7 @@ let allScopes = [];
 let allWelcomeLetters = [];
 let allSigningRequests = [];
 let allMandates = [];
+let allApplications = [];
 let mandateSchemaReady = true;
 let proposalSchemaReady = true;
 let retainerSchemaReady = true;
@@ -3076,7 +3090,7 @@ $('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') $(
 $('logout-btn').addEventListener('click', () => sb.auth.signOut());
 
 /* ── Navigation ── */
-const PAGE_TITLES = { overview:'Overview', bookings:'Bookings', availability:'Availability', projects:'Projects', services:'Services', 'service-detail':'Service Details', contacts:'Contacts', clients:'Clients', 'client-profile':'Client Profile', pipeline:'Pipeline', quotes:'Quotes', invoices:'Invoices', retainers:'Retainers', documents:'Documents', 'proposal-editor':'Proposal', 'sow-editor':'Scope of Work' };
+const PAGE_TITLES = { overview:'Overview', bookings:'Bookings', availability:'Availability', projects:'Projects', services:'Services', 'service-detail':'Service Details', contacts:'Contacts', applications:'Applications', clients:'Clients', 'client-profile':'Client Profile', pipeline:'Pipeline', quotes:'Quotes', invoices:'Invoices', retainers:'Retainers', documents:'Documents', 'proposal-editor':'Proposal', 'sow-editor':'Scope of Work' };
 const BREADCRUMB_PARENTS = {
   'service-detail': [{ label:'Services', page:'services' }],
   'client-profile': [{ label:'Clients', page:'clients' }],
