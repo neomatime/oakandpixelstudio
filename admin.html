@@ -1735,7 +1735,7 @@ async function generatePDF(templateHTML, filename, { returnBase64 = false } = {}
     drawRule();
 
     doc.setFont('times', 'normal');
-    doc.setFontSize(27);
+    doc.setFontSize(18);
     setInk();
     writeWrapped(clean(root.querySelector('.pdf-title')?.textContent) || 'Document', margin, contentW, 9);
     y += 2;
