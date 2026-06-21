@@ -1477,6 +1477,7 @@ const PROJECT_COLUMNS = [
   ['done', 'Done']
 ];
 const SERVICE_STATUSES = ['Active','Pending','Completed','Archived'];
+const LIFECYCLE_STAGES = ['Lead','Discovery','Proposal','Agreement','Onboarding','Active','Partner'];
 const DOC_STATUSES = ['Draft','Sent','Accepted','Declined'];
 const INVOICE_STATUSES = ['Draft','Sent','Paid','Overdue','Cancelled'];
 const BANKING_DEFAULTS = {
@@ -3300,6 +3301,7 @@ async function loadProposalEcosystem() {
 async function loadAll() {
   startLoad();
   await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadContacts(), loadClients(), loadProjects(), loadRecentActivity(), loadRetainerOverview(), loadQuotes(), loadInvoices(), loadRetainers(), loadProposalEcosystem(), loadSigningRequests(), loadMandates()]);
+  await runLifecycleEngine();
   endLoad();
 }
 
@@ -4254,17 +4256,20 @@ function renderClients() {
   }
   c.innerHTML = `<table class="a-table">
     <thead><tr>
-      <th>Client</th><th>Business</th><th>Plan</th><th>Start</th><th>Contact</th><th>Actions</th>
+      <th>Client</th><th>Business</th><th>Stage</th><th>Plan</th><th>Start</th><th>Contact</th><th>Actions</th>
     </tr></thead>
     <tbody>${rows.map(r => `<tr class="client-row" data-id="${r.id}">
       <td><div class="client-cell">${clientAvatar(r)}<div class="client-name-block"><span class="client-company">${esc(r.company || 'Independent Client')}</span><span class="client-contact">${esc(r.full_name || 'No primary contact')}${r.position ? ' · ' + esc(r.position) : ''}</span></div></div></td>
       <td><div class="td-stack"><span>${esc(r.industry || '—')}</span><span class="td-dim">${esc(r.website || r.company_email || '—')}</span></div></td>
-      <td><span class="badge badge-confirmed">${esc(r.selected_plan || r.project_type || 'Unassigned')}</span></td>
+      ${stageBadge(r)}<td><span class="badge badge-confirmed">${esc(r.selected_plan || r.project_type || 'Unassigned')}</span></td>
       <td class="td-dim">${compactDate(r.project_start_date)}</td>
       <td><div class="td-stack"><span style="font-size:.75rem">${esc(r.email || r.company_email || '—')}</span><span class="td-dim">${esc(r.phone || r.company_phone || '—')}</span></div></td>
       <td><div class="client-actions"><button class="act-btn retainer-client" data-id="${r.id}">Retainer</button><button class="act-btn edit-client" data-id="${r.id}">Edit</button><button class="act-btn delete delete-client" data-id="${r.id}">Delete</button></div></td>
     </tr>`).join('')}</tbody>
   </table>`;
+  c.querySelectorAll('.stage-select').forEach(sel => {
+    sel.addEventListener('change', e => { e.stopPropagation(); setClientStage(sel.dataset.id, sel.value); });
+  });
   c.querySelectorAll('.client-row').forEach(row => row.addEventListener('click', () => openClientProfile(row.dataset.id)));
   c.querySelectorAll('.retainer-client').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); openRetainerModal(btn.dataset.id); }));
   c.querySelectorAll('.edit-client').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); openClientOnboarding(btn.dataset.id); }));
@@ -6065,6 +6070,114 @@ function computeRetainerMetrics() {
   $('rm-active').textContent = active.length;
   $('rm-due').textContent = due;
   $('rm-overdue').textContent = overdue;
+}
+
+function stageClass(stage) {
+  if (stage === 'Active' || stage === 'Partner') return 'badge-confirmed';
+  if (stage === 'Onboarding') return 'badge-ok';
+  if (stage === 'Agreement' || stage === 'Proposal') return 'badge-amber';
+  return '';
+}
+
+function stageOpacityStyle(stage) {
+  if (stage === 'Lead')      return ' style="opacity:.4"';
+  if (stage === 'Discovery') return ' style="opacity:.65"';
+  return '';
+}
+
+function stageFor(clientId) {
+  const c = allClients.find(c => c.id === clientId);
+  return c?.lifecycle_stage || 'Lead';
+}
+
+function stageBadge(r) {
+  const stage = r.lifecycle_stage || 'Lead';
+  const cls = stageClass(stage);
+  const opStyle = stageOpacityStyle(stage);
+  const opts = LIFECYCLE_STAGES.map(s =>
+    `<option value="${s}"${s === stage ? ' selected' : ''}>${s}</option>`
+  ).join('');
+  return `<td><span class="badge ${cls}"${opStyle}><select class="status-select stage-select" data-id="${r.id}">${opts}</select></span></td>`;
+}
+
+function deriveClientStage(clientId) {
+  if (allRetainers.some(r => r.client_id === clientId && r.payment_status !== 'Cancelled'))
+    return 'Active';
+  if (allInvoices.some(i => i.client_id === clientId && i.payment_status === 'Paid'))
+    return 'Onboarding';
+  if (allQuotes.some(q => q.client_id === clientId && q.status === 'Accepted') ||
+      allProposals.some(p => p.client_id === clientId && p.status === 'Approved'))
+    return 'Agreement';
+  if (allProposals.some(p => p.client_id === clientId) ||
+      allQuotes.some(q => q.client_id === clientId))
+    return 'Proposal';
+  return 'Lead';
+}
+
+function clientHealth(client) {
+  const clientId = client.id;
+  const daysInStage = client.stage_entered_at
+    ? Math.floor((Date.now() - new Date(client.stage_entered_at).getTime()) / 86400000)
+    : 0;
+  if (allInvoices.some(i => i.client_id === clientId && i.payment_status === 'Overdue')) return 'red';
+  if (daysInStage > 30) return 'red';
+  if (daysInStage > 14) return 'amber';
+  if (!client.email || !client.company) return 'amber';
+  return 'green';
+}
+
+function nextAction(client) {
+  const stage = client.lifecycle_stage || 'Lead';
+  const clientId = client.id;
+  if (stage === 'Lead')      return 'Schedule discovery session';
+  if (stage === 'Discovery') return 'Create proposal';
+  if (stage === 'Proposal') {
+    const hasUnsent = allProposals.some(p => p.client_id === clientId && p.status === 'Draft') ||
+                      allQuotes.some(q => q.client_id === clientId && q.status === 'Draft');
+    return hasUnsent ? 'Send proposal' : 'Follow up with client';
+  }
+  if (stage === 'Agreement') {
+    const hasSentLetter = allWelcomeLetters.some(w => w.client_id === clientId && w.sent_at);
+    return hasSentLetter ? 'Awaiting signature' : 'Generate & sign MSA / SOW';
+  }
+  if (stage === 'Onboarding') {
+    const hasSentLetter = allWelcomeLetters.some(w => w.client_id === clientId && w.sent_at);
+    if (!hasSentLetter) return 'Send welcome letter';
+    return allProjects.some(p => p.client_id === clientId) ? 'View project' : 'Create project workspace';
+  }
+  if (stage === 'Active') {
+    return allInvoices.some(i => i.client_id === clientId && i.payment_status === 'Overdue')
+      ? 'Record payment' : 'View project';
+  }
+  if (stage === 'Partner') return 'Review retainer';
+  return '';
+}
+
+async function setClientStage(clientId, stage) {
+  const now = new Date().toISOString();
+  const { error } = await sb.from('clients')
+    .update({ lifecycle_stage: stage, stage_entered_at: now })
+    .eq('id', clientId);
+  if (error) { console.warn('[setClientStage]', error.message); return; }
+  const idx = allClients.findIndex(c => c.id === clientId);
+  if (idx !== -1) { allClients[idx].lifecycle_stage = stage; allClients[idx].stage_entered_at = now; }
+  renderClients();
+  if (document.getElementById('page-pipeline')?.classList?.contains('active')) renderPipelinePage();
+}
+
+async function runLifecycleEngine() {
+  for (const client of allClients) {
+    if (client.lifecycle_stage === 'Partner') continue;
+    const derived = deriveClientStage(client.id);
+    const storedIdx = LIFECYCLE_STAGES.indexOf(client.lifecycle_stage || 'Lead');
+    const derivedIdx = LIFECYCLE_STAGES.indexOf(derived);
+    if (derivedIdx > storedIdx) {
+      const now = new Date().toISOString();
+      await sb.from('clients').update({ lifecycle_stage: derived, stage_entered_at: now }).eq('id', client.id);
+      client.lifecycle_stage = derived;
+      client.stage_entered_at = now;
+    }
+  }
 }
 
 function mandateStatusFor(retainer) {
