@@ -2967,6 +2967,16 @@ function opsConfirm({ title, message, meta, confirmText = 'Confirm', cancelText 
     $('confirm-ok')?.addEventListener('click', () => finish(true), { once:true });
   });
 }
+function opsDeleteConfirm({ title, message, meta, confirmText = 'Delete' }) {
+  return opsConfirm({
+    title,
+    message,
+    meta,
+    confirmText,
+    cancelText: 'Cancel',
+    tone: 'danger'
+  });
+}
 $('modal-overlay').addEventListener('click', e => {
   if (e.target === $('modal-overlay')) closeModal();
 });
@@ -3287,7 +3297,13 @@ async function saveEditBooking(bookingId, oldSlotId) {
 }
 
 async function deleteBooking(id, slotId) {
-  if (!confirm('Delete this booking? This cannot be undone.')) return;
+  const confirmed = await opsDeleteConfirm({
+    title: 'Delete Booking?',
+    message: 'This booking will be permanently removed from OPS Command Center.',
+    meta: 'The linked availability slot will be released.',
+    confirmText: 'Delete Booking'
+  });
+  if (!confirmed) return;
   closeModal();
   if (slotId) await sb.from('available_slots').update({ is_booked: false }).eq('id', slotId);
   const { error } = await sb.from('bookings').delete().eq('id', id);
@@ -4063,7 +4079,14 @@ async function saveRetainer(clientId, retainerId = '') {
 }
 
 async function deleteClient(id) {
-  if (!confirm('Delete this client? Projects linked to this client will remain but lose their client reference.')) return;
+  const client = clientById(id) || {};
+  const confirmed = await opsDeleteConfirm({
+    title: 'Delete Client?',
+    message: 'This client record will be permanently removed from OPS Command Center.',
+    meta: `${clientDisplayName(client)} · Linked projects will remain but lose their client reference.`,
+    confirmText: 'Delete Client'
+  });
+  if (!confirmed) return;
   const { error } = await sb.from('clients').delete().eq('id', id);
   if (error) { toast('Error deleting client.'); return; }
   toast('Client deleted.');
@@ -4257,7 +4280,14 @@ async function saveProject(id = '') {
 }
 
 async function deleteProject(id) {
-  if (!confirm('Delete this task?')) return;
+  const project = allProjects.find(p => p.id === id) || {};
+  const confirmed = await opsDeleteConfirm({
+    title: 'Delete Task?',
+    message: 'This task will be permanently removed from the Projects workspace.',
+    meta: project.title || 'Untitled task',
+    confirmText: 'Delete Task'
+  });
+  if (!confirmed) return;
   const { error } = await sb.from('projects').delete().eq('id', id);
   if (error) { toast('Error deleting task.'); return; }
   toast('Task deleted.');
@@ -4376,7 +4406,14 @@ async function loadServices() {
   c.querySelectorAll('.act-btn.delete').forEach(btn => {
     btn.addEventListener('click', async e => {
       e.stopPropagation();
-      if (!confirm('Delete this service? This cannot be undone.')) return;
+      const service = serviceById(btn.dataset.id) || {};
+      const confirmed = await opsDeleteConfirm({
+        title: 'Delete Service?',
+        message: 'This service will be permanently removed from OPS Command Center.',
+        meta: service.name || 'Selected service',
+        confirmText: 'Delete Service'
+      });
+      if (!confirmed) return;
       const { error: deleteErr } = await sb.from('services').delete().eq('id', btn.dataset.id);
       if (deleteErr) { toast('Error saving change.'); return; }
       toast('Service deleted.');
@@ -5395,7 +5432,14 @@ async function downloadInvoicePDF(invoiceId) {
 }
 
 async function deleteInvoice(invoiceId) {
-  if (!confirm('Delete this invoice? This cannot be undone.')) return;
+  const invoice = allInvoices.find(i => i.id === invoiceId) || {};
+  const confirmed = await opsDeleteConfirm({
+    title: 'Delete Invoice?',
+    message: 'This invoice will be permanently removed from OPS Command Center.',
+    meta: `${invoice.invoice_number || 'Invoice'}${invoice.total_amount ? ` · ${money(invoice.total_amount)}` : ''}`,
+    confirmText: 'Delete Invoice'
+  });
+  if (!confirmed) return;
   const { error } = await sb.from('invoices').delete().eq('id', invoiceId);
   if (error) { toast('Error deleting invoice.'); return; }
   toast('Invoice deleted.');
@@ -5624,7 +5668,14 @@ async function downloadQuotePDF(quoteId) {
 }
 
 async function deleteQuote(quoteId) {
-  if (!confirm('Delete this quote? This cannot be undone.')) return;
+  const quote = allQuotes.find(q => q.id === quoteId) || {};
+  const confirmed = await opsDeleteConfirm({
+    title: 'Delete Quote?',
+    message: 'This quote will be permanently removed from OPS Command Center.',
+    meta: `${quote.quote_number || 'Quote'}${quote.total_amount ? ` · ${money(quote.total_amount)}` : ''}`,
+    confirmText: 'Delete Quote'
+  });
+  if (!confirmed) return;
   const { error } = await sb.from('quotes').delete().eq('id', quoteId);
   if (error) { toast('Error deleting quote.'); return; }
   toast('Quote deleted.');
