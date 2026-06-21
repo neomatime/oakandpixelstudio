@@ -2880,239 +2880,223 @@ document.addEventListener('mousemove',e=>{
   });
 })();
 
-// ── HUBSPOT CONTACT FORM ─────────────────────────────────
+// ── PARTNERSHIP APPLICATION ─────────────────────────────────
 (function () {
-  const btn    = document.getElementById('contact-submit-btn');
-  const status = document.getElementById('contact-form-status');
-  if (!btn || !status) return;
+  const TOTAL   = 6;
+  let   current = 1;
 
-  const BRIEF_MAX = 500;
+  const stepLabel    = document.getElementById('app-step-label');
+  const progressFill = document.getElementById('app-progress-fill');
+  const btnBack      = document.getElementById('app-btn-back');
+  const btnNext      = document.getElementById('app-btn-next');
 
-  // ── Validation rules ──────────────────────────────────
-  const validators = {
-    name: {
-      el: () => document.getElementById('contact-name'),
-      err: () => document.getElementById('error-name'),
-      validate(v) {
-        if (!v) return 'Full name is required.';
-        if (v.length < 2) return 'Name must be at least 2 characters.';
-        if (!/^[a-zA-ZÀ-ÿ\s'\-]+$/.test(v)) return 'Name may only contain letters, spaces, hyphens and apostrophes.';
-        return '';
-      },
-    },
-    company: {
-      el: () => document.getElementById('contact-company'),
-      err: () => document.getElementById('error-company'),
-      validate(v) {
-        if (!v) return 'Company name is required.';
-        if (v.length < 2) return 'Please enter your business or organisation name.';
-        return '';
-      },
-    },
-    email: {
-      el: () => document.getElementById('contact-email'),
-      err: () => document.getElementById('error-email'),
-      validate(v) {
-        if (!v) return 'Email address is required.';
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) return 'Please enter a valid email address.';
-        return '';
-      },
-    },
-    phone: {
-      el: () => document.getElementById('contact-phone'),
-      err: () => document.getElementById('error-phone'),
-      validate(v) {
-        if (v === '+27-' || v === '') return ''; // optional — prefix only counts as empty
-        const digits = v.replace(/\D/g, '');
-        if (digits.length !== 11) return 'Please enter 9 digits after +27.';
-        return '';
-      },
-    },
-    brief: {
-      el: () => document.getElementById('contact-brief'),
-      err: () => document.getElementById('error-brief'),
-      validate(v) {
-        if (v.length > BRIEF_MAX) return `Description must not exceed ${BRIEF_MAX} characters.`;
-        return '';
-      },
-    },
-  };
+  if (!btnNext) return; // guard if HTML not present
 
-  // ── Phone field — fixed +27- prefix, format: +27-XX-XXX-XXXX ──
-  (function () {
-    const PREFIX  = '+27-';
-    const phoneEl = document.getElementById('contact-phone');
+  // ── Step display ──────────────────────────────────────────
+  function showStep(n) {
+    document.querySelectorAll('.app-step').forEach(function (s) { s.classList.remove('active'); });
+    document.getElementById('app-step-' + n).classList.add('active');
+    stepLabel.textContent           = 'STEP ' + n + ' OF ' + TOTAL;
+    progressFill.style.width        = ((n / TOTAL) * 100).toFixed(2) + '%';
+    btnBack.style.visibility        = n === 1 ? 'hidden' : 'visible';
+    btnNext.textContent             = n === TOTAL ? 'Apply For Partnership' : 'Next →';
+    current = n;
+  }
 
-    function applyFormat(raw) {
-      // Always strip to digits after the prefix
-      const digits = raw.replace(/^\+27-?/, '').replace(/\D/g, '').slice(0, 9);
-      if (digits.length === 0) return PREFIX;
-      if (digits.length <= 2)  return `${PREFIX}${digits}`;
-      if (digits.length <= 5)  return `${PREFIX}${digits.slice(0,2)}-${digits.slice(2)}`;
-      return                          `${PREFIX}${digits.slice(0,2)}-${digits.slice(2,5)}-${digits.slice(5,9)}`;
+  // ── Error helpers ─────────────────────────────────────────
+  function clearErr(id) { var el = document.getElementById(id); if (el) el.textContent = ''; }
+  function showErr(id, msg) { var el = document.getElementById(id); if (el) el.textContent = msg; }
+  function markInvalid(id) { var el = document.getElementById(id); if (el) el.classList.add('invalid'); }
+  function markValid(id)   { var el = document.getElementById(id); if (el) el.classList.remove('invalid'); }
+
+  // ── Per-step validation ───────────────────────────────────
+  function validate(n) {
+    if (n === 1) {
+      var ok = true;
+      var company   = document.getElementById('app-company-name').value.trim();
+      var industry  = document.getElementById('app-industry').value.trim();
+      var employees = document.getElementById('app-employees').value;
+      ['app-err-company-name','app-err-industry','app-err-employees'].forEach(clearErr);
+      ['app-company-name','app-industry','app-employees'].forEach(markValid);
+      if (!company)   { showErr('app-err-company-name','Company name is required.'); markInvalid('app-company-name'); ok = false; }
+      if (!industry)  { showErr('app-err-industry','Industry is required.'); markInvalid('app-industry'); ok = false; }
+      if (!employees) { showErr('app-err-employees','Please select a range.'); markInvalid('app-employees'); ok = false; }
+      return ok;
     }
+    if (n === 2) {
+      var ok    = true;
+      var name  = document.getElementById('app-full-name').value.trim();
+      var title = document.getElementById('app-job-title').value.trim();
+      var email = document.getElementById('app-email').value.trim();
+      var phone = document.getElementById('app-phone').value;
+      ['app-err-full-name','app-err-job-title','app-err-email','app-err-phone'].forEach(clearErr);
+      ['app-full-name','app-job-title','app-email','app-phone'].forEach(markValid);
+      if (!name)  { showErr('app-err-full-name','Full name is required.'); markInvalid('app-full-name'); ok = false; }
+      if (!title) { showErr('app-err-job-title','Job title is required.'); markInvalid('app-job-title'); ok = false; }
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+        showErr('app-err-email','A valid email address is required.'); markInvalid('app-email'); ok = false;
+      }
+      if (phone.replace(/\D/g,'').length !== 11) {
+        showErr('app-err-phone','Please enter 9 digits after +27.'); markInvalid('app-phone'); ok = false;
+      }
+      return ok;
+    }
+    if (n === 3) {
+      clearErr('app-err-services');
+      if (!document.querySelector('#app-step-3 .app-toggle-card.selected')) {
+        showErr('app-err-services','Please select at least one service or plan.'); return false;
+      }
+      return true;
+    }
+    if (n === 4) {
+      var val = document.getElementById('app-challenges').value.trim();
+      clearErr('app-err-challenges'); markValid('app-challenges');
+      if (!val || val.length < 20) {
+        showErr('app-err-challenges','Please describe your challenges (at least 20 characters).'); markInvalid('app-challenges'); return false;
+      }
+      return true;
+    }
+    if (n === 5) {
+      clearErr('app-err-start-date'); markValid('app-start-date');
+      if (!document.getElementById('app-start-date').value) {
+        showErr('app-err-start-date','Please select a timeframe.'); markInvalid('app-start-date'); return false;
+      }
+      return true;
+    }
+    if (n === 6) {
+      clearErr('app-err-investment');
+      if (!document.querySelector('#app-investment .app-radio-card.selected')) {
+        showErr('app-err-investment','Please select an investment range.'); return false;
+      }
+      return true;
+    }
+    return true;
+  }
 
-    // Format on every input
-    phoneEl.addEventListener('input', function () {
-      const formatted = applyFormat(this.value);
-      this.value = formatted;
-      // Always keep cursor at the end
-      this.setSelectionRange(formatted.length, formatted.length);
-      if (this.classList.contains('invalid')) validateField('phone');
+  // ── Navigation ────────────────────────────────────────────
+  btnNext.addEventListener('click', function () {
+    if (!validate(current)) return;
+    if (current < TOTAL) { showStep(current + 1); return; }
+    submitApplication();
+  });
+
+  btnBack.addEventListener('click', function () {
+    if (current > 1) showStep(current - 1);
+  });
+
+  // ── Toggle cards (multi-select, Step 3) ───────────────────
+  document.querySelectorAll('#app-step-3 .app-toggle-card').forEach(function (card) {
+    card.addEventListener('click', function () {
+      this.classList.toggle('selected');
+      clearErr('app-err-services');
     });
+  });
 
-    // Prevent deleting or overwriting the +27- prefix
+  // ── Radio cards (single-select, Step 6) ───────────────────
+  document.querySelectorAll('#app-investment .app-radio-card').forEach(function (card) {
+    card.addEventListener('click', function () {
+      document.querySelectorAll('#app-investment .app-radio-card').forEach(function (c) { c.classList.remove('selected'); });
+      this.classList.add('selected');
+      clearErr('app-err-investment');
+    });
+  });
+
+  // ── Phone formatter (Step 2) — same pattern as original form ─
+  (function () {
+    var PREFIX  = '+27-';
+    var phoneEl = document.getElementById('app-phone');
+    function applyFormat(raw) {
+      var digits = raw.replace(/^\+27-?/,'').replace(/\D/g,'').slice(0,9);
+      if (!digits.length)   return PREFIX;
+      if (digits.length <= 2) return PREFIX + digits;
+      if (digits.length <= 5) return PREFIX + digits.slice(0,2) + '-' + digits.slice(2);
+      return                   PREFIX + digits.slice(0,2) + '-' + digits.slice(2,5) + '-' + digits.slice(5,9);
+    }
+    phoneEl.addEventListener('input', function () {
+      this.value = applyFormat(this.value);
+      this.selectionStart = this.selectionEnd = this.value.length;
+    });
     phoneEl.addEventListener('keydown', function (e) {
-      const pos = this.selectionStart;
-      if ((e.key === 'Backspace' || e.key === 'Delete') && pos <= PREFIX.length) {
+      if ((e.key === 'Backspace' || e.key === 'Delete') && this.value.length <= PREFIX.length) {
         e.preventDefault();
       }
     });
-
-    // Keep cursor after prefix on click/focus
-    phoneEl.addEventListener('click', function () {
-      if (this.selectionStart < PREFIX.length) {
-        this.setSelectionRange(PREFIX.length, PREFIX.length);
-      }
-    });
-    phoneEl.addEventListener('focus', function () {
-      setTimeout(() => {
-        if (this.selectionStart < PREFIX.length) {
-          this.setSelectionRange(PREFIX.length, PREFIX.length);
-        }
-      }, 0);
-    });
   })();
 
-  function setFieldState(key, errorMsg) {
-    const el  = validators[key].el();
-    const err = validators[key].err();
-    if (errorMsg) {
-      el.classList.add('invalid');
-      err.textContent = errorMsg;
-    } else {
-      el.classList.remove('invalid');
-      err.textContent = '';
-    }
-    return !errorMsg;
-  }
+  // ── Submission ────────────────────────────────────────────
+  function submitApplication() {
+    btnNext.disabled    = true;
+    btnNext.textContent = 'Submitting…';
 
-  function validateField(key) {
-    const el  = validators[key].el();
-    const msg = validators[key].validate(el.value.trim());
-    return setFieldState(key, msg);
-  }
+    var spaceIdx  = document.getElementById('app-full-name').value.trim().indexOf(' ');
+    var fullName  = document.getElementById('app-full-name').value.trim();
+    var firstname = spaceIdx > -1 ? fullName.slice(0, spaceIdx) : fullName;
+    var lastname  = spaceIdx > -1 ? fullName.slice(spaceIdx + 1) : '';
 
-  // Real-time validation on blur + clear error on input once valid
-  Object.keys(validators).forEach(key => {
-    const el = validators[key].el();
-    el.addEventListener('blur',  () => validateField(key));
-    el.addEventListener('input', () => {
-      if (el.classList.contains('invalid')) validateField(key);
+    var selectedServices = [];
+    document.querySelectorAll('#app-step-3 .app-toggle-card.selected').forEach(function (c) {
+      selectedServices.push(c.dataset.value);
     });
-  });
+    var selectedInvestment = document.querySelector('#app-investment .app-radio-card.selected');
 
-  // ── Live character counter for Brief ──────────────────
-  const briefEl    = document.getElementById('contact-brief');
-  const briefCount = document.getElementById('brief-count');
-  briefEl.addEventListener('input', () => {
-    const len = briefEl.value.length;
-    briefCount.textContent = `${len} / ${BRIEF_MAX}`;
-    briefCount.className = len >= BRIEF_MAX ? 'form-char-count at-limit'
-                         : len >= BRIEF_MAX * 0.85 ? 'form-char-count near-limit'
-                         : 'form-char-count';
-  });
+    var payload = {
+      company_name:         document.getElementById('app-company-name').value.trim(),
+      industry:             document.getElementById('app-industry').value.trim(),
+      website:              document.getElementById('app-website').value.trim() || null,
+      employee_count:       document.getElementById('app-employees').value,
+      full_name:            fullName,
+      job_title:            document.getElementById('app-job-title').value.trim(),
+      email:                document.getElementById('app-email').value.trim(),
+      phone:                document.getElementById('app-phone').value,
+      services_of_interest: selectedServices.join(', '),
+      business_challenges:  document.getElementById('app-challenges').value.trim(),
+      start_date:           document.getElementById('app-start-date').value,
+      investment_range:     selectedInvestment ? selectedInvestment.dataset.value : '',
+    };
 
-  // ── Submit ────────────────────────────────────────────
-  btn.addEventListener('click', async function () {
-    // Validate all fields before submitting
-    const valid = Object.keys(validators).map(k => validateField(k)).every(Boolean);
-    if (!valid) return;
+    var ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkYnNtY3h6aG1ka2Zqb2Z0dWxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDEwMTQsImV4cCI6MjA5NzM3NzAxNH0.xo9x29q_QVmDl81soUI3OMDzJBKmqEme-I6v5IZmeN0';
 
-    const fullName = document.getElementById('contact-name').value.trim();
-    const company  = document.getElementById('contact-company').value.trim();
-    const email    = document.getElementById('contact-email').value.trim();
-    const phone    = document.getElementById('contact-phone').value.trim();
-    const website  = document.getElementById('contact-website').value.trim();
-    const project  = document.getElementById('project-type-select').value;
-    const budget   = document.getElementById('contact-budget').value;
-    const brief    = document.getElementById('contact-brief').value.trim();
+    fetch('https://wdbsmcxzhmdkfjoftulm.supabase.co/rest/v1/applications', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey':        ANON,
+        'Authorization': 'Bearer ' + ANON,
+        'Prefer':        'return=minimal',
+      },
+      body: JSON.stringify(payload),
+    }).then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
 
-    // Split full name into first / last for HubSpot standard properties
-    const spaceIdx = fullName.indexOf(' ');
-    const firstname = spaceIdx > -1 ? fullName.slice(0, spaceIdx) : fullName;
-    const lastname  = spaceIdx > -1 ? fullName.slice(spaceIdx + 1) : '';
+      // Fire-and-forget to HubSpot (contact basics only)
+      var hsFields = [
+        { objectTypeId: '0-1', name: 'firstname', value: firstname      },
+        { objectTypeId: '0-1', name: 'email',     value: payload.email  },
+        { objectTypeId: '0-1', name: 'company',   value: payload.company_name },
+      ];
+      if (lastname) hsFields.push({ objectTypeId: '0-1', name: 'lastname', value: lastname });
+      if (payload.phone && payload.phone !== '+27-')
+        hsFields.push({ objectTypeId: '0-1', name: 'phone', value: payload.phone });
 
-    const fields = [
-      { objectTypeId: '0-1', name: 'firstname', value: firstname },
-      { objectTypeId: '0-1', name: 'email',     value: email     },
-    ];
-    if (lastname)  fields.push({ objectTypeId: '0-1', name: 'lastname',     value: lastname  });
-    if (company)   fields.push({ objectTypeId: '0-1', name: 'company',      value: company   });
-    if (phone && phone !== '+27-')
-                   fields.push({ objectTypeId: '0-1', name: 'phone',        value: phone     });
-    if (website)   fields.push({ objectTypeId: '0-1', name: 'website',      value: website   });
-    if (project)   fields.push({ objectTypeId: '0-1', name: 'project_type', value: project   });
-    if (budget)    fields.push({ objectTypeId: '0-1', name: 'budget',       value: budget    });
-    if (brief)     fields.push({ objectTypeId: '0-1', name: 'brief',        value: brief     });
+      fetch('https://api.hsforms.com/submissions/v3/integration/submit/148222168/985b8dbe-7881-4dc5-93fc-3ae30065bfef', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fields:  hsFields,
+          context: { pageUri: window.location.href, pageName: document.title },
+        }),
+      }).catch(function () {});
 
-    btn.disabled = true;
-    btn.textContent = 'Sending…';
-    status.textContent = '';
-    status.className = 'form-status';
+      // Show success state
+      document.getElementById('app-wizard').style.display  = 'none';
+      document.getElementById('app-success').style.display = 'block';
 
-    try {
-      const res = await fetch(
-        'https://api.hsforms.com/submissions/v3/integration/submit/148222168/985b8dbe-7881-4dc5-93fc-3ae30065bfef',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fields,
-            context: { pageUri: window.location.href, pageName: document.title },
-          }),
-        }
-      );
-
-      if (res.ok) {
-        // Mirror to Supabase CRM (fire-and-forget)
-        fetch('https://wdbsmcxzhmdkfjoftulm.supabase.co/rest/v1/contacts', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkYnNtY3h6aG1ka2Zqb2Z0dWxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDEwMTQsImV4cCI6MjA5NzM3NzAxNH0.xo9x29q_QVmDl81soUI3OMDzJBKmqEme-I6v5IZmeN0',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkYnNtY3h6aG1ka2Zqb2Z0dWxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDEwMTQsImV4cCI6MjA5NzM3NzAxNH0.xo9x29q_QVmDl81soUI3OMDzJBKmqEme-I6v5IZmeN0',
-            'Prefer': 'return=minimal',
-          },
-          body: JSON.stringify({ full_name: fullName, email, company, phone, website, project_type: project, budget, brief }),
-        }).catch(() => {});
-
-        status.textContent = 'Your enquiry has been received. We\'ll be in touch within 48 hours.';
-        status.className = 'form-status success';
-        // Reset form and counters
-        document.getElementById('contact-name').value        = '';
-        document.getElementById('contact-company').value     = '';
-        document.getElementById('contact-email').value       = '';
-        document.getElementById('contact-phone').value       = '+27-';
-        document.getElementById('contact-website').value     = '';
-        document.getElementById('project-type-select').value = '';
-        document.getElementById('contact-budget').value      = '';
-        document.getElementById('contact-brief').value       = '';
-        briefCount.textContent = `0 / ${BRIEF_MAX}`;
-        briefCount.className = 'form-char-count';
-        btn.textContent = 'Start Your Project';
-        btn.disabled = false;
-      } else {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || res.statusText);
-      }
-    } catch (e) {
-      status.textContent = 'Something went wrong. Please email us directly at info@oakandpixel.co.za';
-      status.className = 'form-status error';
-      btn.textContent = 'Start Your Project';
-      btn.disabled = false;
-    }
-  });
+    }).catch(function () {
+      btnNext.disabled    = false;
+      btnNext.textContent = 'Apply For Partnership';
+      showErr('app-err-investment', 'Something went wrong. Please email us directly at info@oakandpixel.co.za');
+    });
+  }
 })();
 
 // ── NAV SCROLL STATE ────────────────────────────────────
