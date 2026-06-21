@@ -1444,6 +1444,7 @@ let allProposals = [];
 let allScopes = [];
 let allWelcomeLetters = [];
 let allSigningRequests = [];
+let allMandates = [];
 let proposalSchemaReady = true;
 let retainerSchemaReady = true;
 let docFilter = 'all';
@@ -3297,7 +3298,7 @@ async function loadProposalEcosystem() {
 /* ── Load all data ── */
 async function loadAll() {
   startLoad();
-  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadContacts(), loadClients(), loadProjects(), loadRecentActivity(), loadRetainerOverview(), loadQuotes(), loadInvoices(), loadRetainers(), loadProposalEcosystem(), loadSigningRequests()]);
+  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadContacts(), loadClients(), loadProjects(), loadRecentActivity(), loadRetainerOverview(), loadQuotes(), loadInvoices(), loadRetainers(), loadProposalEcosystem(), loadSigningRequests(), loadMandates()]);
   endLoad();
 }
 
@@ -3411,6 +3412,12 @@ async function loadSigningRequests() {
   const { data, error } = await sb.from('signing_requests').select('*');
   if (error) console.warn('[loadSigningRequests]', error.message);
   allSigningRequests = data || [];
+}
+
+async function loadMandates() {
+  const { data, error } = await sb.from('mandates').select('*').order('created_at', { ascending: false });
+  if (error) console.warn('[loadMandates]', error.message);
+  allMandates = data || [];
 }
 
 async function loadRecentActivity() {
@@ -6059,6 +6066,20 @@ function computeRetainerMetrics() {
   $('rm-overdue').textContent = overdue;
 }
 
+function mandateStatusFor(retainer) {
+  return allMandates.find(m => m.retainer_id === retainer.id) || null;
+}
+
+function mandateBadge(retainer) {
+  const m = mandateStatusFor(retainer);
+  if (!m)                       return '<td><span class="badge" style="opacity:.35">No Mandate</span></td>';
+  if (m.status === 'active')    return '<td><span class="badge badge-ok">Active ✓</span></td>';
+  if (m.status === 'pending')   return '<td><span class="badge badge-amber">Pending</span></td>';
+  if (m.status === 'suspended') return '<td><span class="badge badge-amber" style="opacity:.7">Suspended</span></td>';
+  if (m.status === 'failed')    return '<td><span class="badge badge-declined">Failed</span></td>';
+  return `<td><span class="badge" style="opacity:.5">${esc(m.status)}</span></td>`;
+}
+
 function renderRetainersTable() {
   const root = $('retainers-table-root');
   if (!root) return;
@@ -6066,7 +6087,7 @@ function renderRetainersTable() {
   if (!retainerSchemaReady) { root.innerHTML = schemaNotice('Apply migration 003 to enable retainers.'); return; }
   if (!allRetainers.length) { root.innerHTML = emptyState('No retainers found', 'Create retainers from a client profile.'); return; }
   root.innerHTML = `<table class="data-table">
-    <thead><tr><th>Client</th><th>Plan</th><th>Monthly</th><th>Billing Day</th><th>Next Payment</th><th>Status</th><th>Actions</th></tr></thead>
+    <thead><tr><th>Client</th><th>Plan</th><th>Monthly</th><th>Billing Day</th><th>Next Payment</th><th>Status</th><th>Mandate</th><th>Actions</th></tr></thead>
     <tbody>${allRetainers.map(r => {
       const client = allClients.find(c => c.id === r.client_id) || {};
       const badgeCls = { Paid:'badge-confirmed', Pending:'badge-pending', Overdue:'badge-declined', Failed:'badge-declined' }[r.payment_status] || '';
@@ -6077,13 +6098,37 @@ function renderRetainersTable() {
         <td>${esc(String(r.billing_day ?? '—'))}</td>
         <td>${esc(compactDate(r.next_payment_date) || '—')}</td>
         <td><span class="badge ${badgeCls}">${esc(r.payment_status || 'Pending')}</span></td>
+        ${mandateBadge(r)}
         <td class="td-actions">
           <button class="btn-ghost btn-sm" onclick="openRetainerModal('${r.client_id}')">History</button>
           <button class="btn-ghost btn-sm" onclick="openRecordPaymentModal('${r.id}')">Record Payment</button>
+          ${(m => !m || m.status === 'cancelled' || m.status === 'failed')(mandateStatusFor(r)) ? `<button class="btn-ghost btn-sm" onclick="setupMandate('${r.id}')">Set Up Mandate</button>` : ''}
         </td>
       </tr>`;
     }).join('')}</tbody>
   </table>`;
+}
+
+async function setupMandate(retainerId) {
+  const retainer = allRetainers.find(r => r.id === retainerId);
+  if (!retainer) return;
+  const client = allClients.find(c => c.id === retainer.client_id) || {};
+  const ok = await opsConfirm({
+    title: 'Set Up Debit Mandate',
+    message: `Create a pending debit mandate for ${clientDisplayName(client)}?`,
+    confirmText: 'Create Mandate',
+    tone: 'emerald'
+  });
+  if (!ok) return;
+  const { error } = await sb.from('mandates').insert({
+    retainer_id: retainerId,
+    client_id: retainer.client_id,
+    status: 'pending'
+  });
+  if (error) { toast('Error creating mandate.'); return; }
+  toast('Mandate created — pending provider setup.');
+  await loadMandates();
+  renderRetainersTable();
 }
 
 function openRecordPaymentModal(retainerId) {
