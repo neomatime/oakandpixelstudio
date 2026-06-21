@@ -3538,7 +3538,7 @@ async function loadStats() {
   const [bRes, sRes, leadsRes, clientsRes] = await Promise.all([
     sb.from('bookings').select('status'),
     sb.from('available_slots').select('is_booked').eq('is_booked', false).gte('date', todayStr()),
-    sb.from('contacts').select('*', { count: 'exact', head: true }).is('converted_at', null),
+    sb.from('applications').select('*', { count: 'exact', head: true }).in('status', ['new', 'reviewing']),
     sb.from('clients').select('*', { count: 'exact', head: true })
   ]);
   const bookings      = bRes.data || [];
@@ -3651,7 +3651,7 @@ async function loadRecentActivity() {
   const c = $('activity-feed');
   if (c) c.innerHTML = skelActivityRows(5);
   const [leadsRes, clientsRes, bookingsRes] = await Promise.all([
-    sb.from('contacts').select('id,full_name,project_type,created_at').is('converted_at', null).order('created_at', { ascending: false }).limit(8),
+    sb.from('applications').select('id,full_name,company_name,services_of_interest,created_at').in('status', ['new', 'reviewing']).order('created_at', { ascending: false }).limit(8),
     sb.from('clients').select('id,full_name,created_at').order('created_at', { ascending: false }).limit(8),
     sb.from('bookings').select('id,full_name,status,created_at,slot:slot_id(date,start_time)').order('created_at', { ascending: false }).limit(8)
   ]);
@@ -3671,11 +3671,11 @@ async function loadRecentActivity() {
     if (r._type === 'lead') {
       icon      = `<div class="activity-icon ai-lead">L</div>`;
       primary   = `New lead — <strong>${r.full_name}</strong>`;
-      secondary = r.project_type || '—';
+      secondary = r.company_name || r.services_of_interest || '—';
     } else if (r._type === 'client') {
       icon      = `<div class="activity-icon ai-client">C</div>`;
       primary   = `Converted to client — <strong>${r.full_name}</strong>`;
-      secondary = 'via Contacts';
+      secondary = 'via Applications';
     } else {
       const ok  = r.status === 'confirmed';
       icon      = `<div class="activity-icon ${ok ? 'ai-booking-ok' : 'ai-booking-pen'}">B</div>`;
