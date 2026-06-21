@@ -3739,7 +3739,6 @@ document.querySelectorAll('.service-card').forEach(card => {
     }
     if (!services?.length) throw new Error('No services returned');
     grid.innerHTML = services.map(serviceCard).join('');
-    updateContactSelect(services);
     updatePricingCards(services);
     wireServiceClicks();
   } catch (_) {
