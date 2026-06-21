@@ -3153,9 +3153,21 @@ async function loadRecentActivity() {
 /* ── Bookings ── */
 async function loadBookings() {
   $('bookings-table').innerHTML = skelTable(6, 7);
-  const { data } = await sb.from('bookings')
-    .select('id,full_name,company,email,phone,status,created_at,service_id,slot_id,service:service_id(name),slot:slot_id(date,start_time)')
+  const baseSelect = 'id,full_name,company,email,phone,status,created_at,service_id,slot_id,service:service_id(name),slot:slot_id(date,start_time)';
+  let { data, error } = await sb.from('bookings')
+    .select(`${baseSelect},converted_at,converted_to_client_id`)
     .order('created_at', { ascending: false });
+  if (error && isSchemaError(error)) {
+    const fallback = await sb.from('bookings')
+      .select(baseSelect)
+      .order('created_at', { ascending: false });
+    data = fallback.data;
+    error = fallback.error;
+  }
+  if (error) {
+    $('bookings-table').innerHTML = emptyState('Bookings unavailable', 'Check the bookings table permissions and schema.');
+    return;
+  }
   allBookings = data || [];
   renderBookings();
   renderCharts();
@@ -3187,8 +3199,12 @@ function bookingTable(rows, compact) {
         ? `<button class="act-btn confirm" data-id="${b.id}" data-action="confirmed">Confirm</button>
            <button class="act-btn decline" data-id="${b.id}" data-action="declined">Decline</button>`
         : '';
+      const convertAction = (b.converted_at || b.converted_to_client_id)
+        ? ''
+        : `<button class="act-btn convert-booking" data-id="${b.id}">Convert</button>`;
       const actions = `<div class="act-group">
         ${pendingActions}
+        ${convertAction}
         <button class="act-btn edit-booking" data-id="${b.id}">Edit</button>
         <button class="act-btn delete-booking" data-id="${b.id}" data-slot="${b.slot_id || ''}">Delete</button>
       </div>`;
@@ -3261,6 +3277,7 @@ async function openEditBookingModal(id) {
     <div class="modal-foot">
       <button class="btn-danger" onclick="deleteBooking('${booking.id}','${booking.slot_id||''}')">Delete booking</button>
       <div class="modal-foot-right">
+        ${booking.converted_at || booking.converted_to_client_id ? '' : `<button class="btn-ghost" onclick="convertBookingToClient('${booking.id}')">Convert to Client</button>`}
         <button class="btn-ghost" onclick="closeModal()">Cancel</button>
         <button class="btn-add" onclick="saveEditBooking('${booking.id}','${booking.slot_id||''}')">Save Changes</button>
       </div>
@@ -3310,6 +3327,95 @@ async function deleteBooking(id, slotId) {
   if (error) { toast('Error deleting booking.'); return; }
   toast('Booking deleted.');
   await Promise.all([loadStats(), loadBookings(), loadRecentActivity()]);
+}
+
+function bookingServiceName(booking = {}) {
+  return booking.service?.name || allServices.find(s => s.id === booking.service_id)?.name || null;
+}
+
+async function markBookingConverted(bookingId, clientId) {
+  const payload = {
+    status: 'confirmed',
+    converted_to_client_id: clientId,
+    converted_at: new Date().toISOString()
+  };
+  let { error } = await sb.from('bookings').update(payload).eq('id', bookingId);
+  if (error && isSchemaError(error)) {
+    ({ error } = await sb.from('bookings').update({ status: 'confirmed' }).eq('id', bookingId));
+  }
+  return error;
+}
+
+async function convertBookingToClient(bookingId) {
+  const booking = allBookings.find(b => b.id === bookingId);
+  if (!booking) return;
+  const serviceName = bookingServiceName(booking);
+  const existing = allClients.find(c => (c.email || '').toLowerCase() === (booking.email || '').toLowerCase());
+  if (existing) {
+    const linked = await opsConfirm({
+      title: 'Client Already Exists',
+      message: 'A client with this booking email already exists. Link this booking to that client instead of creating a duplicate?',
+      meta: `${clientDisplayName(existing)} · ${existing.email || booking.email}`,
+      confirmText: 'Link Booking',
+      cancelText: 'Cancel'
+    });
+    if (!linked) return;
+    const updateError = await markBookingConverted(bookingId, existing.id);
+    if (updateError) { toast('Client exists, but booking could not be updated.'); return; }
+    closeModal();
+    toast('Booking linked to existing client.');
+    await Promise.all([loadClients(), loadBookings(), loadStats(), loadRecentActivity()]);
+    openClientProfile(existing.id);
+    return;
+  }
+
+  const confirmed = await opsConfirm({
+    title: 'Convert Booking to Client',
+    message: 'OPS will create a client record using the booking details and assign the booked service as the selected service/plan.',
+    meta: `${booking.full_name || 'Booking'} · ${booking.email || 'No email'}${serviceName ? ` · ${serviceName}` : ''}`,
+    confirmText: 'Create Client',
+    cancelText: 'Cancel'
+  });
+  if (!confirmed) return;
+
+  const notes = [
+    `Converted from booking on ${compactDate(todayStr())}.`,
+    serviceName ? `Requested service: ${serviceName}.` : '',
+    booking.slot?.date ? `Consultation slot: ${compactDate(booking.slot.date)} at ${fmtTime(booking.slot.start_time)}.` : ''
+  ].filter(Boolean).join('\n');
+  const payload = {
+    full_name: booking.full_name || 'Booking Client',
+    email: booking.email || null,
+    company: booking.company || null,
+    company_email: booking.email || null,
+    phone: booking.phone || null,
+    company_phone: booking.phone || null,
+    selected_plan: serviceName,
+    project_type: serviceName,
+    project_start_date: booking.slot?.date || null,
+    notes,
+    brief: notes,
+    client_status: 'Active',
+    source_booking_id: booking.id
+  };
+
+  let insert = await sb.from('clients').insert(payload).select().single();
+  if (insert.error && isSchemaError(insert.error)) {
+    const fallback = { ...payload };
+    delete fallback.source_booking_id;
+    delete fallback.company_email;
+    delete fallback.company_phone;
+    delete fallback.client_status;
+    insert = await sb.from('clients').insert(fallback).select().single();
+  }
+  if (insert.error) { toast('Error converting booking to client.'); return; }
+
+  const updateError = await markBookingConverted(bookingId, insert.data.id);
+  if (updateError) toast('Client created, but booking could not be marked as converted.');
+  else toast('Booking converted to client.');
+  closeModal();
+  await Promise.all([loadClients(), loadBookings(), loadStats(), loadRecentActivity()]);
+  openClientProfile(insert.data.id);
 }
 
 function openEditSlotModal(slotId, date, currentTime) {
@@ -3383,6 +3489,9 @@ function wireBookingActions(container) {
   });
   container.querySelectorAll('.edit-booking').forEach(btn => {
     btn.addEventListener('click', () => openEditBookingModal(btn.dataset.id));
+  });
+  container.querySelectorAll('.convert-booking').forEach(btn => {
+    btn.addEventListener('click', () => convertBookingToClient(btn.dataset.id));
   });
   container.querySelectorAll('.delete-booking').forEach(btn => {
     btn.addEventListener('click', () => deleteBooking(btn.dataset.id, btn.dataset.slot));
