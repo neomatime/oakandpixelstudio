@@ -3632,6 +3632,7 @@ async function loadClients() {
   if (ct) ct.innerHTML = skelTable(5, 5);
   const { data } = await sb.from('clients').select('*').order('created_at', { ascending: false });
   allClients = data || [];
+  renderClientPlanFilter();
   renderClients();
   renderProjectClientFilter();
   if (allProjects.length) renderProjects();
@@ -3652,6 +3653,38 @@ $('client-plan-filter')?.addEventListener('change', e => {
   renderClients();
 });
 $('add-client-btn')?.addEventListener('click', () => openClientOnboarding());
+
+const CORE_OPS_PLANS = ['Signature', 'Growth', 'Premium'];
+
+function clientPlanOptionHTML(selectedValue = '') {
+  const selected = String(selectedValue || '').trim();
+  const selectedKey = selected.toLowerCase();
+  const serviceNames = [];
+  const seenServices = new Set();
+  allServices.forEach(service => {
+    const name = String(service.name || '').trim();
+    const key = name.toLowerCase();
+    if (!name || seenServices.has(key)) return;
+    seenServices.add(key);
+    serviceNames.push(name);
+  });
+  const knownValues = new Set([...CORE_OPS_PLANS, ...serviceNames].map(v => v.toLowerCase()));
+  const option = value => `<option value="${esc(value)}"${selectedKey === String(value).toLowerCase() ? ' selected' : ''}>${esc(value)}</option>`;
+  const current = selected && !knownValues.has(selectedKey)
+    ? `<optgroup label="Current Selection">${option(selected)}</optgroup>`
+    : '';
+  return `${current}
+    <optgroup label="OPS Plans">${CORE_OPS_PLANS.map(option).join('')}</optgroup>
+    ${serviceNames.length ? `<optgroup label="Services">${serviceNames.map(option).join('')}</optgroup>` : ''}`;
+}
+
+function renderClientPlanFilter() {
+  const select = $('client-plan-filter');
+  if (!select) return;
+  const current = clientPlanFilter || 'all';
+  select.innerHTML = `<option value="all">All plans & services</option>${clientPlanOptionHTML(current === 'all' ? '' : current)}`;
+  select.value = [...select.options].some(option => option.value === current) ? current : 'all';
+}
 
 function clientById(id) {
   return allClients.find(c => c.id === id);
@@ -3741,7 +3774,7 @@ function openClientOnboarding(id = null) {
         <div class="onboarding-field"><label>Phone Number</label><input id="oc-phone" value="${esc(client.phone || client.company_phone)}"></div>
       </div>
       <div class="onboarding-panel" data-panel="2">
-        <div class="onboarding-field"><label>Selected Plan</label><select id="oc-plan">${['Signature','Growth','Premium'].map(p => `<option value="${p}"${(client.selected_plan || client.project_type) === p ? ' selected' : ''}>${p}</option>`).join('')}</select></div>
+        <div class="onboarding-field"><label>Selected Service / Plan</label><select id="oc-plan">${clientPlanOptionHTML(client.selected_plan || client.project_type)}</select></div>
         <div class="onboarding-field"><label>Client Status</label><select id="oc-status">${['Active','Pending','Paused','Archived'].map(s => `<option value="${s}"${(client.client_status || 'Active') === s ? ' selected' : ''}>${s}</option>`).join('')}</select></div>
         <div class="onboarding-field"><label>Project Start Date</label><input id="oc-start" type="date" value="${esc(client.project_start_date)}"></div>
         <div class="onboarding-field full"><label>Notes</label><textarea id="oc-notes">${esc(client.notes || client.brief)}</textarea></div>
@@ -4324,6 +4357,7 @@ async function loadServices() {
   }
   if (error) { c.innerHTML = emptyState('Services unavailable', 'Check the services table permissions and schema.'); return; }
   allServices = data || [];
+  renderClientPlanFilter();
   if (!data?.length) { c.innerHTML = emptyState('No services found'); return; }
   c.innerHTML = data.map(s => {
     const basePrice = Number(s.price) || 0;
