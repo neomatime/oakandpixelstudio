@@ -4361,7 +4361,12 @@ function renderApplications() {
       if (idx !== -1) allApplications[idx].status = newStatus;
       toast(`Application marked as ${newStatus}.`);
       renderApplications();
-      loadApplications();
+      const newCount = allApplications.filter(a => a.status === 'new').length;
+      const badge = $('new-application-badge');
+      if (badge) {
+        if (newCount > 0) { badge.textContent = newCount; badge.classList.add('show'); }
+        else badge.classList.remove('show');
+      }
     });
   });
 
