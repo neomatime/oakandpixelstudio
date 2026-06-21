@@ -1443,6 +1443,7 @@ let allRetainers = [];
 let allProposals = [];
 let allScopes = [];
 let allWelcomeLetters = [];
+let allSigningRequests = [];
 let proposalSchemaReady = true;
 let retainerSchemaReady = true;
 let docFilter = 'all';
@@ -3296,7 +3297,7 @@ async function loadProposalEcosystem() {
 /* ── Load all data ── */
 async function loadAll() {
   startLoad();
-  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadContacts(), loadClients(), loadProjects(), loadRecentActivity(), loadRetainerOverview(), loadQuotes(), loadInvoices(), loadRetainers(), loadProposalEcosystem()]);
+  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadContacts(), loadClients(), loadProjects(), loadRecentActivity(), loadRetainerOverview(), loadQuotes(), loadInvoices(), loadRetainers(), loadProposalEcosystem(), loadSigningRequests()]);
   endLoad();
 }
 
@@ -3404,6 +3405,11 @@ async function loadWelcomeLetters() {
   const { data, error } = await sb.from('welcome_letters').select('*').order('created_at', { ascending: false });
   if (error) { if (isSchemaError(error)) proposalSchemaReady = false; return; }
   allWelcomeLetters = data || [];
+}
+
+async function loadSigningRequests() {
+  const { data } = await sb.from('signing_requests').select('*');
+  allSigningRequests = data || [];
 }
 
 async function loadRecentActivity() {
@@ -5558,6 +5564,29 @@ async function saveWelcomeLetter(clientId, download) {
   }
 }
 
+const SIGNABLE_TYPES = ['Proposal', 'SOW', 'Agreement'];
+
+function signingStatusFor(r) {
+  if (!SIGNABLE_TYPES.includes(r._type)) return null;
+  let req;
+  if (r._type === 'Proposal')  req = allSigningRequests.find(s => s.proposal_id  === r.id);
+  if (r._type === 'SOW')       req = allSigningRequests.find(s => s.scope_id      === r.id);
+  if (r._type === 'Agreement') req = allSigningRequests.find(s => s.agreement_kind === r._agreementKind && s.client_id === r.client_id);
+  if (!req) return 'not_sent';
+  if (req.client_signed_at) return 'signed';
+  if (req.token && new Date(req.token_expires_at) > new Date()) return 'awaiting';
+  return 'expired';
+}
+
+function sigBadge(r) {
+  const status = signingStatusFor(r);
+  if (!status) return '<td>—</td>';
+  if (status === 'signed')   return '<td><span class="badge badge-ok">Signed ✓</span></td>';
+  if (status === 'awaiting') return '<td><span class="badge badge-amber">Awaiting</span></td>';
+  if (status === 'expired')  return '<td><span class="badge" style="opacity:.5">Expired</span></td>';
+  return '<td><span class="badge" style="opacity:.35">Not Sent</span></td>';
+}
+
 function buildDocumentList() {
   return [
     ...allQuotes.map(q => ({ ...q, _type:'Quote', _num:q.quote_number, _date:q.quote_date, _status:q.status, _title:q.service_name||'Quote' })),
@@ -5792,7 +5821,7 @@ function renderDocumentsTable() {
   if (!rows.length) { root.innerHTML = emptyState('No documents found'); return; }
   const typeBadge = { Quote:'badge-gold', Invoice:'badge-amber', Proposal:'badge-emerald', SOW:'badge-ok', 'Welcome Letter':'', Agreement:'badge-gold', 'Retainer Statement':'badge-amber', 'Project Brief':'badge-ok', 'Project Completion Report':'badge-emerald' };
   root.innerHTML = `<table class="data-table">
-    <thead><tr><th>#</th><th>Type</th><th>Client</th><th>Title</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+    <thead><tr><th>#</th><th>Type</th><th>Client</th><th>Title</th><th>Date</th><th>Status</th><th>Sig</th><th>Actions</th></tr></thead>
     <tbody>${rows.map(r => {
       const client = allClients.find(c => c.id === r.client_id) || {};
       return `<tr ${r.archived ? 'style="opacity:.5"' : ''}>
@@ -5802,6 +5831,7 @@ function renderDocumentsTable() {
         <td>${esc(r._title)}</td>
         <td>${esc(compactDate(r._date) || '—')}</td>
         <td>${esc(r._status||'—')}</td>
+        ${sigBadge(r)}
         <td class="td-actions">
           ${r._type==='Proposal' ? `<button class="btn-ghost btn-sm" onclick="openProposalEditor('${r.id}',null,null)">View</button>` : ''}
           ${r._type==='SOW' ? `<button class="btn-ghost btn-sm" onclick="openSOWEditor('${r.id}',null)">View</button>` : ''}
