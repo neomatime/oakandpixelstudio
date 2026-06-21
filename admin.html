@@ -1723,7 +1723,7 @@ async function generatePDF(templateHTML, filename, { returnBase64 = false } = {}
         console.warn('PDF logo embed failed.', error);
       }
     }
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('times', 'normal');
     doc.setFontSize(16);
     setInk();
     doc.text('Oak & Pixel Studio', margin + (logo ? 12 : 0), y);
@@ -1734,7 +1734,7 @@ async function generatePDF(templateHTML, filename, { returnBase64 = false } = {}
     y += 10;
     drawRule();
 
-    doc.setFont('times', 'normal');
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(27);
     setInk();
     writeWrapped(clean(root.querySelector('.pdf-title')?.textContent) || 'Document', margin, contentW, 9);
