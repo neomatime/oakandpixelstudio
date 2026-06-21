@@ -208,6 +208,7 @@ body.sidebar-collapsed .btn-signout::before{
 /* ── STAT CARDS ───────────────────────────── */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;}
 @media(max-width:1200px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.stats-grid{grid-template-columns:1fr;}}
 .stat-card{
   background:var(--card);border:1px solid var(--border);
   padding:1.25rem 1.4rem;display:flex;align-items:center;gap:1rem;
@@ -261,7 +262,7 @@ body.sidebar-collapsed .btn-signout::before{
 
 /* ── TABLE ────────────────────────────────── */
 .a-table{width:100%;border-collapse:collapse;}
-.a-table th{font-family:var(--font-m);font-size:.53rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,244,241,.28);text-align:left;padding:.65rem 1.5rem;border-bottom:1px solid var(--border);}
+.a-table th{font-family:var(--font-m);font-size:.53rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,244,241,.28);text-align:left;padding:.65rem 1.5rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--card);z-index:1;}
 .a-table td{font-size:.79rem;padding:.85rem 1.5rem;border-bottom:1px solid var(--border);vertical-align:middle;}
 .a-table tr:last-child td{border-bottom:none;}
 .a-table tr:hover td{background:rgba(245,244,241,.018);}
@@ -1286,6 +1287,7 @@ select{color-scheme:dark;}
               <button class="f-tab" data-appfilter="accepted">Accepted</button>
               <button class="f-tab" data-appfilter="declined">Declined</button>
             </div>
+            <button class="act-btn" onclick="exportApplicationsCSV()" style="margin-left:auto;flex-shrink:0;white-space:nowrap">Export CSV</button>
           </div>
           <div id="applications-table"><p class="loading-row">Loading…</p></div>
         </div>
@@ -3062,6 +3064,13 @@ function showApp(user) {
   $('app').classList.add('visible');
   $('user-email-sm').textContent = user?.email || '';
   loadAll();
+  sb.channel('ops-applications')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'applications' }, payload => {
+      allApplications.unshift(payload.new);
+      refreshAppBadge();
+      if ($('page-applications')?.classList.contains('active')) renderApplications();
+    })
+    .subscribe();
 }
 
 $('login-btn').addEventListener('click', async () => {
@@ -4292,12 +4301,35 @@ async function loadApplications() {
   const { data } = await sb.from('applications').select('*').order('created_at', { ascending: false });
   allApplications = data || [];
   renderApplications();
-  const pendingCount = allApplications.filter(a => a.status === 'new' || a.status === 'reviewing').length;
+  refreshAppBadge();
+}
+
+function refreshAppBadge() {
+  const count = allApplications.filter(a => a.status === 'new' || a.status === 'reviewing').length;
   const badge = $('new-application-badge');
-  if (badge) {
-    if (pendingCount > 0) { badge.textContent = pendingCount; badge.classList.add('show'); }
-    else badge.classList.remove('show');
-  }
+  if (!badge) return;
+  if (count > 0) { badge.textContent = count; badge.classList.add('show'); }
+  else badge.classList.remove('show');
+}
+
+function exportApplicationsCSV() {
+  const cols = ['Date','Company','Contact','Email','Job Title','Industry','Services','Investment','Status'];
+  const rows = allApplications.map(r => [
+    r.created_at?.split('T')[0] || '',
+    r.company_name || '',
+    r.full_name || '',
+    r.email || '',
+    r.job_title || '',
+    r.industry || '',
+    r.services_of_interest || '',
+    r.investment_range || '',
+    r.status || ''
+  ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(','));
+  const csv = [cols.join(','), ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = `applications-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
 }
 
 function renderApplications() {
@@ -4357,12 +4389,7 @@ function renderApplications() {
       if (idx !== -1) allApplications[idx].status = newStatus;
       toast(`Application marked as ${newStatus}.`);
       renderApplications();
-      const newCount = allApplications.filter(a => a.status === 'new').length;
-      const badge = $('new-application-badge');
-      if (badge) {
-        if (newCount > 0) { badge.textContent = newCount; badge.classList.add('show'); }
-        else badge.classList.remove('show');
-      }
+      refreshAppBadge();
     });
   });
 
@@ -4400,6 +4427,7 @@ async function convertApplication(applicationId) {
   allClients.push(newClient);
   toast(`${app.full_name} added as a Lead-stage client.`);
   renderApplications();
+  refreshAppBadge();
   openClientProfile(newClient.id);
 }
 
