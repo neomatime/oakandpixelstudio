@@ -1445,6 +1445,7 @@ let allScopes = [];
 let allWelcomeLetters = [];
 let allSigningRequests = [];
 let allMandates = [];
+let mandateSchemaReady = true;
 let proposalSchemaReady = true;
 let retainerSchemaReady = true;
 let docFilter = 'all';
@@ -3416,7 +3417,7 @@ async function loadSigningRequests() {
 
 async function loadMandates() {
   const { data, error } = await sb.from('mandates').select('*').order('created_at', { ascending: false });
-  if (error) console.warn('[loadMandates]', error.message);
+  if (error) { if (isSchemaError(error)) mandateSchemaReady = false; console.warn('[loadMandates]', error.message); }
   allMandates = data || [];
 }
 
@@ -6077,6 +6078,7 @@ function mandateBadge(retainer) {
   if (m.status === 'pending')   return '<td><span class="badge badge-amber">Pending</span></td>';
   if (m.status === 'suspended') return '<td><span class="badge badge-amber" style="opacity:.7">Suspended</span></td>';
   if (m.status === 'failed')    return '<td><span class="badge badge-declined">Failed</span></td>';
+  if (m.status === 'cancelled') return '<td><span class="badge badge-declined" style="opacity:.6">Cancelled</span></td>';
   return `<td><span class="badge" style="opacity:.5">${esc(m.status)}</span></td>`;
 }
 
@@ -6091,6 +6093,7 @@ function renderRetainersTable() {
     <tbody>${allRetainers.map(r => {
       const client = allClients.find(c => c.id === r.client_id) || {};
       const badgeCls = { Paid:'badge-confirmed', Pending:'badge-pending', Overdue:'badge-declined', Failed:'badge-declined' }[r.payment_status] || '';
+      const mandate = mandateStatusFor(r);
       return `<tr>
         <td>${esc(clientDisplayName(client))}</td>
         <td>${esc(r.assigned_plan || '—')}</td>
@@ -6102,7 +6105,7 @@ function renderRetainersTable() {
         <td class="td-actions">
           <button class="btn-ghost btn-sm" onclick="openRetainerModal('${r.client_id}')">History</button>
           <button class="btn-ghost btn-sm" onclick="openRecordPaymentModal('${r.id}')">Record Payment</button>
-          ${(m => !m || m.status === 'cancelled' || m.status === 'failed')(mandateStatusFor(r)) ? `<button class="btn-ghost btn-sm" onclick="setupMandate('${r.id}')">Set Up Mandate</button>` : ''}
+          ${!mandate || mandate.status === 'cancelled' || mandate.status === 'failed' ? `<button class="btn-ghost btn-sm" onclick="setupMandate('${r.id}')">Set Up Mandate</button>` : ''}
         </td>
       </tr>`;
     }).join('')}</tbody>
@@ -6125,7 +6128,7 @@ async function setupMandate(retainerId) {
     client_id: retainer.client_id,
     status: 'pending'
   });
-  if (error) { toast('Error creating mandate.'); return; }
+  if (error) { console.warn('[setupMandate]', error.message); toast(mandateSchemaReady ? 'Error creating mandate.' : 'Mandates table not ready — apply migration 010.'); return; }
   toast('Mandate created — pending provider setup.');
   await loadMandates();
   renderRetainersTable();
