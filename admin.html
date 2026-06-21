@@ -1028,12 +1028,6 @@ select{color-scheme:dark;}
         Services
       </button>
 
-      <button class="nav-item" data-page="contacts">
-        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-        Contacts
-        <span class="nav-badge" id="new-contact-badge"></span>
-      </button>
-
       <button class="nav-item" data-page="applications">
         <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6M9 8h6M9 16h4M5 20V4a1 1 0 011-1h12a1 1 0 011 1v16l-3-2-3 2-3-2-3 2z"/></svg>
         Applications
@@ -1280,25 +1274,19 @@ select{color-scheme:dark;}
         <div id="service-detail-root"><p class="loading-row">Select a service to view details.</p></div>
       </section>
 
-      <section class="page" id="page-contacts">
-        <div class="card">
-          <div class="contacts-toolbar">
-            <input type="text" class="search-input" id="contact-search" placeholder="Search by name or email…">
-            <div class="filter-row" style="margin:0;gap:.35rem;">
-              <button class="f-tab active" data-cfilter="all">All</button>
-              <button class="f-tab" data-cfilter="new">New</button>
-              <button class="f-tab" data-cfilter="contacted">Contacted</button>
-              <button class="f-tab" data-cfilter="qualified">Qualified</button>
-              <button class="f-tab" data-cfilter="closed">Closed</button>
-            </div>
-          </div>
-          <div id="contacts-table"><p class="loading-row">Loading…</p></div>
-        </div>
-      </section>
-
       <!-- ── APPLICATIONS ── -->
       <section class="page" id="page-applications">
         <div class="card">
+          <div class="contacts-toolbar">
+            <input type="text" class="search-input" id="application-search" placeholder="Search by name, email or company…">
+            <div class="filter-row" style="margin:0;gap:.35rem;">
+              <button class="f-tab active" data-appfilter="all">All</button>
+              <button class="f-tab" data-appfilter="new">New</button>
+              <button class="f-tab" data-appfilter="reviewing">Reviewing</button>
+              <button class="f-tab" data-appfilter="accepted">Accepted</button>
+              <button class="f-tab" data-appfilter="declined">Declined</button>
+            </div>
+          </div>
           <div id="applications-table"><p class="loading-row">Loading…</p></div>
         </div>
       </section>
@@ -1569,7 +1557,6 @@ const $ = id => document.getElementById(id);
 
 let currentFilter = 'all';
 let allBookings = [];
-let allContacts = [];
 let allClients  = [];
 let allServices = [];
 let allProjects = [];
@@ -1596,8 +1583,8 @@ let invoicesFilter = 'all';
 let showArchived = false;
 let clientProfileSchemaReady = true;
 let bookingSearch = '';
-let contactFilter = 'all';
-let contactSearch = '';
+let applicationFilter = 'all';
+let applicationSearch = '';
 let clientSearch  = '';
 let clientPlanFilter = 'all';
 let projectSearch = '';
@@ -3090,7 +3077,7 @@ $('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') $(
 $('logout-btn').addEventListener('click', () => sb.auth.signOut());
 
 /* ── Navigation ── */
-const PAGE_TITLES = { overview:'Overview', bookings:'Bookings', availability:'Availability', projects:'Projects', services:'Services', 'service-detail':'Service Details', contacts:'Contacts', applications:'Applications', clients:'Clients', 'client-profile':'Client Profile', pipeline:'Pipeline', quotes:'Quotes', invoices:'Invoices', retainers:'Retainers', documents:'Documents', 'proposal-editor':'Proposal', 'sow-editor':'Scope of Work' };
+const PAGE_TITLES = { overview:'Overview', bookings:'Bookings', availability:'Availability', projects:'Projects', services:'Services', 'service-detail':'Service Details', applications:'Applications', clients:'Clients', 'client-profile':'Client Profile', pipeline:'Pipeline', quotes:'Quotes', invoices:'Invoices', retainers:'Retainers', documents:'Documents', 'proposal-editor':'Proposal', 'sow-editor':'Scope of Work' };
 const BREADCRUMB_PARENTS = {
   'service-detail': [{ label:'Services', page:'services' }],
   'client-profile': [{ label:'Clients', page:'clients' }],
@@ -3537,7 +3524,7 @@ async function loadProposalEcosystem() {
 /* ── Load all data ── */
 async function loadAll() {
   startLoad();
-  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadContacts(), loadClients(), loadProjects(), loadRecentActivity(), loadRetainerOverview(), loadQuotes(), loadInvoices(), loadRetainers(), loadProposalEcosystem(), loadSigningRequests(), loadMandates(), loadApplications()]);
+  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadClients(), loadProjects(), loadRecentActivity(), loadRetainerOverview(), loadQuotes(), loadInvoices(), loadRetainers(), loadProposalEcosystem(), loadSigningRequests(), loadMandates(), loadApplications()]);
   await runLifecycleEngine();
   endLoad();
 }
@@ -4316,15 +4303,25 @@ async function loadApplications() {
 function renderApplications() {
   const c = $('applications-table');
   if (!c) return;
-  if (!allApplications.length) {
-    c.innerHTML = emptyState('No applications yet', 'Partnership applications from the website will appear here.');
+  let rows = allApplications;
+  if (applicationFilter !== 'all') rows = rows.filter(r => r.status === applicationFilter);
+  if (applicationSearch) {
+    const q = applicationSearch.toLowerCase();
+    rows = rows.filter(r =>
+      r.full_name?.toLowerCase().includes(q) ||
+      r.email?.toLowerCase().includes(q) ||
+      r.company_name?.toLowerCase().includes(q)
+    );
+  }
+  if (!rows.length) {
+    c.innerHTML = emptyState('No applications found', 'Partnership applications from the website will appear here.');
     return;
   }
   c.innerHTML = `<table class="a-table">
     <thead><tr>
-      <th>Date</th><th>Company</th><th>Contact</th><th>Industry</th><th>Services</th><th>Investment</th><th>Status</th><th></th>
+      <th>Date</th><th>Company</th><th>Contact</th><th>Email</th><th>Industry</th><th>Services</th><th>Investment</th><th>Status</th><th></th>
     </tr></thead>
-    <tbody>${allApplications.map(r => {
+    <tbody>${rows.map(r => {
       const canConvert = r.status === 'new' || r.status === 'reviewing';
       const badgeClass = r.status === 'new' ? 'badge-new'
         : r.status === 'reviewing' ? 'badge-amber'
@@ -4334,19 +4331,18 @@ function renderApplications() {
         <td class="td-dim">${fmtDate(r.created_at?.split('T')[0])}</td>
         <td class="td-name" title="${(r.business_challenges||'').replace(/"/g,'&quot;')}">${r.company_name || '—'}</td>
         <td><span style="display:block;font-size:.8rem">${r.full_name || '—'}</span><span style="display:block;font-size:.72rem;color:rgba(245,244,241,.45)">${r.job_title || ''}</span></td>
+        <td class="td-dim">${r.email || '—'}</td>
         <td class="td-dim">${r.industry || '—'}</td>
-        <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.74rem;color:rgba(245,244,241,.45)" title="${(r.services_of_interest||'').replace(/"/g,'&quot;')}">${r.services_of_interest || '—'}</td>
+        <td class="contact-brief-cell" title="${(r.services_of_interest||'').replace(/"/g,'&quot;')}">${r.services_of_interest || '—'}</td>
         <td class="td-dim">${r.investment_range || '—'}</td>
         <td>
           ${r.status === 'accepted'
             ? `<span class="badge badge-confirmed">Accepted</span>`
-            : `<span class="badge ${badgeClass}" style="cursor:pointer">
-            <select class="status-select" data-id="${r.id}">
+            : `<span class="badge ${badgeClass}" style="cursor:pointer"><select class="status-select" data-id="${r.id}">
               <option value="new"${r.status==='new'?' selected':''}>New</option>
               <option value="reviewing"${r.status==='reviewing'?' selected':''}>Reviewing</option>
               <option value="declined"${r.status==='declined'?' selected':''}>Declined</option>
-            </select>
-          </span>`}
+            </select></span>`}
         </td>
         <td>${canConvert ? `<button class="act-btn convert-app" data-id="${r.id}" style="white-space:nowrap">Convert to Client</button>` : '—'}</td>
       </tr>`;
@@ -4405,100 +4401,6 @@ async function convertApplication(applicationId) {
   toast(`${app.full_name} added as a Lead-stage client.`);
   renderApplications();
   openClientProfile(newClient.id);
-}
-
-/* ── Contacts ── */
-async function loadContacts() {
-  $('contacts-table').innerHTML = skelTable(5, 6);
-  const { data } = await sb.from('contacts').select('*').is('converted_at', null).order('created_at', { ascending: false });
-  allContacts = data || [];
-  renderContacts();
-  const newCount = allContacts.filter(c => c.status === 'new').length;
-  const badge = $('new-contact-badge');
-  if (badge) {
-    if (newCount > 0) { badge.textContent = newCount; badge.classList.add('show'); }
-    else badge.classList.remove('show');
-  }
-}
-
-function renderContacts() {
-  const c = $('contacts-table');
-  let rows = allContacts;
-  if (contactFilter !== 'all') rows = rows.filter(r => r.status === contactFilter);
-  if (contactSearch) {
-    const q = contactSearch.toLowerCase();
-    rows = rows.filter(r => r.full_name?.toLowerCase().includes(q) || r.email?.toLowerCase().includes(q));
-  }
-  if (!rows.length) { c.innerHTML = emptyState('No contacts found', 'Enquiries from the website will appear here.'); return; }
-  c.innerHTML = `<table class="a-table">
-    <thead><tr>
-      <th>Name</th><th>Company</th><th>Email</th><th>Budget</th><th>Project</th><th>Brief</th><th>Status</th><th>Date</th><th></th>
-    </tr></thead>
-    <tbody>${rows.map(r => `<tr>
-      <td class="td-name">${r.full_name}</td>
-      <td style="font-size:.76rem;color:rgba(245,244,241,.5)">${r.company || '—'}</td>
-      <td class="td-dim">${r.email}</td>
-      <td class="td-dim">${r.budget || '—'}</td>
-      <td style="font-size:.74rem;color:rgba(245,244,241,.45)">${r.project_type || '—'}</td>
-      <td class="contact-brief-cell" title="${(r.brief||'').replace(/"/g,'&quot;')}">${r.brief || '—'}</td>
-      <td>
-        <span class="badge badge-${r.status}" style="cursor:pointer">
-          <select class="status-select" data-id="${r.id}">
-            <option value="new"${r.status==='new'?' selected':''}>New</option>
-            <option value="contacted"${r.status==='contacted'?' selected':''}>Contacted</option>
-            <option value="qualified"${r.status==='qualified'?' selected':''}>Qualified</option>
-            <option value="closed"${r.status==='closed'?' selected':''}>Closed</option>
-          </select>
-        </span>
-      </td>
-      <td class="td-dim">${fmtDate(r.created_at?.split('T')[0])}</td>
-      <td><button class="act-btn make-client" data-id="${r.id}" style="white-space:nowrap">Make Client</button></td>
-    </tr>`).join('')}</tbody>
-  </table>`;
-
-  c.querySelectorAll('.status-select').forEach(sel => {
-    sel.addEventListener('change', async () => {
-      const newStatus = sel.value;
-      await sb.from('contacts').update({ status: newStatus }).eq('id', sel.dataset.id);
-      toast(`Contact marked as ${newStatus}.`);
-      loadContacts();
-    });
-  });
-
-  c.querySelectorAll('.act-btn.make-client').forEach(btn => {
-    btn.addEventListener('click', () => {
-      btn.disabled = true;
-      convertToClient(btn.dataset.id);
-    });
-  });
-}
-
-async function convertToClient(id) {
-  const contact = allContacts.find(c => c.id === id);
-  if (!contact) return;
-  const { error } = await sb.from('clients').insert({
-    full_name:         contact.full_name,
-    email:             contact.email,
-    company:           contact.company   || null,
-    phone:             contact.phone     || null,
-    website:           contact.website   || null,
-    project_type:      contact.project_type || null,
-    budget:            contact.budget    || null,
-    brief:             contact.brief     || null,
-    source_contact_id: contact.id,
-  });
-  if (error) { toast('Error converting contact. Please try again.'); loadContacts(); return; }
-  const { error: updateError } = await sb.from('contacts')
-    .update({ converted_at: new Date().toISOString() })
-    .eq('id', id);
-  if (updateError) {
-    toast('Client saved but contact could not be marked as converted. Check the Clients page.');
-    if (typeof loadClients === 'function') loadClients();
-    return;
-  }
-  toast('Lead converted to client.');
-  loadContacts();
-  if (typeof loadClients === 'function') loadClients();
 }
 
 /* ── Clients ── */
@@ -5280,18 +5182,18 @@ async function deleteClient(id) {
   await Promise.all([loadClients(), loadStats(), loadRecentActivity(), loadProjects()]);
 }
 
-document.querySelectorAll('.f-tab[data-cfilter]').forEach(tab => {
+document.querySelectorAll('.f-tab[data-appfilter]').forEach(tab => {
   tab.addEventListener('click', () => {
-    document.querySelectorAll('.f-tab[data-cfilter]').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.f-tab[data-appfilter]').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-    contactFilter = tab.dataset.cfilter;
-    renderContacts();
+    applicationFilter = tab.dataset.appfilter;
+    renderApplications();
   });
 });
 
-$('contact-search').addEventListener('input', e => {
-  contactSearch = e.target.value.trim();
-  renderContacts();
+$('application-search').addEventListener('input', e => {
+  applicationSearch = e.target.value.trim();
+  renderApplications();
 });
 
 /* ── Projects ── */
