@@ -6204,8 +6204,8 @@ function nextAction(client) {
     return hasUnsent ? 'Send proposal' : 'Follow up with client';
   }
   if (stage === 'Agreement') {
-    const hasSentLetter = allWelcomeLetters.some(w => w.client_id === clientId && w.sent_at);
-    return hasSentLetter ? 'Awaiting signature' : 'Generate & sign MSA / SOW';
+    const hasSentScope = allScopes.some(s => s.client_id === clientId && s.status !== 'Draft');
+    return hasSentScope ? 'Awaiting signature' : 'Generate & sign MSA / SOW';
   }
   if (stage === 'Onboarding') {
     const hasSentLetter = allWelcomeLetters.some(w => w.client_id === clientId && w.sent_at);
@@ -6221,6 +6221,7 @@ function nextAction(client) {
 }
 
 async function setClientStage(clientId, stage) {
+  if (!LIFECYCLE_STAGES.includes(stage)) return;
   const now = new Date().toISOString();
   const { error } = await sb.from('clients')
     .update({ lifecycle_stage: stage, stage_entered_at: now })
