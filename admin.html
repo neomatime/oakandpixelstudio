@@ -58,6 +58,22 @@ a{color:inherit;text-decoration:none;}
 .btn-login:disabled{opacity:.4;cursor:default;}
 .login-err{font-size:.75rem;color:var(--err);min-height:1rem;margin-top:.85rem;text-align:center;}
 .login-footnote{font-size:.72rem;color:rgba(26,26,24,.3);text-align:center;margin-top:1.45rem;}
+.login-theme-toggle{position:fixed;top:1.25rem;right:1.25rem;z-index:5;width:38px;height:38px;background:rgba(255,255,255,.78);border:1px solid rgba(26,26,24,.12);display:flex;align-items:center;justify-content:center;color:rgba(26,26,24,.55);transition:background .2s,border-color .2s,color .2s,transform .2s;backdrop-filter:blur(12px);}
+.login-theme-toggle:hover{background:#fff;border-color:rgba(26,26,24,.22);color:#1A1A18;transform:translateY(-1px);}
+.login-theme-toggle svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.5;}
+[data-theme="dark"] #login-screen{background:#0A0A09;color:var(--off-white);}
+[data-theme="dark"] .login-panel-form{background:radial-gradient(circle at 70% 20%,rgba(26,92,58,.16),transparent 34%),linear-gradient(135deg,#0A0A09 0%,#111110 100%);}
+[data-theme="dark"] .login-card{background:#111110;border-color:rgba(245,244,241,.11);box-shadow:0 22px 70px rgba(0,0,0,.42),0 1px 0 rgba(245,244,241,.04) inset;}
+[data-theme="dark"] .login-brand{color:var(--off-white);}
+[data-theme="dark"] .login-sub{color:rgba(245,244,241,.45);}
+[data-theme="dark"] .login-sub::before,[data-theme="dark"] .login-sub::after{background:rgba(245,244,241,.14);}
+[data-theme="dark"] .f-label{color:rgba(245,244,241,.5);}
+[data-theme="dark"] .f-input{background:rgba(245,244,241,.045);border-color:rgba(245,244,241,.14);color:var(--off-white);}
+[data-theme="dark"] .f-input:focus{border-color:var(--emerald);box-shadow:0 0 0 3px rgba(26,92,58,.16);}
+[data-theme="dark"] .f-input::placeholder{color:rgba(245,244,241,.24);}
+[data-theme="dark"] .login-footnote{color:rgba(245,244,241,.36);}
+[data-theme="dark"] .login-theme-toggle{background:rgba(245,244,241,.055);border-color:rgba(245,244,241,.12);color:rgba(245,244,241,.62);}
+[data-theme="dark"] .login-theme-toggle:hover{background:rgba(245,244,241,.1);border-color:rgba(245,244,241,.22);color:var(--off-white);}
 
 /* ── APP SHELL ────────────────────────────── */
 .app{display:none;min-height:100vh;}
@@ -493,17 +509,23 @@ body.sidebar-collapsed .btn-signout::before{
   [data-theme="light"] .modal-field label{color:rgba(26,26,24,.45);}
   [data-theme="light"] .modal-field input,[data-theme="light"] .modal-field select,[data-theme="light"] .modal-field textarea{background:rgba(26,26,24,.04);border-color:var(--border-hi);color:#1A1A18;}
   [data-theme="light"] .btn-ghost{color:rgba(26,26,24,.45);border-color:rgba(26,26,24,.12);}
+[data-theme="light"] .activity-name,[data-theme="light"] .pipe-num,[data-theme="light"] .data-table tbody td,[data-theme="light"] .td-mono,[data-theme="light"] .history-table td,[data-theme="light"] .toggle-lbl,[data-theme="light"] .signature-status,[data-theme="light"] .pipeline-action{color:#1A1A18;}
+[data-theme="light"] .activity-sub,[data-theme="light"] .activity-time,[data-theme="light"] .pipe-lbl,[data-theme="light"] .pipe-arrow,[data-theme="light"] .metric-label,[data-theme="light"] .mini-panel-title,[data-theme="light"] .asset-group-count,[data-theme="light"] .onboarding-hint,[data-theme="light"] .booking-time-btn small,[data-theme="light"] .asset-drop-title,[data-theme="light"] .slot-chip.booked .slot-chip-t,[data-theme="light"] .slot-chip .booked-lbl,[data-theme="light"] .pipeline-empty{color:rgba(26,26,24,.52);}
+[data-theme="light"] .svc-price-input,[data-theme="light"] .search-input{background:rgba(26,26,24,.045);border-color:rgba(26,26,24,.16);color:#1A1A18;}
+[data-theme="light"] .badge-closed{background:rgba(26,26,24,.055);color:rgba(26,26,24,.52);}
+[data-theme="light"] .toast{background:#fff;color:#1A1A18;border-color:rgba(26,26,24,.16);box-shadow:0 18px 44px rgba(0,0,0,.12);}
+[data-theme="light"] [style*="rgba(245,244,241"]{color:rgba(26,26,24,.62)!important;}
 [data-theme="light"] .data-table tbody tr:hover { background:rgba(10,10,9,.04); }
 [data-theme="light"] .filter-tab { border-color:rgba(10,10,9,.15); color:rgba(10,10,9,.55); }
 [data-theme="light"] .filter-tab.active, [data-theme="light"] .filter-tab:hover { border-color:var(--gold); color:var(--gold); }
-[data-theme="light"] .editor-section textarea { background:rgba(255,255,255,.9); border-color:rgba(10,10,9,.12); color:var(--bg); }
+[data-theme="light"] .editor-section textarea { background:rgba(255,255,255,.9); border-color:rgba(10,10,9,.12); color:#1A1A18; }
 [data-theme="light"] .editor-section textarea:focus { border-color:var(--border-hi); }
 [data-theme="light"] .client-source-btn{background:rgba(26,26,24,.025);color:rgba(26,26,24,.5);border-color:rgba(26,26,24,.12);}
 [data-theme="light"] .client-source-btn:hover{color:#1A1A18;border-color:rgba(26,26,24,.22);}
 [data-theme="light"] .client-source-btn.active{background:var(--em-dim);border-color:var(--em-mid);color:var(--emerald);}
 [data-theme="light"] .editor-total { color:var(--gold); }
 [data-theme="light"] .editor-back { color:rgba(10,10,9,.5); }
-[data-theme="light"] .editor-back:hover { color:var(--bg); }
+[data-theme="light"] .editor-back:hover { color:#1A1A18; }
 
 /* ── FLATPICKR CUSTOM ─────────────────────── */
 .flatpickr-calendar{background:var(--card)!important;border:1px solid var(--border-hi)!important;border-radius:0!important;box-shadow:0 16px 48px rgba(0,0,0,.4)!important;font-family:var(--font-m)!important;padding:4px;}
@@ -924,7 +946,7 @@ select{color-scheme:dark;}
 [data-theme="light"] .pipeline-col-title{color:rgba(26,26,24,.5);}
 [data-theme="light"] .pipeline-col-count{color:rgba(26,26,24,.5);background:rgba(26,26,24,.07);}
 [data-theme="light"] .pipeline-card{background:#fff;border-color:rgba(26,26,24,.1);}
-[data-theme="light"] .pipeline-name{color:var(--black);}
+[data-theme="light"] .pipeline-name{color:#1A1A18;}
 [data-theme="light"] .pipeline-meta{color:rgba(26,26,24,.4);}
 </style>
 </head>
@@ -932,6 +954,9 @@ select{color-scheme:dark;}
 
 <!-- ── LOGIN ───────────────────────────────── -->
 <div id="login-screen">
+  <button class="login-theme-toggle" id="login-theme-toggle" type="button" title="Toggle theme" aria-label="Toggle theme">
+    <svg id="login-theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"></svg>
+  </button>
   <div class="login-panel-img">
     <img src="images/oak-pixel-mark-hires-transparent.png" class="login-img-logo" alt="">
     <div class="login-img-brand">
@@ -2960,15 +2985,25 @@ function initTheme() {
 }
 function applyTheme(mode) {
   document.documentElement.setAttribute('data-theme', mode);
-  $('theme-icon').innerHTML = mode === 'dark'
+  const icon = mode === 'dark'
     ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
     : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  ['theme-icon','login-theme-icon'].forEach(id => { if ($(id)) $(id).innerHTML = icon; });
+  const nextLabel = mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+  ['theme-toggle','login-theme-toggle'].forEach(id => {
+    const btn = $(id);
+    if (!btn) return;
+    btn.setAttribute('aria-label', nextLabel);
+    btn.setAttribute('title', nextLabel);
+  });
   localStorage.setItem('ops-theme', mode);
 }
-$('theme-toggle').addEventListener('click', () => {
+function toggleTheme() {
   applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
   setTimeout(renderCharts, 50);
-});
+}
+$('theme-toggle')?.addEventListener('click', toggleTheme);
+$('login-theme-toggle')?.addEventListener('click', toggleTheme);
 
 /* â”€â”€ Sidebar â”€â”€ */
 function initSidebar() {
