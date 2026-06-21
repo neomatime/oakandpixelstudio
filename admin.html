@@ -527,11 +527,35 @@ body.sidebar-collapsed .btn-signout::before{
 .modal-field{display:flex;flex-direction:column;gap:.3rem;min-width:0;}
 .modal-field.full{grid-column:1/-1;}
 .modal-field label{font-family:var(--font-m);font-size:.54rem;letter-spacing:.11em;text-transform:uppercase;color:rgba(245,244,241,.32);}
-.modal-field input,.modal-field select,.modal-field textarea{background:rgba(245,244,241,.04);border:1px solid var(--border-hi);color:var(--off-white);font-family:var(--font-b);font-size:.82rem;padding:.55rem .75rem;outline:none;transition:border-color .2s;width:100%;box-sizing:border-box;min-width:0;}
+.modal-field input,.modal-field select,.modal-field textarea{background:rgba(245,244,241,.04);border:1px solid var(--border-hi);color:var(--off-white);font-family:var(--font-b);font-size:.82rem;padding:.55rem .75rem;outline:none;transition:border-color .2s,background-color .2s;width:100%;box-sizing:border-box;min-width:0;}
 .modal-field textarea{min-height:92px;resize:vertical;line-height:1.5;}
 .modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{border-color:var(--emerald);}
 .modal-field input[readonly]{opacity:.5;cursor:default;}
 .modal-field select option{background:var(--card);}
+select{color-scheme:dark;}
+.modal-field select,.onboarding-field select,.f-grp select,.client-filter{
+  appearance:none;-webkit-appearance:none;border-radius:0;
+  background-image:
+    linear-gradient(45deg,transparent 50%,rgba(245,244,241,.62) 50%),
+    linear-gradient(135deg,rgba(245,244,241,.62) 50%,transparent 50%),
+    linear-gradient(to bottom,rgba(245,244,241,.08),rgba(245,244,241,.08));
+  background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%,calc(100% - 2.35rem) 50%;
+  background-size:5px 5px,5px 5px,1px 58%;
+  background-repeat:no-repeat;
+  padding-right:2.75rem;
+}
+.status-select{
+  appearance:none;-webkit-appearance:none;border-radius:0;
+  background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);
+  background-position:calc(100% - 7px) 50%,calc(100% - 3px) 50%;
+  background-size:4px 4px,4px 4px;
+  background-repeat:no-repeat;
+  padding-right:.9rem;
+}
+.modal-field select:hover,.onboarding-field select:hover,.f-grp select:hover,.client-filter:hover{border-color:rgba(184,149,90,.38);}
+.modal-field select option,.modal-field select optgroup,.onboarding-field select option,.onboarding-field select optgroup,.f-grp select option,.f-grp select optgroup,.client-filter option,.client-filter optgroup,.status-select option{background:var(--card);color:var(--off-white);}
+.modal-field input[type="date"],.modal-field input[type="time"],.onboarding-field input[type="date"],.f-grp input[type="date"]{color-scheme:dark;}
+.modal-field input::-webkit-calendar-picker-indicator,.onboarding-field input::-webkit-calendar-picker-indicator,.f-grp input::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.42;cursor:pointer;}
 .modal-divider{grid-column:1/-1;border:none;border-top:1px solid var(--border);margin:.1rem 0;}
 .modal-foot{padding:.85rem 1.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:.75rem;}
 .modal-foot-right{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:flex-end;}
@@ -622,6 +646,34 @@ body.sidebar-collapsed .btn-signout::before{
 .onboarding-hint{font-size:.72rem;color:rgba(245,244,241,.34);max-width:320px;}
 .onboarding-actions{display:flex;gap:.5rem;}
 .modal-box.wide{width:min(760px,94vw);}
+.booking-slot-panel{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);gap:.85rem;align-items:start;}
+.booking-time-field{display:flex;flex-direction:column;gap:.3rem;min-width:0;}
+.booking-time-field label{font-family:var(--font-m);font-size:.54rem;letter-spacing:.11em;text-transform:uppercase;color:rgba(245,244,241,.32);}
+.booking-time-grid{min-height:98px;max-height:142px;overflow:auto;border:1px solid var(--border-hi);background:rgba(245,244,241,.025);padding:.55rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(94px,1fr));gap:.45rem;}
+.booking-time-grid::-webkit-scrollbar{width:6px;}
+.booking-time-grid::-webkit-scrollbar-thumb{background:rgba(245,244,241,.16);}
+.booking-time-btn{min-height:42px;background:rgba(245,244,241,.035);border:1px solid var(--border);color:rgba(245,244,241,.58);font-family:var(--font-m);font-size:.6rem;letter-spacing:.02em;display:flex;flex-direction:column;justify-content:center;gap:.08rem;padding:.42rem .5rem;text-align:left;transition:border-color .18s,background .18s,color .18s,transform .18s;}
+.booking-time-btn small{font-size:.48rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(184,149,90,.62);}
+.booking-time-btn:hover{border-color:rgba(184,149,90,.35);color:var(--off-white);transform:translateY(-1px);}
+.booking-time-btn.selected{background:var(--em-dim);border-color:var(--emerald);color:var(--off-white);box-shadow:inset 0 0 0 1px rgba(26,92,58,.2);}
+.booking-time-empty{grid-column:1/-1;border:1px dashed var(--border-hi);padding:.85rem;color:rgba(245,244,241,.35);font-size:.76rem;line-height:1.45;}
+.booking-slot-note{margin-top:.35rem;font-size:.68rem;color:rgba(245,244,241,.35);}
+[data-theme="light"] select{color-scheme:light;}
+[data-theme="light"] .modal-field select,[data-theme="light"] .onboarding-field select,[data-theme="light"] .f-grp select,[data-theme="light"] .client-filter{
+  background-image:
+    linear-gradient(45deg,transparent 50%,rgba(26,26,24,.58) 50%),
+    linear-gradient(135deg,rgba(26,26,24,.58) 50%,transparent 50%),
+    linear-gradient(to bottom,rgba(26,26,24,.1),rgba(26,26,24,.1));
+}
+[data-theme="light"] .status-select{background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);}
+[data-theme="light"] .modal-field select option,[data-theme="light"] .modal-field select optgroup,[data-theme="light"] .onboarding-field select option,[data-theme="light"] .onboarding-field select optgroup,[data-theme="light"] .f-grp select option,[data-theme="light"] .f-grp select optgroup,[data-theme="light"] .client-filter option,[data-theme="light"] .client-filter optgroup,[data-theme="light"] .status-select option{background:#fff;color:#1A1A18;}
+[data-theme="light"] .modal-field input::-webkit-calendar-picker-indicator,[data-theme="light"] .onboarding-field input::-webkit-calendar-picker-indicator,[data-theme="light"] .f-grp input::-webkit-calendar-picker-indicator{filter:none;opacity:.5;}
+[data-theme="light"] .booking-time-field label{color:rgba(26,26,24,.45);}
+[data-theme="light"] .booking-time-grid{background:rgba(26,26,24,.025);}
+[data-theme="light"] .booking-time-btn{background:rgba(26,26,24,.025);color:rgba(26,26,24,.58);border-color:rgba(26,26,24,.12);}
+[data-theme="light"] .booking-time-btn:hover{color:#1A1A18;border-color:rgba(184,149,90,.45);}
+[data-theme="light"] .booking-time-btn.selected{background:var(--em-dim);border-color:var(--emerald);color:#1A1A18;}
+[data-theme="light"] .booking-time-empty,[data-theme="light"] .booking-slot-note{color:rgba(26,26,24,.45);}
 .signature-pad-wrap{grid-column:1/-1;border:1px solid var(--border-hi);background:rgba(245,244,241,.025);padding:.85rem;}
 .signature-pad-top{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.7rem;}
 .signature-status{font-family:var(--font-m);font-size:.55rem;letter-spacing:.11em;text-transform:uppercase;color:rgba(245,244,241,.42);}
@@ -674,6 +726,7 @@ body.sidebar-collapsed .btn-signout::before{
   .login-panel-img{display:none;}
   .login-panel-form{padding:2.5rem 1.5rem;}
   .login-brand{font-size:1.7rem;}
+  .booking-slot-panel{grid-template-columns:1fr;}
   .onboarding-steps{grid-template-columns:1fr;}
   .onboarding-panel.active{grid-template-columns:1fr;}
   .kanban-board{grid-template-columns:repeat(5,240px);}
@@ -1361,6 +1414,7 @@ let projectPriorityFilter = 'all';
 let projectStatusFilter = 'all';
 let onboardingStep = 0;
 let availabilityFilter = 'all';
+let editBookingSlots = [];
 let datePicker;
 let trendChart;
 let confirmedCount = 0;
@@ -3220,13 +3274,101 @@ function bookingTable(rows, compact) {
   </table>`;
 }
 
-async function openEditBookingModal(id) {
-  const esc = v => (v || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+function slotTimeValue(time) {
+  return String(time || '').slice(0, 5);
+}
 
+function sortBookingSlots(slots = [], currentSlotId = '') {
+  return [...slots]
+    .filter(slot => slot?.date && slot?.start_time)
+    .sort((a, b) => {
+      const aKey = `${a.date} ${slotTimeValue(a.start_time)}`;
+      const bKey = `${b.date} ${slotTimeValue(b.start_time)}`;
+      if (aKey === bKey && currentSlotId) {
+        if (a.id === currentSlotId) return -1;
+        if (b.id === currentSlotId) return 1;
+      }
+      return aKey.localeCompare(bKey);
+    });
+}
+
+function setEditBookingTime(btn) {
+  const grid = $('eb-time-grid');
+  if (!grid || !btn) return;
+  grid.querySelectorAll('.booking-time-btn').forEach(item => item.classList.remove('selected'));
+  btn.classList.add('selected');
+  if ($('eb-slot')) $('eb-slot').value = btn.dataset.slotId || '';
+  if ($('eb-time')) $('eb-time').value = btn.dataset.time || '';
+}
+
+function renderEditBookingTimes(preferredTime = '', autoSelectFirst = false) {
+  const dateEl = $('eb-date');
+  const grid = $('eb-time-grid');
+  const slotEl = $('eb-slot');
+  const timeEl = $('eb-time');
+  const noteEl = $('eb-slot-note');
+  if (!dateEl || !grid || !slotEl || !timeEl) return;
+
+  const selectedDate = dateEl.value || '';
+  const daySlots = editBookingSlots.filter(slot => slot.date === selectedDate);
+  const uniqueSlots = [];
+  const seenTimes = new Set();
+  daySlots.forEach(slot => {
+    const time = slotTimeValue(slot.start_time);
+    if (!time || seenTimes.has(time)) return;
+    seenTimes.add(time);
+    uniqueSlots.push(slot);
+  });
+
+  let desiredTime = slotTimeValue(preferredTime || timeEl.value);
+  if (desiredTime && !uniqueSlots.some(slot => slotTimeValue(slot.start_time) === desiredTime)) desiredTime = '';
+  if (!desiredTime && autoSelectFirst && uniqueSlots.length) desiredTime = slotTimeValue(uniqueSlots[0].start_time);
+
+  const noSlotButton = `<button class="booking-time-btn${!desiredTime ? ' selected' : ''}" type="button" data-slot-id="" data-time=""><span>No time</span><small>Unassigned</small></button>`;
+
+  if (!selectedDate) {
+    grid.innerHTML = `<div class="booking-time-empty">Choose a date to see available consultation times.</div>`;
+    slotEl.value = '';
+    timeEl.value = '';
+    if (noteEl) noteEl.textContent = 'Dates with available slots will appear in the picker.';
+    return;
+  }
+
+  if (!uniqueSlots.length) {
+    grid.innerHTML = `${noSlotButton}<div class="booking-time-empty">No open time slots are available for ${esc(fmtDate(selectedDate))}.</div>`;
+  } else {
+    grid.innerHTML = noSlotButton + uniqueSlots.map(slot => {
+      const time = slotTimeValue(slot.start_time);
+      const selected = desiredTime === time;
+      return `<button class="booking-time-btn${selected ? ' selected' : ''}" type="button" data-slot-id="${esc(slot.id)}" data-time="${esc(time)}">
+        <span>${esc(fmtTime(slot.start_time))}</span>
+        ${slot._isCurrent ? '<small>Current</small>' : '<small>Open slot</small>'}
+      </button>`;
+    }).join('');
+  }
+
+  grid.querySelectorAll('.booking-time-btn').forEach(btn => {
+    btn.addEventListener('click', () => setEditBookingTime(btn));
+  });
+  setEditBookingTime(grid.querySelector('.booking-time-btn.selected') || grid.querySelector('.booking-time-btn'));
+  if (noteEl) noteEl.textContent = uniqueSlots.length ? 'Select one available time for this booking.' : 'Add availability first if you need a booked time on this date.';
+}
+
+function initEditBookingSlotPicker(selectedDate = '', selectedTime = '') {
+  const dates = [...new Set(editBookingSlots.map(slot => slot.date))];
+  const options = {
+    disableMobile: true,
+    dateFormat: 'Y-m-d',
+    defaultDate: selectedDate || null,
+    locale: { firstDayOfWeek: 1 },
+    onChange: (_dates, dateStr) => renderEditBookingTimes('', Boolean(dateStr)),
+  };
+  if (dates.length) options.enable = dates;
+  flatpickr('#eb-date', options);
+  renderEditBookingTimes(selectedTime);
+}
+
+async function openEditBookingModal(id) {
   const booking = allBookings.find(b => b.id === id);
   if (!booking) return;
 
@@ -3241,14 +3383,11 @@ async function openEditBookingModal(id) {
   const openSlots = slotsResult.data;
   const currSlot  = currSlotResult.error ? null : currSlotResult.data;
 
-  const slotList = openSlots || [];
+  const slotList = [...(openSlots || [])];
   if (currSlot && !slotList.find(s => s.id === currSlot.id)) slotList.unshift(currSlot);
-
-  const noSlotOpt = `<option value=""${!booking.slot_id ? ' selected' : ''}>— No slot assigned —</option>`;
-  const slotOptions = noSlotOpt + slotList.map(s => {
-    const isCurrent = s.id === booking.slot_id;
-    return `<option value="${s.id}"${isCurrent ? ' selected' : ''}>${esc(fmtDate(s.date))} — ${esc(fmtTime(s.start_time))}${isCurrent ? ' (current)' : ''}</option>`;
-  }).join('');
+  editBookingSlots = sortBookingSlots(slotList, booking.slot_id).map(slot => ({ ...slot, _isCurrent: slot.id === booking.slot_id }));
+  const selectedDate = currSlot?.date || '';
+  const selectedTime = slotTimeValue(currSlot?.start_time);
 
   const serviceOptions = allServices.map(s =>
     `<option value="${s.id}"${s.id === booking.service_id ? ' selected' : ''}>${esc(s.name)}</option>`
@@ -3272,7 +3411,19 @@ async function openEditBookingModal(id) {
           <option value="declined"${booking.status==='declined'?' selected':''}>Declined</option>
         </select>
       </div>
-      <div class="modal-field full"><label>Date &amp; Time Slot</label><select id="eb-slot">${slotOptions}</select></div>
+      <div class="booking-slot-panel">
+        <div class="modal-field">
+          <label>Date</label>
+          <input id="eb-date" type="text" value="${esc(selectedDate)}" placeholder="Select date..." autocomplete="off">
+        </div>
+        <div class="booking-time-field">
+          <label>Time</label>
+          <div class="booking-time-grid" id="eb-time-grid"></div>
+          <div class="booking-slot-note" id="eb-slot-note"></div>
+          <input id="eb-slot" type="hidden" value="${esc(booking.slot_id || '')}">
+          <input id="eb-time" type="hidden" value="${esc(selectedTime)}">
+        </div>
+      </div>
     </div>
     <div class="modal-foot">
       <button class="btn-danger" onclick="deleteBooking('${booking.id}','${booking.slot_id||''}')">Delete booking</button>
@@ -3284,6 +3435,7 @@ async function openEditBookingModal(id) {
     </div>
   `);
   $('modal-box').classList.add('wide');
+  initEditBookingSlotPicker(selectedDate, selectedTime);
 }
 
 async function saveEditBooking(bookingId, oldSlotId) {
