@@ -176,6 +176,13 @@ body.sidebar-collapsed .btn-signout::before{
   padding:1.4rem 2rem 1.1rem;border-bottom:1px solid var(--border);
   position:sticky;top:0;background:rgba(10,10,9,.9);backdrop-filter:blur(12px);z-index:50;
 }
+.topbar-left{min-width:0;display:grid;gap:.16rem;}
+.page-breadcrumbs{display:flex;align-items:center;gap:.35rem;min-height:16px;flex-wrap:wrap;font-family:var(--font-m);font-size:.5rem;letter-spacing:.13em;text-transform:uppercase;color:rgba(245,244,241,.28);}
+.breadcrumb-link,.breadcrumb-current{display:inline-flex;align-items:center;max-width:180px;min-width:0;}
+.breadcrumb-link{background:none;border:none;padding:0;color:rgba(245,244,241,.36);font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;transition:color .18s;}
+.breadcrumb-link:hover{color:var(--gold);}
+.breadcrumb-current{color:rgba(245,244,241,.56);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.breadcrumb-sep{color:rgba(245,244,241,.16);}
 .page-title{font-family:var(--font-d);font-size:1.5rem;font-weight:400;}
 .page-date{font-family:var(--font-m);font-size:.57rem;letter-spacing:.08em;color:var(--mist);margin-top:.1rem;}
 .page-content{padding:1.75rem 2rem;flex:1;}
@@ -474,6 +481,11 @@ body.sidebar-collapsed .btn-signout::before{
 [data-theme="light"] .empty-state svg{stroke:rgba(26,26,24,.12);}
 [data-theme="light"] .page-date{color:rgba(26,26,24,.45);}
 [data-theme="light"] .page-title{color:#1A1A18;}
+[data-theme="light"] .page-breadcrumbs{color:rgba(26,26,24,.32);}
+[data-theme="light"] .breadcrumb-link{color:rgba(26,26,24,.42);}
+[data-theme="light"] .breadcrumb-link:hover{color:var(--emerald);}
+[data-theme="light"] .breadcrumb-current{color:rgba(26,26,24,.58);}
+[data-theme="light"] .breadcrumb-sep{color:rgba(26,26,24,.18);}
   [data-theme="light"] .modal-box{background:var(--card);border-color:var(--border-hi);}
   [data-theme="light"] .modal-hdr,[data-theme="light"] .modal-foot,[data-theme="light"] .modal-divider{border-color:var(--border);}
   [data-theme="light"] .modal-close{color:rgba(26,26,24,.3);}
@@ -820,6 +832,8 @@ select{color-scheme:dark;}
   .login-panel-img{display:none;}
   .login-panel-form{padding:2.5rem 1.5rem;}
   .login-brand{font-size:1.7rem;}
+  .topbar{padding:1rem 1.15rem;gap:.75rem;}
+  .breadcrumb-link,.breadcrumb-current{max-width:135px;}
   .booking-slot-panel{grid-template-columns:1fr;}
   .modal-overlay{padding:.65rem;align-items:flex-start;}
   .modal-box{max-height:calc(100vh - 1.3rem);}
@@ -1046,7 +1060,8 @@ select{color-scheme:dark;}
   <!-- Main -->
   <main class="main">
     <header class="topbar">
-      <div>
+      <div class="topbar-left">
+        <nav class="page-breadcrumbs" id="page-breadcrumbs" aria-label="Breadcrumb"></nav>
         <h1 class="page-title" id="page-title">Overview</h1>
         <p class="page-date" id="page-date"></p>
       </div>
@@ -3027,10 +3042,49 @@ $('logout-btn').addEventListener('click', () => sb.auth.signOut());
 
 /* ── Navigation ── */
 const PAGE_TITLES = { overview:'Overview', bookings:'Bookings', availability:'Availability', projects:'Projects', services:'Services', 'service-detail':'Service Details', contacts:'Contacts', clients:'Clients', 'client-profile':'Client Profile', pipeline:'Pipeline', quotes:'Quotes', invoices:'Invoices', retainers:'Retainers', documents:'Documents', 'proposal-editor':'Proposal', 'sow-editor':'Scope of Work' };
+const BREADCRUMB_PARENTS = {
+  'service-detail': [{ label:'Services', page:'services' }],
+  'client-profile': [{ label:'Clients', page:'clients' }],
+  'proposal-editor': [{ label:'Documents', page:'documents' }],
+  'sow-editor': [{ label:'Documents', page:'documents' }],
+  quotes: [{ label:'Finance & Documents' }],
+  invoices: [{ label:'Finance & Documents' }],
+  retainers: [{ label:'Finance & Documents' }],
+  documents: [{ label:'Finance & Documents' }]
+};
+
+function currentBreadcrumbLabel(name) {
+  if (name === 'service-detail') return serviceById(selectedServiceId)?.name || PAGE_TITLES[name];
+  if (name === 'client-profile') return clientDisplayName(clientById(selectedClientId) || {}) || PAGE_TITLES[name];
+  if (name === 'proposal-editor') {
+    const proposal = allProposals.find(p => p.id === _currentProposalId);
+    return proposal?.proposal_number || proposal?.title || 'New Proposal';
+  }
+  if (name === 'sow-editor') {
+    const scope = allScopes.find(s => s.id === _currentScopeId);
+    return scope?.scope_number || scope?.title || 'New Scope of Work';
+  }
+  return PAGE_TITLES[name] || name;
+}
+
+function renderBreadcrumbs(name) {
+  const root = $('page-breadcrumbs');
+  if (!root) return;
+  const crumbs = [{ label:'Command Center', page:'overview' }, ...(BREADCRUMB_PARENTS[name] || []), { label:currentBreadcrumbLabel(name) }];
+  root.innerHTML = crumbs.map((crumb, index) => {
+    const isLast = index === crumbs.length - 1;
+    const node = !isLast && crumb.page
+      ? `<button class="breadcrumb-link" type="button" data-page="${esc(crumb.page)}">${esc(crumb.label)}</button>`
+      : `<span class="breadcrumb-current">${esc(crumb.label)}</span>`;
+    return `${index ? '<span class="breadcrumb-sep">/</span>' : ''}${node}`;
+  }).join('');
+}
 
 document.addEventListener('click', e => {
   const btn = e.target.closest('.nav-item[data-page]');
   if (btn) switchPage(btn.dataset.page);
+  const crumb = e.target.closest('.breadcrumb-link[data-page]');
+  if (crumb) switchPage(crumb.dataset.page);
 });
 document.querySelectorAll('.btn-link[data-goto]').forEach(btn => {
   btn.addEventListener('click', () => switchPage(btn.dataset.goto));
@@ -3041,6 +3095,7 @@ function switchPage(name) {
   document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.page === name));
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
   $('page-title').textContent = PAGE_TITLES[name] || name;
+  renderBreadcrumbs(name);
   if (name === 'quotes') renderQuotesTable();
   if (name === 'invoices') renderInvoicesTable();
   if (name === 'retainers') renderRetainersTable();
@@ -3048,6 +3103,7 @@ function switchPage(name) {
   if (name === 'pipeline') renderPipelinePage();
   enhanceOpsSelects($('page-' + name) || document);
 }
+renderBreadcrumbs('overview');
 
 let opsSelectSystemReady = false;
 let opsSelectObserver = null;
@@ -5689,6 +5745,7 @@ async function saveProposal(redirect) {
   const showSOW = payload.status === 'Approved';
   if ($('pe-gen-sow-btn')) $('pe-gen-sow-btn').style.display = showSOW ? '' : 'none';
   await loadProposals();
+  renderBreadcrumbs('proposal-editor');
 }
 
 async function downloadProposalPDF() {
@@ -5865,6 +5922,7 @@ async function saveScope() {
   if (error) { toast('Error saving SOW.'); console.error(error); return; }
   toast('SOW saved.');
   await loadScopes();
+  renderBreadcrumbs('sow-editor');
 }
 
 async function downloadSOWPDF() {
