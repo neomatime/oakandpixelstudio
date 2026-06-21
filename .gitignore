@@ -5,3 +5,6 @@ node_modules/
 
 # Git worktrees
 .worktrees/
+
+# SDD scratch
+.superpowers/
