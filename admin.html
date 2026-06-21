@@ -5624,10 +5624,11 @@ function buildAgreementRows() {
 
 let _pendingEmailSend = null;
 
-function buildEmailHTML(docType, clientName, docNumber, customMessage) {
+function buildEmailHTML(docType, clientName, docNumber, customMessage, signingLink = null) {
   const label = { SOW: 'Scope of Work', 'Welcome Letter': 'Welcome Letter' }[docType] || docType;
   const greetingName = esc(clientName || 'Client');
   const msgHtml = customMessage ? `<p style="color:#3a3a35;font-size:.95rem;line-height:1.7;margin:0 0 1.25rem">${customMessage.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>')}</p>` : '';
+  const sigSection = signingLink ? `<div style="background:#F7F6F3;border:1px solid #E0DFD8;padding:1.25rem;margin:1.5rem 0;text-align:center"><p style="color:#0A0A09;font-size:.85rem;margin:0 0 .9rem;font-family:Georgia,serif">Please sign this document electronically:</p><a href="${signingLink}" style="background:#1A5C3A;color:#fff;text-decoration:none;padding:.7rem 1.75rem;font-family:Georgia,serif;font-size:.9rem;display:inline-block;letter-spacing:.02em">Sign Document</a><p style="color:#aaa;font-size:.72rem;margin:.75rem 0 0;line-height:1.5">Valid for 30 days. If the button does not work: <span style="color:#B8955A">${signingLink}</span></p></div>` : '';
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#F0EFEC;font-family:Georgia,serif">
 <div style="max-width:580px;margin:2rem auto;background:#ffffff;border:1px solid #E0DFD8">
   <div style="background:#0A0A09;padding:1.25rem 2rem;display:flex;align-items:center;gap:.75rem">
@@ -5642,6 +5643,7 @@ function buildEmailHTML(docType, clientName, docNumber, customMessage) {
       Please find your <strong>${label}</strong>${docNumber ? ` (${docNumber})` : ''} from Oak &amp; Pixel Studio attached to this email.
     </p>
     ${msgHtml}
+    ${sigSection}
     <p style="color:#3a3a35;font-size:.95rem;line-height:1.7;margin:0 0 1.75rem">Should you have any questions, please don't hesitate to reach out.</p>
     <p style="color:#0A0A09;font-size:.93rem;margin:0">Warm regards,</p>
     <p style="color:#0A0A09;font-size:.93rem;font-weight:bold;margin:.2rem 0 .1rem">Neo Matime</p>
@@ -5684,7 +5686,7 @@ async function executePendingEmailSend() {
   _pendingEmailSend = null;
 }
 
-async function _dispatchEmail({ templateHTML, filename, docType, clientName, docNumber, to, subject, message, table, docId, statusField, reload }) {
+async function _dispatchEmail({ templateHTML, filename, docType, clientName, docNumber, to, subject, message, table, docId, statusField, reload, signingLink = null }) {
   toast('Generating PDF…');
   const base64 = await generatePDF(templateHTML, filename, { returnBase64: true });
   if (!base64) { toast('PDF generation failed.'); return; }
@@ -5696,7 +5698,7 @@ async function _dispatchEmail({ templateHTML, filename, docType, clientName, doc
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         to, subject,
-        htmlBody: buildEmailHTML(docType, clientName, docNumber, message),
+        htmlBody: buildEmailHTML(docType, clientName, docNumber, message, signingLink),
         pdfBase64: base64,
         pdfFilename: filename,
       }),
@@ -5790,34 +5792,80 @@ async function sendProposalEmail(proposalId) {
   const proposal = allProposals.find(p => p.id === proposalId);
   if (!proposal) return;
   const client = allClients.find(c => c.id === proposal.client_id) || {};
-  const to = client.email || client.company_email || '';
+  const to     = client.email || client.company_email || '';
   showSendEmailModal({
     to, message: '',
     subject: `Your Proposal from Oak & Pixel Studio — ${proposal.proposal_number}`,
-    onSend: (finalTo, finalSubject, finalMessage) => _dispatchEmail({
-      templateHTML: proposalTemplate(proposal, client), filename: `${proposal.proposal_number}.pdf`,
-      docType: 'Proposal', clientName: clientDisplayName(client), docNumber: proposal.proposal_number,
-      to: finalTo, subject: finalSubject, message: finalMessage,
-      table: 'proposals', docId: proposalId, statusField: 'status', reload: loadProposals,
-    }),
+    onSend: async (finalTo, finalSubject, finalMessage) => {
+      let signingLink = null;
+      try {
+        const opsSignature = getStoredOpsSignature();
+        const r = await fetch('/api/request-signature', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            doc_type: 'Proposal', doc_number: proposal.proposal_number,
+            client_id: proposal.client_id, client_email: finalTo,
+            client_company: clientDisplayName(client),
+            proposal_id: proposalId,
+            ops_signature_data_url: opsSignature,
+            send_email: false,
+          }),
+        });
+        const d = await r.json();
+        if (d.token) signingLink = `https://oakandpixel.co.za/sign.html?token=${d.token}`;
+      } catch {}
+      await _dispatchEmail({
+        templateHTML: proposalTemplate(proposal, client), filename: `${proposal.proposal_number}.pdf`,
+        docType: 'Proposal', clientName: clientDisplayName(client), docNumber: proposal.proposal_number,
+        to: finalTo, subject: finalSubject, message: finalMessage,
+        table: 'proposals', docId: proposalId, statusField: 'status', reload: loadProposals,
+        signingLink,
+      });
+      await loadSigningRequests();
+      renderDocumentsTable();
+    },
   });
 }
 
 async function sendSOWEmail(scopeId) {
-  const scope = allScopes.find(s => s.id === scopeId);
+  const scope    = allScopes.find(s => s.id === scopeId);
   if (!scope) return;
   const proposal = scope.proposal_id ? allProposals.find(p => p.id === scope.proposal_id) : null;
-  const client = allClients.find(c => c.id === (proposal?.client_id || scope.client_id)) || {};
-  const to = client.email || client.company_email || '';
+  const client   = allClients.find(c => c.id === (proposal?.client_id || scope.client_id)) || {};
+  const to       = client.email || client.company_email || '';
   showSendEmailModal({
     to, message: '',
     subject: `Your Scope of Work from Oak & Pixel Studio — ${scope.scope_number}`,
-    onSend: (finalTo, finalSubject, finalMessage) => _dispatchEmail({
-      templateHTML: sowTemplate(scope, client, proposal), filename: `${scope.scope_number}.pdf`,
-      docType: 'SOW', clientName: clientDisplayName(client), docNumber: scope.scope_number,
-      to: finalTo, subject: finalSubject, message: finalMessage,
-      table: 'scopes', docId: scopeId, statusField: 'status', reload: loadScopes,
-    }),
+    onSend: async (finalTo, finalSubject, finalMessage) => {
+      let signingLink = null;
+      try {
+        const opsSignature = getStoredOpsSignature();
+        const r = await fetch('/api/request-signature', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            doc_type: 'SOW', doc_number: scope.scope_number,
+            client_id: client.id, client_email: finalTo,
+            client_company: clientDisplayName(client),
+            scope_id: scopeId,
+            ops_signature_data_url: opsSignature,
+            send_email: false,
+          }),
+        });
+        const d = await r.json();
+        if (d.token) signingLink = `https://oakandpixel.co.za/sign.html?token=${d.token}`;
+      } catch {}
+      await _dispatchEmail({
+        templateHTML: sowTemplate(scope, client, proposal), filename: `${scope.scope_number}.pdf`,
+        docType: 'SOW', clientName: clientDisplayName(client), docNumber: scope.scope_number,
+        to: finalTo, subject: finalSubject, message: finalMessage,
+        table: 'scopes', docId: scopeId, statusField: 'status', reload: loadScopes,
+        signingLink,
+      });
+      await loadSigningRequests();
+      renderDocumentsTable();
+    },
   });
 }
 
