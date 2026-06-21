@@ -556,6 +556,33 @@ select{color-scheme:dark;}
 .modal-field select option,.modal-field select optgroup,.onboarding-field select option,.onboarding-field select optgroup,.f-grp select option,.f-grp select optgroup,.client-filter option,.client-filter optgroup,.status-select option{background:var(--card);color:var(--off-white);}
 .modal-field input[type="date"],.modal-field input[type="time"],.onboarding-field input[type="date"],.f-grp input[type="date"]{color-scheme:dark;}
 .modal-field input::-webkit-calendar-picker-indicator,.onboarding-field input::-webkit-calendar-picker-indicator,.f-grp input::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.42;cursor:pointer;}
+.ops-native-select{position:absolute!important;left:-9999px!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;}
+.ops-select-wrap{position:relative;width:100%;min-width:0;}
+.toolbar-left .ops-select-wrap,.toolbar-right .ops-select-wrap,.booking-toolbar .ops-select-wrap,.kanban-toolbar .ops-select-wrap,.section-toolbar .ops-select-wrap{width:auto;}
+.ops-select-trigger{width:100%;min-height:38px;background:rgba(245,244,241,.04);border:1px solid var(--border-hi);color:var(--off-white);font-family:var(--font-b);font-size:.82rem;line-height:1.2;text-align:left;padding:.55rem 2.75rem .55rem .75rem;outline:none;position:relative;display:flex;align-items:center;justify-content:space-between;gap:.75rem;transition:border-color .2s,background-color .2s;color-scheme:dark;}
+.ops-select-trigger::before,.ops-select-trigger::after{content:'';position:absolute;top:50%;width:5px;height:5px;background:rgba(245,244,241,.62);transform-origin:center;pointer-events:none;}
+.ops-select-trigger::before{right:18px;transform:translateY(-50%) rotate(45deg);clip-path:polygon(50% 50%,100% 0,100% 100%);}
+.ops-select-trigger::after{right:13px;transform:translateY(-50%) rotate(-45deg);clip-path:polygon(0 0,50% 50%,0 100%);}
+.ops-select-trigger:hover,.ops-select-wrap.open .ops-select-trigger{border-color:rgba(184,149,90,.38);background:rgba(245,244,241,.055);}
+.ops-select-wrap.open .ops-select-trigger{border-color:var(--emerald);}
+.ops-select-label{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ops-select-menu{position:absolute;top:calc(100% + 4px);left:0;z-index:350;display:none;min-width:100%;width:max-content;max-width:min(380px,calc(100vw - 2rem));max-height:260px;overflow:auto;background:linear-gradient(180deg,#1b1b18 0%,#121211 100%);border:1px solid var(--border-hi);box-shadow:0 18px 44px rgba(0,0,0,.48);padding:.28rem;color:var(--off-white);}
+.ops-select-wrap.open .ops-select-menu{display:block;}
+.ops-select-menu::-webkit-scrollbar{width:6px;}
+.ops-select-menu::-webkit-scrollbar-thumb{background:rgba(245,244,241,.18);}
+.ops-select-option{width:100%;min-height:34px;background:transparent;border:none;color:rgba(245,244,241,.78);font-family:var(--font-b);font-size:.8rem;text-align:left;padding:.48rem .7rem;display:block;white-space:nowrap;transition:background .16s,color .16s;}
+.ops-select-option:hover,.ops-select-option.focused{background:var(--em-dim);color:var(--off-white);}
+.ops-select-option.selected{background:rgba(26,92,58,.28);color:#fff;box-shadow:inset 2px 0 0 var(--emerald);}
+.ops-select-option:disabled{opacity:.32;cursor:default;}
+.ops-select-group{font-family:var(--font-m);font-size:.48rem;letter-spacing:.13em;text-transform:uppercase;color:rgba(184,149,90,.68);padding:.55rem .7rem .25rem;}
+.ops-select-wrap.is-filter .ops-select-trigger{min-width:150px;}
+.ops-select-wrap.is-field .ops-select-menu{width:100%;max-width:100%;}
+.ops-select-wrap.is-status{display:inline-block;width:auto;vertical-align:middle;}
+.ops-select-wrap.is-status .ops-select-trigger{min-height:0;background:transparent;border:none;color:inherit;font-family:var(--font-m);font-size:.53rem;letter-spacing:.08em;text-transform:uppercase;padding:0 1rem 0 0;}
+.ops-select-wrap.is-status .ops-select-trigger::before,.ops-select-wrap.is-status .ops-select-trigger::after{background:currentColor;width:4px;height:4px;}
+.ops-select-wrap.is-status .ops-select-trigger::before{right:7px;}
+.ops-select-wrap.is-status .ops-select-trigger::after{right:3px;}
+.ops-select-wrap.is-status .ops-select-menu{min-width:138px;left:auto;right:0;}
 .modal-divider{grid-column:1/-1;border:none;border-top:1px solid var(--border);margin:.1rem 0;}
 .modal-foot{padding:.85rem 1.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:.75rem;}
 .modal-foot-right{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:flex-end;}
@@ -668,6 +695,16 @@ select{color-scheme:dark;}
 [data-theme="light"] .status-select{background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);}
 [data-theme="light"] .modal-field select option,[data-theme="light"] .modal-field select optgroup,[data-theme="light"] .onboarding-field select option,[data-theme="light"] .onboarding-field select optgroup,[data-theme="light"] .f-grp select option,[data-theme="light"] .f-grp select optgroup,[data-theme="light"] .client-filter option,[data-theme="light"] .client-filter optgroup,[data-theme="light"] .status-select option{background:#fff;color:#1A1A18;}
 [data-theme="light"] .modal-field input::-webkit-calendar-picker-indicator,[data-theme="light"] .onboarding-field input::-webkit-calendar-picker-indicator,[data-theme="light"] .f-grp input::-webkit-calendar-picker-indicator{filter:none;opacity:.5;}
+[data-theme="light"] .ops-select-trigger{background:rgba(26,26,24,.04);border-color:var(--border-hi);color:#1A1A18;color-scheme:light;}
+[data-theme="light"] .ops-select-trigger::before,[data-theme="light"] .ops-select-trigger::after{background:rgba(26,26,24,.58);}
+[data-theme="light"] .ops-select-trigger:hover,[data-theme="light"] .ops-select-wrap.open .ops-select-trigger{background:rgba(26,26,24,.055);border-color:rgba(184,149,90,.45);}
+[data-theme="light"] .ops-select-wrap.open .ops-select-trigger{border-color:var(--emerald);}
+[data-theme="light"] .ops-select-menu{background:#fff;border-color:rgba(26,26,24,.16);box-shadow:0 16px 36px rgba(0,0,0,.16);color:#1A1A18;}
+[data-theme="light"] .ops-select-option{color:rgba(26,26,24,.78);}
+[data-theme="light"] .ops-select-option:hover,[data-theme="light"] .ops-select-option.focused{background:var(--em-dim);color:#1A1A18;}
+[data-theme="light"] .ops-select-option.selected{background:rgba(26,92,58,.16);color:#1A1A18;}
+[data-theme="light"] .ops-select-wrap.is-status .ops-select-trigger{background:transparent;border:none;color:inherit;}
+[data-theme="light"] .ops-select-wrap.is-status .ops-select-trigger::before,[data-theme="light"] .ops-select-wrap.is-status .ops-select-trigger::after{background:currentColor;}
 [data-theme="light"] .booking-time-field label{color:rgba(26,26,24,.45);}
 [data-theme="light"] .booking-time-grid{background:rgba(26,26,24,.025);}
 [data-theme="light"] .booking-time-btn{background:rgba(26,26,24,.025);color:rgba(26,26,24,.58);border-color:rgba(26,26,24,.12);}
@@ -2751,6 +2788,7 @@ async function init() {
   $('page-date').textContent = new Date().toLocaleDateString('en-ZA', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
   initTheme();
   initSidebar();
+  initOpsSelectSystem();
   buildTimePills();
   datePicker = flatpickr('#slot-date', {
     minDate: 'today',
@@ -2804,6 +2842,7 @@ document.querySelectorAll('.btn-link[data-goto]').forEach(btn => {
 });
 
 function switchPage(name) {
+  closeAllOpsSelects();
   document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.page === name));
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
   $('page-title').textContent = PAGE_TITLES[name] || name;
@@ -2811,6 +2850,154 @@ function switchPage(name) {
   if (name === 'invoices') renderInvoicesTable();
   if (name === 'retainers') renderRetainersTable();
   if (name === 'documents') renderDocumentsTable();
+  enhanceOpsSelects($('page-' + name) || document);
+}
+
+let opsSelectSystemReady = false;
+let opsSelectObserver = null;
+
+function closeAllOpsSelects(except = null) {
+  document.querySelectorAll('.ops-select-wrap.open').forEach(wrap => {
+    if (wrap !== except) {
+      wrap.classList.remove('open');
+      wrap.querySelector('.ops-select-trigger')?.setAttribute('aria-expanded', 'false');
+    }
+  });
+}
+
+function opsSelectClasses(select) {
+  const classes = ['ops-select-wrap'];
+  if (select.classList.contains('client-filter')) classes.push('is-filter');
+  if (select.classList.contains('status-select')) classes.push('is-status');
+  if (select.closest('.modal-field,.onboarding-field,.f-grp')) classes.push('is-field');
+  return classes.join(' ');
+}
+
+function opsSelectOptionHTML(option, select) {
+  const selected = option.value === select.value;
+  return `<button class="ops-select-option${selected ? ' selected' : ''}" type="button" role="option" data-value="${esc(option.value)}" aria-selected="${selected}"${option.disabled ? ' disabled' : ''}>${esc(option.textContent || option.value)}</button>`;
+}
+
+function buildOpsSelectMenu(select) {
+  const ctx = select._opsSelect;
+  if (!ctx) return;
+  const children = [...select.children];
+  ctx.menu.innerHTML = children.map(child => {
+    if (child.tagName === 'OPTGROUP') {
+      const options = [...child.children].filter(option => option.tagName === 'OPTION').map(option => opsSelectOptionHTML(option, select)).join('');
+      return `<div class="ops-select-group">${esc(child.label || '')}</div>${options}`;
+    }
+    if (child.tagName === 'OPTION') return opsSelectOptionHTML(child, select);
+    return '';
+  }).join('');
+
+  ctx.menu.querySelectorAll('.ops-select-option').forEach(optionBtn => {
+    optionBtn.addEventListener('click', () => {
+      if (optionBtn.disabled) return;
+      select.value = optionBtn.dataset.value || '';
+      syncOpsSelect(select, true);
+      select.dispatchEvent(new Event('input', { bubbles: true }));
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+      closeAllOpsSelects();
+      ctx.button.focus();
+    });
+  });
+}
+
+function syncOpsSelect(select, rebuild = false) {
+  const ctx = select?._opsSelect;
+  if (!ctx) return;
+  if (rebuild) buildOpsSelectMenu(select);
+  const selectedOption = select.selectedOptions?.[0] || [...select.options].find(option => option.value === select.value) || select.options?.[0];
+  ctx.label.textContent = selectedOption?.textContent || '';
+  ctx.button.title = selectedOption?.textContent || '';
+  ctx.wrap.className = opsSelectClasses(select);
+  ctx.button.disabled = select.disabled;
+  ctx.menu.querySelectorAll('.ops-select-option').forEach(optionBtn => {
+    const isSelected = optionBtn.dataset.value === select.value;
+    optionBtn.classList.toggle('selected', isSelected);
+    optionBtn.setAttribute('aria-selected', String(isSelected));
+  });
+}
+
+function openOpsSelect(select) {
+  const ctx = select?._opsSelect;
+  if (!ctx || ctx.button.disabled) return;
+  syncOpsSelect(select, true);
+  const willOpen = !ctx.wrap.classList.contains('open');
+  closeAllOpsSelects(ctx.wrap);
+  ctx.wrap.classList.toggle('open', willOpen);
+  ctx.button.setAttribute('aria-expanded', String(willOpen));
+  if (willOpen) {
+    requestAnimationFrame(() => {
+      const selected = ctx.menu.querySelector('.ops-select-option.selected');
+      if (selected) selected.scrollIntoView({ block: 'nearest' });
+    });
+  }
+}
+
+function enhanceOpsSelect(select) {
+  if (!select || select.dataset.opsSelect === 'true' || select.closest('.ops-select-menu')) return;
+  const wrap = document.createElement('div');
+  wrap.className = opsSelectClasses(select);
+  const id = `ops-select-${Math.random().toString(36).slice(2)}`;
+  wrap.innerHTML = `
+    <button class="ops-select-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="${id}">
+      <span class="ops-select-label"></span>
+    </button>
+    <div class="ops-select-menu" id="${id}" role="listbox"></div>
+  `;
+  select.classList.add('ops-native-select');
+  select.dataset.opsSelect = 'true';
+  select.tabIndex = -1;
+  select.setAttribute('aria-hidden', 'true');
+  select.insertAdjacentElement('afterend', wrap);
+  select._opsSelect = {
+    wrap,
+    button: wrap.querySelector('.ops-select-trigger'),
+    label: wrap.querySelector('.ops-select-label'),
+    menu: wrap.querySelector('.ops-select-menu'),
+  };
+  select._opsSelect.button.addEventListener('click', e => {
+    e.stopPropagation();
+    openOpsSelect(select);
+  });
+  select.addEventListener('change', () => syncOpsSelect(select, true));
+  syncOpsSelect(select, true);
+}
+
+function enhanceOpsSelects(root = document) {
+  const scope = root instanceof Element || root instanceof Document ? root : document;
+  if (scope.matches?.('select')) enhanceOpsSelect(scope);
+  scope.querySelectorAll?.('select').forEach(enhanceOpsSelect);
+}
+
+function initOpsSelectSystem() {
+  if (opsSelectSystemReady) return;
+  opsSelectSystemReady = true;
+  enhanceOpsSelects(document);
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.ops-select-wrap')) closeAllOpsSelects();
+  });
+  document.addEventListener('keydown', e => {
+    const openWrap = document.querySelector('.ops-select-wrap.open');
+    if (!openWrap) return;
+    if (e.key === 'Escape') {
+      closeAllOpsSelects();
+      openWrap.querySelector('.ops-select-trigger')?.focus();
+    }
+  });
+  opsSelectObserver = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+      if (mutation.target?.matches?.('select[data-ops-select="true"]')) syncOpsSelect(mutation.target, true);
+      mutation.addedNodes.forEach(node => {
+        if (node.nodeType !== 1) return;
+        if (node.matches?.('select')) enhanceOpsSelect(node);
+        node.querySelectorAll?.('select').forEach(enhanceOpsSelect);
+      });
+    });
+  });
+  opsSelectObserver.observe(document.body, { childList: true, subtree: true });
 }
 
 /* ── Modal ── */
@@ -2818,9 +3005,11 @@ function showModal(html) {
   $('modal-box').innerHTML = html;
   $('modal-overlay').style.display = 'flex';
   $('modal-box').classList.remove('modal-entering');
+  enhanceOpsSelects($('modal-box'));
   requestAnimationFrame(() => $('modal-box').classList.add('modal-entering'));
 }
 function closeModal() {
+  closeAllOpsSelects();
   $('modal-overlay').style.display = 'none';
   $('modal-box').innerHTML = '';
   $('modal-box').classList.remove('wide','confirm');
