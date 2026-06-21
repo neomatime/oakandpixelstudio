@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Document — Oak &amp; Pixel Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black:   #0A0A09;
+      --emerald: #1A5C3A;
+      --gold:    #B8955A;
+      --silk:    #EDE9E3;
+      --border:  #E0DFD8;
+      --muted:   #3a3a35;
+    }
+    body {
+      background: var(--silk);
+      font-family: Georgia, serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+      color: var(--black);
+    }
+    .card {
+      width: 100%;
+      max-width: 560px;
+      background: #fff;
+      border: 1px solid var(--border);
+    }
+    .card-header {
+      background: var(--black);
+      padding: 1.1rem 1.75rem;
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+    }
+    .card-header img { width: 28px; height: 28px; object-fit: contain; }
+    .header-brand { color: var(--emerald); font-size: 1.15rem; font-weight: bold; }
+    .header-sep { color: rgba(245,244,241,.25); font-size: 1rem; margin: 0 .1rem; }
+    .header-sub { color: rgba(245,244,241,.45); font-size: .58rem; letter-spacing: .14em; text-transform: uppercase; font-family: monospace; }
+    .card-body { padding: 2rem 1.75rem 1.5rem; }
+    .doc-info {
+      background: #F7F6F3;
+      border: 1px solid var(--border);
+      padding: .9rem 1.1rem;
+      margin-bottom: 1.25rem;
+    }
+    .doc-type-label {
+      font-size: .6rem;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      font-family: monospace;
+      color: var(--gold);
+      margin-bottom: .3rem;
+    }
+    .doc-title { font-size: 1rem; font-weight: bold; color: var(--black); }
+    .doc-meta { font-size: .8rem; color: var(--muted); margin-top: .3rem; }
+    .notice {
+      font-size: .82rem;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 1.5rem;
+    }
+    .sig-tabs { display: flex; gap: 0; border: 1px solid var(--border); margin-bottom: 0; }
+    .sig-tab {
+      flex: 1;
+      padding: .55rem;
+      text-align: center;
+      font-size: .75rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-family: monospace;
+      background: #F7F6F3;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      border-bottom: 2px solid transparent;
+    }
+    .sig-tab.active {
+      background: #fff;
+      color: var(--black);
+      border-bottom: 2px solid var(--emerald);
+    }
+    .sig-panel { border: 1px solid var(--border); border-top: none; padding: 1rem; background: #fff; }
+    #draw-canvas {
+      display: block;
+      width: 100%;
+      height: 150px;
+      background: #fff;
+      border: 1px dashed #ccc;
+      cursor: crosshair;
+      touch-action: none;
+    }
+    .canvas-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: .5rem;
+    }
+    .btn-ghost-sm {
+      font-size: .7rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-family: monospace;
+      border: 1px solid var(--border);
+      background: none;
+      padding: .35rem .75rem;
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .btn-ghost-sm:hover { background: #F7F6F3; }
+    #type-input {
+      width: 100%;
+      font-family: 'Dancing Script', cursive;
+      font-size: 2rem;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      outline: none;
+      padding: .5rem .25rem;
+      color: var(--black);
+      background: transparent;
+    }
+    #type-preview {
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Dancing Script', cursive;
+      font-size: 2rem;
+      color: var(--black);
+      padding: .75rem;
+      border: 1px dashed #ccc;
+      margin-top: .75rem;
+      background: #fff;
+    }
+    .field-group { margin-top: 1.25rem; }
+    .field-label { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; font-family: monospace; color: var(--muted); margin-bottom: .4rem; }
+    .field-input {
+      width: 100%;
+      border: 1px solid var(--border);
+      padding: .6rem .75rem;
+      font-size: .9rem;
+      font-family: Georgia, serif;
+      outline: none;
+      color: var(--black);
+    }
+    .field-input:focus { border-color: var(--emerald); }
+    .legal-text { font-size: .72rem; color: #aaa; line-height: 1.6; margin-top: 1.25rem; }
+    .btn-confirm {
+      width: 100%;
+      background: var(--emerald);
+      color: #fff;
+      border: none;
+      padding: .9rem;
+      font-family: Georgia, serif;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 1.25rem;
+      letter-spacing: .02em;
+    }
+    .btn-confirm:disabled { opacity: .45; cursor: not-allowed; }
+    .btn-confirm:not(:disabled):hover { background: #154e30; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--emerald);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .center { text-align: center; }
+    .state { display: none; }
+    .state.active { display: block; }
+    .success-icon { font-size: 2.5rem; color: var(--emerald); margin-bottom: .75rem; }
+    .error-icon { font-size: 2.5rem; color: #c0392b; margin-bottom: .75rem; }
+    h2 { font-size: 1.2rem; font-weight: normal; margin-bottom: .5rem; }
+    p.sub { font-size: .88rem; color: var(--muted); line-height: 1.65; margin-top: .5rem; }
+    a { color: var(--gold); }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="card-header">
+    <img src="https://www.oakandpixel.co.za/images/oak-pixel-mark-hires-transparent.png" alt="Oak &amp; Pixel Studio">
+    <span class="header-brand">Oak &amp; Pixel</span>
+    <span class="header-sep">|</span>
+    <span class="header-sub">Studio</span>
+  </div>
+
+  <div class="card-body">
+
+    <!-- State: loading -->
+    <div id="state-loading" class="state active center">
+      <div class="spinner"></div>
+      <p style="color:var(--muted);font-size:.88rem">Verifying signing request…</p>
+    </div>
+
+    <!-- State: signing -->
+    <div id="state-signing" class="state">
+      <div class="doc-info">
+        <div class="doc-type-label" id="sig-doc-type"></div>
+        <div class="doc-title" id="sig-doc-number"></div>
+        <div class="doc-meta" id="sig-doc-meta"></div>
+      </div>
+      <p class="notice">
+        The full document was sent to your email. By confirming your signature below you agree to be legally bound by its terms.
+      </p>
+
+      <div class="sig-tabs">
+        <button class="sig-tab active" id="tab-draw" onclick="switchTab('draw')">Draw</button>
+        <button class="sig-tab" id="tab-type" onclick="switchTab('type')">Type</button>
+      </div>
+
+      <div class="sig-panel" id="panel-draw">
+        <canvas id="draw-canvas"></canvas>
+        <div class="canvas-actions">
+          <button class="btn-ghost-sm" onclick="clearCanvas()">Clear</button>
+        </div>
+      </div>
+
+      <div class="sig-panel" id="panel-type" style="display:none">
+        <input id="type-input" type="text" placeholder="Type your name here…" oninput="onTypeInput()">
+        <div id="type-preview"></div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Full legal name (required)</div>
+        <input class="field-input" id="sig-name" type="text" placeholder="Your full name…" oninput="checkReady()">
+      </div>
+
+      <p class="legal-text">
+        By clicking Confirm Signature you confirm that the name entered is your legal name and you agree this constitutes a legally binding electronic signature under the Electronic Communications and Transactions Act, 2002 (South Africa).
+      </p>
+
+      <button class="btn-confirm" id="btn-confirm" disabled onclick="confirmSignature()">Confirm Signature</button>
+    </div>
+
+    <!-- State: submitting -->
+    <div id="state-submitting" class="state center">
+      <div class="spinner"></div>
+      <p style="color:var(--muted);font-size:.88rem">Saving your signature and sending the signed certificate…</p>
+    </div>
+
+    <!-- State: success -->
+    <div id="state-success" class="state center">
+      <div class="success-icon">&#10003;</div>
+      <h2 id="success-heading">Thank you</h2>
+      <p class="sub" id="success-body"></p>
+    </div>
+
+    <!-- State: error -->
+    <div id="state-error" class="state center">
+      <div class="error-icon">&#10005;</div>
+      <h2 id="error-heading">Unable to open this signing link</h2>
+      <p class="sub" id="error-body"></p>
+      <p class="sub" style="margin-top:.75rem">
+        Please contact Oak &amp; Pixel Studio at <a href="mailto:info@oakandpixel.co.za">info@oakandpixel.co.za</a>
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const token = new URLSearchParams(location.search).get('token');
+  let docData  = null;
+  let _drawPad = null;
+  let _activeTab = 'draw';
+
+  function showState(id) {
+    document.querySelectorAll('.state').forEach(el => el.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // ── Load and validate token ────────────────────────────────────────────────
+  async function init() {
+    if (!token) { showError('No signing token was found in this link.'); return; }
+    try {
+      const res = await fetch(`/api/get-signing-request?token=${encodeURIComponent(token)}`);
+      const data = await res.json();
+      if (!res.ok) {
+        const msgs = {
+          invalid:      'This signing link is not valid.',
+          expired:      'This signing link has expired (links are valid for 30 days).',
+          already_signed: 'This document has already been signed.',
+        };
+        showError(msgs[data.error] || 'This signing link could not be verified.');
+        return;
+      }
+      docData = data;
+      populateSigning(data);
+      showState('state-signing');
+      initCanvas();
+    } catch {
+      showError('A network error occurred. Please try again.');
+    }
+  }
+
+  function showError(msg) {
+    document.getElementById('error-body').textContent = msg;
+    showState('state-error');
+  }
+
+  function populateSigning(data) {
+    const typeLabel = data.doc_type === 'SOW' ? 'Scope of Work' : data.doc_type;
+    document.getElementById('sig-doc-type').textContent   = typeLabel;
+    document.getElementById('sig-doc-number').textContent = data.doc_number;
+    document.getElementById('sig-doc-meta').textContent   =
+      `${data.client_company}  ·  ${new Date(data.issued_date).toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+  }
+
+  // ── Canvas (Draw tab) ──────────────────────────────────────────────────────
+  function initCanvas() {
+    const canvas = document.getElementById('draw-canvas');
+    const rect   = canvas.getBoundingClientRect();
+    const dpr    = Math.max(1, devicePixelRatio || 1);
+    canvas.width  = Math.round(rect.width  * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    const ctx = canvas.getContext('2d');
+    ctx.lineCap   = 'round';
+    ctx.lineJoin  = 'round';
+    ctx.strokeStyle = '#0A0A09';
+    ctx.lineWidth   = Math.max(3, 2.6 * dpr);
+    _drawPad = { canvas, ctx, drawing: false, hasMarks: false };
+
+    const pt = e => {
+      const b = canvas.getBoundingClientRect();
+      return { x: (e.clientX - b.left) * (canvas.width / b.width), y: (e.clientY - b.top) * (canvas.height / b.height) };
+    };
+    canvas.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      canvas.setPointerCapture?.(e.pointerId);
+      const p = pt(e);
+      _drawPad.drawing = _drawPad.hasMarks = true;
+      ctx.beginPath(); ctx.moveTo(p.x, p.y);
+    });
+    canvas.addEventListener('pointermove', e => {
+      if (!_drawPad?.drawing) return;
+      e.preventDefault();
+      const p = pt(e); ctx.lineTo(p.x, p.y); ctx.stroke();
+    });
+    const stop = e => { if (_drawPad) { _drawPad.drawing = false; canvas.releasePointerCapture?.(e.pointerId); checkReady(); } };
+    canvas.addEventListener('pointerup', stop);
+    canvas.addEventListener('pointercancel', stop);
+    canvas.addEventListener('pointerleave', stop);
+  }
+
+  function clearCanvas() {
+    if (!_drawPad) return;
+    _drawPad.ctx.clearRect(0, 0, _drawPad.canvas.width, _drawPad.canvas.height);
+    _drawPad.hasMarks = false;
+    checkReady();
+  }
+
+  // ── Type tab ───────────────────────────────────────────────────────────────
+  function switchTab(tab) {
+    _activeTab = tab;
+    document.getElementById('tab-draw').classList.toggle('active', tab === 'draw');
+    document.getElementById('tab-type').classList.toggle('active', tab === 'type');
+    document.getElementById('panel-draw').style.display = tab === 'draw' ? '' : 'none';
+    document.getElementById('panel-type').style.display = tab === 'type' ? '' : 'none';
+    checkReady();
+  }
+
+  function onTypeInput() {
+    const val = document.getElementById('type-input').value;
+    document.getElementById('type-preview').textContent = val;
+    checkReady();
+  }
+
+  // ── Readiness check ────────────────────────────────────────────────────────
+  function checkReady() {
+    const name = (document.getElementById('sig-name').value || '').trim();
+    const hasSig = _activeTab === 'draw'
+      ? (_drawPad?.hasMarks || false)
+      : !!(document.getElementById('type-input').value || '').trim();
+    document.getElementById('btn-confirm').disabled = !(name && hasSig);
+  }
+
+  // ── Signature extraction ───────────────────────────────────────────────────
+  function cropCanvasToDataUrl(canvas) {
+    const ctx    = canvas.getContext('2d');
+    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    let minX = canvas.width, minY = canvas.height, maxX = -1, maxY = -1;
+    for (let y = 0; y < canvas.height; y++) {
+      for (let x = 0; x < canvas.width; x++) {
+        if (pixels[(y * canvas.width + x) * 4 + 3] > 10) {
+          if (x < minX) minX = x; if (x > maxX) maxX = x;
+          if (y < minY) minY = y; if (y > maxY) maxY = y;
+        }
+      }
+    }
+    if (maxX < 0) return null;
+    const pad  = Math.ceil(12 * Math.max(1, devicePixelRatio || 1));
+    const out  = document.createElement('canvas');
+    out.width  = maxX - minX + 1 + pad * 2;
+    out.height = maxY - minY + 1 + pad * 2;
+    out.getContext('2d').drawImage(canvas, minX, minY, out.width - pad*2, out.height - pad*2, pad, pad, out.width - pad*2, out.height - pad*2);
+    return out.toDataURL('image/png');
+  }
+
+  async function typeToDataUrl(text) {
+    await document.fonts.load('600 48px "Dancing Script"').catch(() => {});
+    const tmp = document.createElement('canvas');
+    const ctx = tmp.getContext('2d');
+    ctx.font = '600 48px "Dancing Script"';
+    const w  = Math.ceil(ctx.measureText(text).width) + 32;
+    tmp.width  = w;
+    tmp.height = 72;
+    ctx.font         = '600 48px "Dancing Script"';
+    ctx.fillStyle    = '#0A0A09';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText(text, 16, 56);
+    return tmp.toDataURL('image/png');
+  }
+
+  // ── Load image to data URL (for OPS logo) ─────────────────────────────────
+  function loadImage(src) {
+    return new Promise(resolve => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload  = () => { try { const c = document.createElement('canvas'); const s = Math.min(1, 200 / Math.max(img.naturalWidth, img.naturalHeight, 1)); c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); resolve(c.toDataURL('image/png')); } catch { resolve(null); } };
+      img.onerror = () => resolve(null);
+      img.src = src;
+    });
+  }
+
+  // ── Generate certificate PDF ───────────────────────────────────────────────
+  async function generateCertificate(clientSigDataUrl, clientName) {
+    const { jsPDF } = window.jspdf;
+    const doc       = new jsPDF({ unit: 'mm', format: 'a4' });
+    const pageW     = doc.internal.pageSize.getWidth();
+    const margin    = 20;
+    const contentW  = pageW - margin * 2;
+    let y           = 0;
+
+    // Dark header bar
+    doc.setFillColor(10, 10, 9);
+    doc.rect(0, 0, pageW, 20, 'F');
+
+    // OPS logo
+    const logo = await loadImage('https://www.oakandpixel.co.za/images/oak-pixel-mark-hires-transparent.png');
+    if (logo) { try { doc.addImage(logo, 'PNG', margin, 4, 10, 10); } catch {} }
+
+    // Brand wordmark in header
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(26, 92, 58);
+    doc.text('Oak & Pixel Studio', margin + (logo ? 13 : 0), 11.5);
+
+    y = 30;
+
+    // Certificate title
+    doc.setFont('times', 'normal');
+    doc.setFontSize(18);
+    doc.setTextColor(10, 10, 9);
+    doc.text('SIGNATURE CERTIFICATE', pageW / 2, y, { align: 'center' });
+
+    y += 4;
+
+    // Gold divider
+    doc.setDrawColor(184, 149, 90);
+    doc.setLineWidth(0.6);
+    doc.line(margin, y + 4, pageW - margin, y + 4);
+
+    y += 14;
+
+    // Document metadata
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(58, 58, 53);
+    const typeLabel = docData.doc_type === 'SOW' ? 'Scope of Work' : docData.doc_type;
+    const signedAt  = new Date().toLocaleString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Johannesburg' });
+
+    const metaRows = [
+      ['Document', typeLabel],
+      ['Reference', docData.doc_number],
+      ['Client', docData.client_company],
+      ['Date Signed', `${signedAt} SAST`],
+    ];
+    metaRows.forEach(([label, value]) => {
+      doc.setFont('helvetica', 'bold'); doc.text(label + ':', margin, y);
+      doc.setFont('helvetica', 'normal'); doc.text(value, margin + 36, y);
+      y += 7;
+    });
+
+    y += 6;
+
+    // Signature blocks
+    const colW = (contentW - 12) / 2;
+
+    // OPS signature image
+    if (docData.ops_signature_data_url) {
+      try { doc.addImage(docData.ops_signature_data_url, 'PNG', margin, y, 44, 16); } catch {}
+    }
+    // Client signature image
+    if (clientSigDataUrl) {
+      try { doc.addImage(clientSigDataUrl, 'PNG', margin + colW + 12, y, 44, 16); } catch {}
+    }
+
+    y += 20;
+
+    // Signature lines
+    doc.setDrawColor(26, 26, 24);
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, margin + colW, y);
+    doc.line(margin + colW + 12, y, pageW - margin, y);
+
+    y += 5;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(10, 10, 9);
+    doc.text('Neo Matime', margin, y);
+    doc.text(clientName, margin + colW + 12, y);
+
+    y += 5;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 95);
+    doc.text('Founder & CEO, Oak & Pixel Studio', margin, y);
+    doc.text(docData.client_company, margin + colW + 12, y);
+
+    y += 4;
+    doc.text('info@oakandpixel.co.za', margin, y);
+    doc.text(docData.client_email, margin + colW + 12, y);
+
+    y += 14;
+
+    // Thin grey divider
+    doc.setDrawColor(224, 223, 216);
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, pageW - margin, y);
+
+    y += 7;
+
+    // Legal notice
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(140, 140, 135);
+    doc.text('This certificate confirms a legally binding electronic signature under the Electronic Communications and', margin, y);
+    doc.text('Transactions Act, 2002 (South Africa). A copy has been emailed to all parties for their records.', margin, y + 4);
+
+    return doc.output('datauristring').split(',')[1]; // base64
+  }
+
+  // ── Confirm and submit ─────────────────────────────────────────────────────
+  async function confirmSignature() {
+    const clientName = (document.getElementById('sig-name').value || '').trim();
+    if (!clientName) return;
+
+    let sigDataUrl;
+    if (_activeTab === 'draw') {
+      sigDataUrl = cropCanvasToDataUrl(_drawPad.canvas);
+      if (!sigDataUrl) { alert('Please draw your signature first.'); return; }
+    } else {
+      const typed = (document.getElementById('type-input').value || '').trim();
+      if (!typed) { alert('Please type your name to generate a signature.'); return; }
+      sigDataUrl = await typeToDataUrl(typed);
+    }
+
+    showState('state-submitting');
+
+    let pdfBase64;
+    try {
+      pdfBase64 = await generateCertificate(sigDataUrl, clientName);
+    } catch (e) {
+      showState('state-signing');
+      alert('Could not generate the certificate. Please try again.');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/submit-signature', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token,
+          client_signature_data_url: sigDataUrl,
+          signed_pdf_base64:         pdfBase64,
+          client_signed_by_name:     clientName,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        const msgs = { already_signed: 'This document has already been signed.', expired: 'The signing link has expired.' };
+        showState('state-signing');
+        alert(msgs[data.error] || 'Submission failed. Please try again.');
+        return;
+      }
+      document.getElementById('success-heading').textContent = `Thank you, ${docData.client_company}`;
+      document.getElementById('success-body').textContent    =
+        `Your signed certificate has been emailed to ${docData.client_email}. This page will not accept further signatures.`;
+      showState('state-success');
+    } catch {
+      showState('state-signing');
+      alert('A network error occurred. Please try again.');
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
