@@ -129,6 +129,11 @@
         <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
         Documents
       </button>
+
+      <button class="nav-item" data-page="reports">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Reports
+      </button>
     </nav>
 
     <div class="sidebar-footer">
@@ -594,6 +599,55 @@
 </section>
 
     </div><!-- /page-content -->
+      <!-- ══════════════════════════════════ REPORTS PAGE ══════════════════════════════════ -->
+      <section class="page" id="page-reports">
+
+        <!-- Stat strip -->
+        <div class="stats-grid" style="margin-bottom:1.5rem">
+          <div class="stat-card">
+            <div class="stat-icon si-ok"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+            <div><div class="stat-num" id="rpt-ytd">—</div><div class="stat-lbl">Revenue YTD</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon si-emerald"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+            <div><div class="stat-num" id="rpt-mrr">—</div><div class="stat-lbl">Active MRR</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon si-gold"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+            <div><div class="stat-num" id="rpt-avg-inv">—</div><div class="stat-lbl">Avg Invoice</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon si-err"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+            <div><div class="stat-num" id="rpt-outstanding">—</div><div class="stat-lbl">Outstanding</div></div>
+          </div>
+        </div>
+
+        <!-- Row 1: Revenue chart + Pipeline funnel -->
+        <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:1rem;margin-bottom:1rem">
+          <div class="card" style="margin-bottom:0">
+            <div class="card-header"><span class="card-title">Monthly Revenue</span><span class="card-subtitle" style="font-family:var(--font-m);font-size:.55rem;letter-spacing:.08em;color:var(--mist)">Last 6 months · Paid vs Outstanding</span></div>
+            <div class="chart-wrap"><canvas id="chart-revenue"></canvas></div>
+          </div>
+          <div class="card" style="margin-bottom:0">
+            <div class="card-header"><span class="card-title">Pipeline Conversion</span></div>
+            <div id="rpt-funnel"></div>
+          </div>
+        </div>
+
+        <!-- Row 2: Retainer breakdown + Top services -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="card" style="margin-bottom:0">
+            <div class="card-header"><span class="card-title">Active Retainers</span></div>
+            <div id="rpt-retainers"></div>
+          </div>
+          <div class="card" style="margin-bottom:0">
+            <div class="card-header"><span class="card-title">Top Services by Revenue</span></div>
+            <div id="rpt-services"></div>
+          </div>
+        </div>
+
+      </section>
+
   </main>
 
 </div><!-- /app -->
@@ -620,5 +674,6 @@
 <script src="js/services.js"></script>
 <script src="js/documents.js"></script>
 <script src="js/finance.js"></script>
+<script src="js/reports.js"></script>
 </body>
 </html>
