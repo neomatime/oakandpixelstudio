@@ -963,3 +963,10 @@ select{color-scheme:dark;}
 [data-theme="light"] .profile-menu-name{color:#1a1a18;}
 [data-theme="light"] .profile-menu-item{color:rgba(26,26,24,.75);}
 [data-theme="light"] .profile-menu-item:hover{background:rgba(26,26,24,.05);}
+.profile-card{max-width:680px;padding:1.75rem 2rem 2rem;}
+.profile-head{display:flex;align-items:center;gap:1.25rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border);margin-bottom:1.5rem;}
+.profile-photo-actions{display:flex;gap:.5rem;align-items:center;}
+.profile-photo-actions .btn-ghost{cursor:pointer;}
+.profile-form{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.profile-foot{margin-top:1.5rem;display:flex;justify-content:flex-end;}
+@media(max-width:600px){.profile-form{grid-template-columns:1fr;}}

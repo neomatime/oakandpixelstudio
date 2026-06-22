@@ -94,3 +94,37 @@ $('profile-menu')?.addEventListener('click', e => {
 });
 document.addEventListener('click', e => { if (!e.target.closest('.profile-menu-wrap')) toggleProfileMenu(false); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleProfileMenu(false); });
+
+function renderProfilePage() {
+  if (!adminProfile) return;
+  const av = $('profile-avatar');
+  if (av) av.innerHTML = adminAvatarInner();
+  const set = (id, v) => { const el = $(id); if (el) el.value = v; };
+  set('pf-full-name', adminProfile.full_name);
+  set('pf-role', adminProfile.role);
+  set('pf-email', adminProfile.email);
+  set('pf-phone', adminProfile.phone);
+  set('pf-company', adminProfile.company_name || ADMIN_PROFILE_DEFAULTS.company_name);
+  set('pf-bio', adminProfile.bio);
+}
+
+async function saveAdminProfile() {
+  const btn = $('profile-save');
+  const val = id => ($(id)?.value || '').trim();
+  const data = {
+    full_name:    val('pf-full-name'),
+    role:         val('pf-role'),
+    phone:        val('pf-phone'),
+    company_name: val('pf-company'),
+    bio:          val('pf-bio')
+  };
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  const { data: res, error } = await sb.auth.updateUser({ data });
+  if (btn) { btn.disabled = false; btn.textContent = 'Save Changes'; }
+  if (error) { toast('Could not save profile. Try again.'); return; }
+  loadAdminProfile(res.user);
+  renderProfilePage();
+  toast('Profile updated.');
+}
+
+$('profile-save')?.addEventListener('click', saveAdminProfile);
