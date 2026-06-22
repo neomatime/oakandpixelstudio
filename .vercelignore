@@ -3,3 +3,6 @@ package-lock.json
 node_modules/
 scripts/
 docs/
+tests/
+playwright.config.mjs
+.github/
