@@ -79,7 +79,7 @@ function showLogin() {
 function showApp(user) {
   $('login-screen').style.display = 'none';
   $('app').classList.add('visible');
-  $('user-email-sm').textContent = user?.email || '';
+  loadAdminProfile(user);
   loadAll();
   sb.channel('ops-applications')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'applications' }, payload => {

@@ -662,6 +662,10 @@ select{color-scheme:dark;}
 .client-avatar{width:38px;height:38px;border:1px solid var(--border-hi);background:var(--em-dim);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-family:var(--font-m);font-size:.72rem;letter-spacing:.08em;color:var(--emerald-l);text-transform:uppercase;}
 .client-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
 .client-avatar.lg{width:84px;height:84px;font-size:1.25rem;}
+.admin-avatar{width:38px;height:38px;border:1px solid var(--border-hi);background:var(--em-dim);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-family:var(--font-m);font-size:.72rem;letter-spacing:.08em;color:var(--emerald-l);text-transform:uppercase;}
+.admin-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+.admin-avatar.sm{width:30px;height:30px;font-size:.6rem;}
+.admin-avatar.lg{width:84px;height:84px;font-size:1.25rem;}
 .client-company{font-family:var(--font-d);font-size:1rem;color:var(--off-white);font-weight:400;}
 .client-contact{font-size:.72rem;color:rgba(245,244,241,.4);}
 .client-row{cursor:pointer;}
