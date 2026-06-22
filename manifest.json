@@ -1,0 +1,29 @@
+{
+  "name": "OPS Command Center",
+  "short_name": "OPS",
+  "description": "Oak & Pixel Studio — Private Admin Workspace",
+  "start_url": "/admin.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#faf9f7",
+  "theme_color": "#1a1a18",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "images/favicons/favicon_128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "images/favicons/favicon_256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "images/favicons/favicon_512_apple.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

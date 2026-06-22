@@ -7,6 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <link rel="icon" href="images/favicons/favicon_32.png" type="image/png">
+<link rel="manifest" href="/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="OPS">
+<meta name="theme-color" content="#1a1a18">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <link rel="stylesheet" href="admin.css">
@@ -157,6 +161,13 @@
         <p class="page-date" id="page-date"></p>
       </div>
       <div class="topbar-right">
+        <button class="theme-toggle" id="install-btn" title="Install as app" aria-label="Install OPS as app" style="display:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <path d="M8 21h8M12 17v4"/>
+            <path d="M12 7v6M9 10l3 3 3-3"/>
+          </svg>
+        </button>
         <button class="theme-toggle" id="theme-toggle" title="Toggle theme">
           <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"></svg>
         </button>
@@ -709,5 +720,37 @@
 <script src="js/finance.js"></script>
 <script src="js/reports.js"></script>
 <script src="js/profile.js"></script>
+<script>
+(function () {
+  let _pwaPrompt = null;
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    _pwaPrompt = e;
+    var btn = document.getElementById('install-btn');
+    if (btn) btn.style.display = '';
+  });
+  window.addEventListener('appinstalled', function () {
+    var btn = document.getElementById('install-btn');
+    if (btn) btn.style.display = 'none';
+    _pwaPrompt = null;
+  });
+  document.addEventListener('DOMContentLoaded', function () {
+    var btn = document.getElementById('install-btn');
+    if (!btn) return;
+    btn.addEventListener('click', async function () {
+      if (!_pwaPrompt) return;
+      await _pwaPrompt.prompt();
+      var result = await _pwaPrompt.userChoice;
+      if (result.outcome === 'accepted') btn.style.display = 'none';
+      _pwaPrompt = null;
+    });
+  });
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js').catch(function () {});
+    });
+  }
+})();
+</script>
 </body>
 </html>
