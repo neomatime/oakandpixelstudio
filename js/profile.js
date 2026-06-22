@@ -40,7 +40,9 @@ function adminAvatarInner(p = adminProfile || {}) {
   return p.avatar_url ? `<img src="${esc(p.avatar_url)}" alt="">` : esc(adminInitials(p));
 }
 function adminAvatar(p = adminProfile || {}, size = '') {
-  return `<div class="admin-avatar${size ? ' ' + size : ''}">${adminAvatarInner(p)}</div>`;
+  // <span> (not <div>) so the element is valid in any context — the avatar
+  // slots in admin.html are <span>, and .admin-avatar sets display:flex regardless.
+  return `<span class="admin-avatar${size ? ' ' + size : ''}">${adminAvatarInner(p)}</span>`;
 }
 
 function renderSidebarIdentity() {
