@@ -543,4 +543,9 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && $('modal-overlay').style.display !== 'none') closeModal();
 });
 
-init();
+/* Bootstrap only after every module script has loaded and the DOM is parsed.
+   init() calls helpers defined in later-loaded modules (e.g. buildTimePills in
+   bookings.js), so running it mid-way through nav.js throws a ReferenceError and
+   the auth listener never registers. DOMContentLoaded fires after all the
+   synchronous <script> tags at the end of <body> have executed. */
+document.addEventListener('DOMContentLoaded', init);
