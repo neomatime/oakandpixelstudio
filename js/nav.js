@@ -55,11 +55,13 @@ async function init() {
   initSidebar();
   initOpsSelectSystem();
   buildTimePills();
+  flatpickr.l10ns.default.firstDayOfWeek = 1;
+  const _todayMidnight = new Date();
+  _todayMidnight.setHours(0, 0, 0, 0);
   datePicker = flatpickr('#slot-date', {
-    minDate: 'today',
+    minDate: _todayMidnight,
     disableMobile: true,
     dateFormat: 'Y-m-d',
-    locale: { firstDayOfWeek: 1 },
   });
 
   const { data: { session } } = await sb.auth.getSession();

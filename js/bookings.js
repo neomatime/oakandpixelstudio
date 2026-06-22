@@ -150,11 +150,15 @@ function renderEditBookingTimes(preferredTime = '', autoSelectFirst = false) {
 
 function initEditBookingSlotPicker(selectedDate = '', selectedTime = '') {
   const dates = [...new Set(editBookingSlots.map(slot => slot.date))];
+  const d = new Date();
+  const localToday = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const smartDefault = (selectedDate && selectedDate >= localToday)
+    ? selectedDate
+    : (dates.find(dt => dt >= localToday) || selectedDate || null);
   const options = {
     disableMobile: true,
     dateFormat: 'Y-m-d',
-    defaultDate: selectedDate || null,
-    locale: { firstDayOfWeek: 1 },
+    defaultDate: smartDefault,
     onChange: (_dates, dateStr) => renderEditBookingTimes('', Boolean(dateStr)),
   };
   if (dates.length) options.enable = dates;
