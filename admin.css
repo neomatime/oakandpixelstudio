@@ -941,3 +941,25 @@ select{color-scheme:dark;}
 [data-theme="light"] .pipeline-card{background:#fff;border-color:rgba(26,26,24,.1);}
 [data-theme="light"] .pipeline-name{color:#1A1A18;}
 [data-theme="light"] .pipeline-meta{color:rgba(26,26,24,.4);}
+
+.topbar-right{display:flex;align-items:center;gap:.7rem;}
+.profile-menu-wrap{position:relative;}
+.profile-trigger{width:34px;height:34px;padding:0;background:none;border:1px solid var(--border-hi);display:flex;align-items:center;justify-content:center;overflow:hidden;transition:border-color .2s;}
+.profile-trigger:hover{border-color:var(--gold);}
+.profile-trigger .admin-avatar{width:100%;height:100%;border:none;background:var(--em-dim);}
+.profile-menu{position:absolute;right:0;top:calc(100% + .5rem);min-width:230px;background:var(--card);border:1px solid var(--border-hi);box-shadow:0 12px 32px rgba(0,0,0,.4);z-index:60;padding:.4rem;}
+.profile-menu[hidden]{display:none;}
+.profile-menu-head{display:flex;gap:.6rem;align-items:center;padding:.6rem .6rem .7rem;border-bottom:1px solid var(--border);margin-bottom:.35rem;}
+.profile-menu-id{min-width:0;}
+.profile-menu-name{font-size:.85rem;color:var(--off-white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.profile-menu-role{font-family:var(--font-m);font-size:.55rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-top:.12rem;}
+.profile-menu-email{font-family:var(--font-m);font-size:.6rem;color:var(--mist);margin-top:.2rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.profile-menu-item{display:block;width:100%;text-align:left;background:none;border:none;color:rgba(245,244,241,.75);font-family:var(--font-b);font-size:.82rem;padding:.55rem .6rem;transition:background .15s;}
+.profile-menu-item:hover{background:rgba(245,244,241,.05);}
+.profile-menu-item.danger{color:var(--err);}
+.profile-menu-sep{height:1px;background:var(--border);margin:.35rem 0;}
+[data-theme="light"] .profile-trigger{border-color:rgba(26,26,24,.12);}
+[data-theme="light"] .profile-menu{background:#fff;border-color:rgba(26,26,24,.1);box-shadow:0 12px 32px rgba(0,0,0,.12);}
+[data-theme="light"] .profile-menu-name{color:#1a1a18;}
+[data-theme="light"] .profile-menu-item{color:rgba(26,26,24,.75);}
+[data-theme="light"] .profile-menu-item:hover{background:rgba(26,26,24,.05);}

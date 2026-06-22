@@ -21,6 +21,7 @@ function loadAdminProfile(user) {
     avatar_url:   meta.avatar_url || ''
   };
   renderSidebarIdentity();
+  renderProfileMenu();
 }
 
 function adminProfileName(p = adminProfile || {}) {
@@ -54,3 +55,42 @@ function renderSidebarIdentity() {
   const roleEl = $('user-role-sm');
   if (roleEl) roleEl.textContent = adminProfileRole();
 }
+
+function renderProfileMenu() {
+  const av = $('topbar-avatar');
+  if (av) av.innerHTML = adminAvatarInner();
+  const menu = $('profile-menu');
+  if (!menu || !adminProfile) return;
+  menu.innerHTML = `
+    <div class="profile-menu-head">
+      ${adminAvatar(adminProfile, 'sm')}
+      <div class="profile-menu-id">
+        <div class="profile-menu-name">${esc(adminProfileName())}</div>
+        <div class="profile-menu-role">${esc(adminProfileRole())}</div>
+        <div class="profile-menu-email">${esc(adminProfile.email)}</div>
+      </div>
+    </div>
+    <button class="profile-menu-item" type="button" data-action="view-profile">View Profile</button>
+    <div class="profile-menu-sep"></div>
+    <button class="profile-menu-item danger" type="button" data-action="sign-out">Sign Out</button>`;
+}
+
+function toggleProfileMenu(force) {
+  const menu = $('profile-menu');
+  const trigger = $('profile-trigger');
+  if (!menu || !trigger) return;
+  const open = force === undefined ? menu.hasAttribute('hidden') : force;
+  if (open) { menu.removeAttribute('hidden'); trigger.setAttribute('aria-expanded', 'true'); }
+  else { menu.setAttribute('hidden', ''); trigger.setAttribute('aria-expanded', 'false'); }
+}
+
+$('profile-trigger')?.addEventListener('click', e => { e.stopPropagation(); toggleProfileMenu(); });
+$('profile-menu')?.addEventListener('click', e => {
+  const btn = e.target.closest('.profile-menu-item');
+  if (!btn) return;
+  toggleProfileMenu(false);
+  if (btn.dataset.action === 'view-profile') switchPage('profile');
+  else if (btn.dataset.action === 'sign-out') sb.auth.signOut();
+});
+document.addEventListener('click', e => { if (!e.target.closest('.profile-menu-wrap')) toggleProfileMenu(false); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleProfileMenu(false); });

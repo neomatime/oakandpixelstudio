@@ -156,9 +156,17 @@
         <h1 class="page-title" id="page-title">Overview</h1>
         <p class="page-date" id="page-date"></p>
       </div>
-      <button class="theme-toggle" id="theme-toggle" title="Toggle theme">
-        <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"></svg>
-      </button>
+      <div class="topbar-right">
+        <button class="theme-toggle" id="theme-toggle" title="Toggle theme">
+          <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"></svg>
+        </button>
+        <div class="profile-menu-wrap">
+          <button class="profile-trigger" id="profile-trigger" type="button" aria-haspopup="true" aria-expanded="false" title="Account">
+            <span class="admin-avatar sm" id="topbar-avatar"></span>
+          </button>
+          <div class="profile-menu" id="profile-menu" hidden></div>
+        </div>
+      </div>
     </header>
 
     <div class="page-content">
