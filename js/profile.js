@@ -128,3 +128,35 @@ async function saveAdminProfile() {
 }
 
 $('profile-save')?.addEventListener('click', saveAdminProfile);
+
+async function uploadAdminAvatar(file) {
+  if (!file) return;
+  const { data: sess } = await sb.auth.getSession();
+  const uid = sess?.session?.user?.id;
+  if (!uid) { toast('Sign in again to update your photo.'); return; }
+  const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+  const path = `${uid}/${Date.now()}.${ext}`;
+  const { error: upErr } = await sb.storage.from('admin-avatars').upload(path, file, { upsert: true });
+  if (upErr) { toast('Photo upload failed. Create the admin-avatars storage bucket first.'); return; }
+  const { data: pub } = sb.storage.from('admin-avatars').getPublicUrl(path);
+  const { data: res, error } = await sb.auth.updateUser({ data: { avatar_url: pub.publicUrl } });
+  if (error) { toast('Photo uploaded, but profile update failed.'); return; }
+  loadAdminProfile(res.user);
+  renderProfilePage();
+  toast('Profile photo updated.');
+}
+
+async function removeAdminAvatar() {
+  const { data: res, error } = await sb.auth.updateUser({ data: { avatar_url: null } });
+  if (error) { toast('Could not remove photo.'); return; }
+  loadAdminProfile(res.user);
+  renderProfilePage();
+  toast('Profile photo removed.');
+}
+
+$('profile-avatar-file')?.addEventListener('change', e => {
+  const file = e.target.files?.[0];
+  uploadAdminAvatar(file);
+  e.target.value = '';
+});
+$('profile-avatar-remove')?.addEventListener('click', removeAdminAvatar);
