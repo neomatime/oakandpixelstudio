@@ -182,7 +182,7 @@ body.sidebar-collapsed .btn-signout::before{
 }
 
 /* ── MAIN ─────────────────────────────────── */
-.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;transition:margin-left .28s cubic-bezier(.2,.8,.2,1);}
+.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;transition:margin-left .28s cubic-bezier(.2,.8,.2,1);}
 .topbar{
   display:flex;align-items:center;justify-content:space-between;
   padding:1.4rem 2rem 1.1rem;border-bottom:1px solid var(--border);
@@ -197,7 +197,7 @@ body.sidebar-collapsed .btn-signout::before{
 .breadcrumb-sep{color:rgba(245,244,241,.16);}
 .page-title{font-family:var(--font-d);font-size:1.5rem;font-weight:400;}
 .page-date{font-family:var(--font-m);font-size:.57rem;letter-spacing:.08em;color:var(--mist);margin-top:.1rem;}
-.page-content{padding:1.75rem 2rem;flex:1;}
+.page-content{padding:1.75rem 2rem;flex:1;overflow-y:auto;min-height:0;}
 .page{display:none;}
 .page.active{display:block;}
 
@@ -972,6 +972,11 @@ select{color-scheme:dark;}
 [data-theme="light"] .profile-menu-item{color:rgba(26,26,24,.75);}
 [data-theme="light"] .profile-menu-item:hover{background:rgba(26,26,24,.05);}
 /* ── ACCOUNT / PROFILE PAGE ─────────────────── */
+/* Profile page: hero+tabs stay pinned, panels scroll */
+#page-profile.active{display:flex;flex-direction:column;height:100%;}
+#page-profile .acct-shell{flex:1;display:flex;flex-direction:column;min-height:0;}
+#page-profile .acct-hero,#page-profile .seg-tabs{flex-shrink:0;}
+#profile-panel-profile,#profile-panel-security{flex:1;overflow-y:auto;min-height:0;padding-bottom:2rem;}
 .acct-shell{max-width:720px;}
 /* identity hero — the credential */
 .acct-hero{position:relative;display:flex;align-items:center;gap:1.35rem;padding:1.85rem 2rem;margin-bottom:1.5rem;background:radial-gradient(135% 150% at 0% 0%,var(--em-dim),transparent 55%),var(--card);border:1px solid var(--border);border-top:2px solid var(--gold);}
