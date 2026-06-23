@@ -181,6 +181,59 @@ function safePathSegment(value = '') {
 function fileExtension(fileName = '') {
   return String(fileName).split('.').pop().toLowerCase();
 }
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error || new Error('Could not read logo file.'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function rasterLogoDataUrl(file, maxPx = 720) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const longest = Math.max(img.naturalWidth || img.width, img.naturalHeight || img.height, 1);
+        const scale = Math.min(1, maxPx / longest);
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round((img.naturalWidth || img.width) * scale));
+        canvas.height = Math.max(1, Math.round((img.naturalHeight || img.height) * scale));
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL('image/png'));
+      } catch (error) {
+        URL.revokeObjectURL(url);
+        reject(error);
+      }
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not process logo image.')); };
+    img.src = url;
+  });
+}
+
+async function clientLogoDataUrl(file) {
+  if (!file) return '';
+  if (/svg/i.test(file.type || '') || fileExtension(file.name) === 'svg') return readFileAsDataUrl(file);
+  try {
+    return await rasterLogoDataUrl(file);
+  } catch {
+    return readFileAsDataUrl(file);
+  }
+}
+
+async function saveClientLogoFile(clientId, file) {
+  const ext = fileExtension(file.name) || 'png';
+  const logoPath = `${clientId}/${Date.now()}.${ext}`;
+  const upload = await sb.storage.from('client-logos').upload(logoPath, file, { upsert:true, contentType:file.type || undefined });
+  if (!upload.error) {
+    const { data } = sb.storage.from('client-logos').getPublicUrl(logoPath);
+    return { url:data.publicUrl, storagePath:logoPath, fallback:false };
+  }
+  return { url:await clientLogoDataUrl(file), storagePath:null, fallback:true };
+}
 function isAcceptedAssetFile(file) {
   return ['pdf','png','jpg','jpeg','svg','docx','xlsx'].includes(fileExtension(file?.name || ''));
 }
@@ -311,12 +364,10 @@ async function saveOnboardingAssets(clientId) {
         if (uploadError) throw uploadError;
         row = { ...row, file_name:state.file.name, file_type:state.file.type || fileExtension(state.file.name).toUpperCase(), file_path:path, status:'Uploaded', uploaded_at:new Date().toISOString() };
         if (item.key === 'company_logo' && /^image\//.test(state.file.type || '')) {
-          const ext = fileExtension(state.file.name) || 'png';
-          const logoPath = `${clientId}/${Date.now()}.${ext}`;
-          const logoUpload = await sb.storage.from('client-logos').upload(logoPath, state.file, { upsert:true });
-          if (!logoUpload.error) {
-            const { data } = sb.storage.from('client-logos').getPublicUrl(logoPath);
-            await sb.from('clients').update({ logo_url:data.publicUrl }).eq('id', clientId);
+          const logo = await saveClientLogoFile(clientId, state.file);
+          if (logo.url) {
+            row.public_url = logo.url;
+            await sb.from('clients').update({ logo_url:logo.url }).eq('id', clientId);
           }
         }
       }
@@ -632,7 +683,7 @@ function openClientLogoModal(clientId) {
     <div class="modal-body">
       <div class="modal-field full" style="align-items:center">${clientAvatar(client, 'lg')}</div>
       <div class="modal-field full"><label>Upload Company Logo</label><input id="client-logo-file" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml"></div>
-      <div class="modal-field full"><label>Storage Note</label><input readonly value="Uses Supabase Storage bucket: client-logos"></div>
+      <div class="modal-field full"><label>Storage Note</label><input readonly value="Stores in client-logos; falls back safely if the bucket is unavailable"></div>
     </div>
     <div class="modal-foot">
       <button class="btn-danger" onclick="removeClientLogo('${clientId}')">Remove Logo</button>
@@ -648,15 +699,17 @@ async function uploadClientLogo(clientId) {
   const input = $('client-logo-file');
   const file = input?.files?.[0];
   if (!file) { toast('Choose a logo file first.'); return; }
-  const ext = file.name.split('.').pop() || 'png';
-  const path = `${clientId}/${Date.now()}.${ext}`;
-  const { error: uploadError } = await sb.storage.from('client-logos').upload(path, file, { upsert: true });
-  if (uploadError) { toast('Logo upload failed. Create the client-logos storage bucket first.'); return; }
-  const { data } = sb.storage.from('client-logos').getPublicUrl(path);
-  const { error } = await sb.from('clients').update({ logo_url: data.publicUrl }).eq('id', clientId);
+  let logo;
+  try {
+    logo = await saveClientLogoFile(clientId, file);
+  } catch (error) {
+    toast('Logo upload failed. Try a smaller PNG, JPG, WEBP, or SVG file.');
+    return;
+  }
+  const { error } = await sb.from('clients').update({ logo_url: logo.url }).eq('id', clientId);
   if (error) { toast('Logo uploaded, but client record needs migration 004.'); return; }
   closeModal();
-  toast('Client logo updated.');
+  toast(logo.fallback ? 'Client logo saved. Run migration 021 to enable public logo storage.' : 'Client logo updated.');
   await Promise.all([loadClients(), loadProjects()]);
   selectedClientId = clientId;
   await renderClientProfile();
