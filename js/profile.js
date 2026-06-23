@@ -84,6 +84,15 @@ function toggleProfileMenu(force) {
   else { menu.setAttribute('hidden', ''); trigger.setAttribute('aria-expanded', 'false'); }
 }
 
+document.getElementById('profile-tabs')?.addEventListener('click', e => {
+  const btn = e.target.closest('.filter-tab');
+  if (!btn) return;
+  const tab = btn.dataset.tab;
+  document.querySelectorAll('#profile-tabs .filter-tab').forEach(b => b.classList.toggle('active', b === btn));
+  document.getElementById('profile-panel-profile').style.display  = tab === 'profile'  ? '' : 'none';
+  document.getElementById('profile-panel-security').style.display = tab === 'security' ? '' : 'none';
+});
+
 $('profile-trigger')?.addEventListener('click', e => { e.stopPropagation(); toggleProfileMenu(); });
 $('profile-menu')?.addEventListener('click', e => {
   const btn = e.target.closest('.profile-menu-item');

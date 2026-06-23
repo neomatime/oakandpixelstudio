@@ -692,47 +692,57 @@
 
       <!-- ══ PROFILE PAGE ══ -->
       <section class="page" id="page-profile">
-        <div class="card profile-card">
-          <div class="profile-head">
-            <span class="admin-avatar lg" id="profile-avatar"></span>
-            <div class="profile-photo-actions">
-              <label class="btn-ghost" for="profile-avatar-file">Change Photo</label>
-              <input id="profile-avatar-file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
-              <button class="btn-ghost" type="button" id="profile-avatar-remove">Remove</button>
+        <div class="filter-tabs" id="profile-tabs" style="margin-bottom:1.25rem;">
+          <button class="filter-tab active" type="button" data-tab="profile">Profile</button>
+          <button class="filter-tab" type="button" data-tab="security">Security</button>
+        </div>
+
+        <!-- Profile tab -->
+        <div id="profile-panel-profile">
+          <div class="card profile-card">
+            <div class="profile-head">
+              <span class="admin-avatar lg" id="profile-avatar"></span>
+              <div class="profile-photo-actions">
+                <label class="btn-ghost" for="profile-avatar-file">Change Photo</label>
+                <input id="profile-avatar-file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+                <button class="btn-ghost" type="button" id="profile-avatar-remove">Remove</button>
+              </div>
             </div>
-          </div>
-          <div class="profile-form">
-            <div class="modal-field"><label>Full Name</label><input id="pf-full-name" type="text"></div>
-            <div class="modal-field"><label>Role / Title</label><input id="pf-role" type="text" placeholder="Administrator"></div>
-            <div class="modal-field"><label>Email (login)</label><input id="pf-email" type="email" readonly></div>
-            <div class="modal-field"><label>Phone</label><input id="pf-phone" type="tel"></div>
-            <div class="modal-field"><label>Company</label><input id="pf-company" type="text"></div>
-            <div class="modal-field full"><label>Bio</label><textarea id="pf-bio"></textarea></div>
-          </div>
-          <div class="profile-foot">
-            <button class="btn-add" type="button" id="profile-save">Save Changes</button>
+            <div class="profile-form">
+              <div class="modal-field"><label>Full Name</label><input id="pf-full-name" type="text"></div>
+              <div class="modal-field"><label>Role / Title</label><input id="pf-role" type="text" placeholder="Administrator"></div>
+              <div class="modal-field"><label>Email (login)</label><input id="pf-email" type="email" readonly></div>
+              <div class="modal-field"><label>Phone</label><input id="pf-phone" type="tel"></div>
+              <div class="modal-field"><label>Company</label><input id="pf-company" type="text"></div>
+              <div class="modal-field full"><label>Bio</label><textarea id="pf-bio"></textarea></div>
+            </div>
+            <div class="profile-foot">
+              <button class="btn-add" type="button" id="profile-save">Save Changes</button>
+            </div>
           </div>
         </div>
 
-        <!-- Login Details card -->
-        <div class="card profile-card" style="margin-top:1.25rem;">
-          <div class="ld-group">
-            <div class="ld-group-label">Email Address</div>
-            <div class="ld-current-val" id="ld-current-email">—</div>
-            <div class="profile-form" style="margin-top:.75rem;">
-              <div class="modal-field full"><label>New Email Address</label><input id="ld-new-email" type="email" placeholder="new@email.com" autocomplete="email"></div>
+        <!-- Security tab -->
+        <div id="profile-panel-security" style="display:none;">
+          <div class="card profile-card">
+            <div class="ld-group">
+              <div class="ld-group-label">Email Address</div>
+              <div class="ld-current-val" id="ld-current-email">—</div>
+              <div class="profile-form" style="margin-top:.75rem;">
+                <div class="modal-field full"><label>New Email Address</label><input id="ld-new-email" type="email" placeholder="new@email.com" autocomplete="email"></div>
+              </div>
+              <p class="ld-msg" id="ld-email-msg"></p>
+              <div class="profile-foot"><button class="btn-add" type="button" id="ld-save-email">Update Email</button></div>
             </div>
-            <p class="ld-msg" id="ld-email-msg"></p>
-            <div class="profile-foot"><button class="btn-add" type="button" id="ld-save-email">Update Email</button></div>
-          </div>
-          <div class="divider" style="margin:1.5rem 0;"></div>
-          <div class="ld-group">
-            <div class="ld-group-label">Password</div>
-            <div class="profile-form" style="margin-top:.75rem;">
-              <div class="modal-field"><label>New Password</label><input id="ld-new-pw" type="password" placeholder="Min 8 characters" autocomplete="new-password"></div>
-              <div class="modal-field"><label>Confirm Password</label><input id="ld-confirm-pw" type="password" placeholder="Confirm new password" autocomplete="new-password"></div>
+            <div class="divider" style="margin:1.5rem 0;"></div>
+            <div class="ld-group">
+              <div class="ld-group-label">Password</div>
+              <div class="profile-form" style="margin-top:.75rem;">
+                <div class="modal-field"><label>New Password</label><input id="ld-new-pw" type="password" placeholder="Min 8 characters" autocomplete="new-password"></div>
+                <div class="modal-field"><label>Confirm Password</label><input id="ld-confirm-pw" type="password" placeholder="Confirm new password" autocomplete="new-password"></div>
+              </div>
+              <div class="profile-foot"><button class="btn-add" type="button" id="ld-save-pw">Update Password</button></div>
             </div>
-            <div class="profile-foot"><button class="btn-add" type="button" id="ld-save-pw">Update Password</button></div>
           </div>
         </div>
       </section>
