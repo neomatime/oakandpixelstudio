@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -135,7 +135,7 @@
 
       <button class="nav-item" data-page="messages">
         <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
-        Messages
+        Communications
         <span class="nav-badge" id="messages-badge"></span>
       </button>
     </nav>
@@ -774,33 +774,33 @@
         </div>
       </section>
 
-      <!-- ══ MESSAGES PAGE (Outlook-style 3-pane) ══ -->
+      <!-- ══ COMMUNICATIONS HUB ══ -->
       <section class="page" id="page-messages">
-        <div class="mail-shell">
-          <!-- Folder rail -->
-          <aside class="mail-folders">
-            <button class="mail-compose-btn" type="button" id="mail-compose-btn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-              Compose
-            </button>
-            <button class="mail-folder active" type="button" data-folder="inbox">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
-              <span class="mail-folder-name">Inbox</span>
-              <span class="mail-folder-count" id="mail-inbox-count"></span>
-            </button>
-            <button class="mail-folder" type="button" data-folder="sent">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
-              <span class="mail-folder-name">Sent</span>
-              <span class="mail-folder-count" id="mail-sent-count"></span>
-            </button>
-          </aside>
-          <!-- Message list -->
-          <div class="mail-list" id="mail-list"></div>
-          <!-- Reading pane / compose -->
-          <div class="mail-reading" id="mail-reading"></div>
+        <div class="comm-page">
+          <div class="comm-hero">
+            <div class="comm-hero-copy">
+              <div class="comm-eyebrow">Business Operating System</div>
+              <h2 class="comm-title">Communications</h2>
+              <p class="comm-subtitle">Centralized client communication, reusable responses, files, and action items in one focused workspace.</p>
+            </div>
+            <div class="comm-hero-actions">
+              <button class="btn-ghost" type="button" id="comm-refresh-btn">Refresh Inbox</button>
+              <button class="btn-add" type="button" id="mail-compose-btn">New Email</button>
+            </div>
+          </div>
+
+          <nav class="comm-tabs" id="comm-tabs" aria-label="Communications sections">
+            <button class="comm-tab active" type="button" data-comm-tab="inbox">Inbox</button>
+            <button class="comm-tab" type="button" data-comm-tab="contacts">Contacts</button>
+            <button class="comm-tab" type="button" data-comm-tab="attachments">Attachments</button>
+            <button class="comm-tab" type="button" data-comm-tab="templates">Templates</button>
+            <button class="comm-tab" type="button" data-comm-tab="tasks">Tasks</button>
+            <button class="comm-tab" type="button" data-comm-tab="settings">Settings</button>
+          </nav>
+
+          <div class="comm-body" id="comm-body"></div>
         </div>
       </section>
-
     </div><!-- /page-content -->
   </main>
 

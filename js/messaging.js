@@ -1,460 +1,298 @@
-'use strict';
+﻿'use strict';
 
-/* Messages — Outlook-style mail page (Backlog #3) + notification bell (#5).
-   Folders: Sent = outbound rows (sent via /api/send-message / Resend), Inbox =
-   inbound rows (populated once a real mail feed is connected). Messages live in
-   the Supabase `messages` table. This module loads last; loadMessages() is
-   called from loadAll(). */
-
+/* Communications Hub: real mail comes from Supabase `messages`; operator-only
+   productivity state lives in localStorage so labels, pins, drafts, templates,
+   tasks, and settings work without widening the existing schema. */
 let allMessages = [];
 let messagingSchemaReady = true;
-let mailFolder = 'inbox';
+let commActiveTab = 'inbox';
+let mailFolder = 'all';
 let selectedMessageId = null;
-let mailComposing = false;
-let composePrefill = {};
+let mailSearch = '';
+let mailPriorityFilter = 'all';
+let mailLabelFilter = 'all';
+let mailSelection = new Set();
+let composeFiles = [];
+let commContactSearch = '';
+let commAttachmentSearch = '';
+let commAttachmentCategory = 'all';
+let commAttachmentSort = 'date';
+let commTemplateSearch = '';
+let commTaskSearch = '';
 
 const NOTIF_SEEN_KEY = 'ops-notif-seen-at';
+const COMM_STATE_KEY = 'ops-communications-state-v1';
+const COMM_LABELS = ['Client','Proposal','Finance','Project','Support'];
+const COMM_PRIORITIES = ['Low','Medium','High','Urgent'];
+const COMM_TASK_STATUSES = [['todo','To Do'],['in_progress','In Progress'],['waiting','Waiting'],['completed','Completed']];
+const COMM_ATTACHMENT_CATEGORIES = ['Proposals','Contracts','Quotations','Invoices','General'];
 
-/* ── Data ── */
-async function loadMessages() {
-  const { data, error } = await sb
-    .from('messages')
-    .select('*')
-    .order('created_at', { ascending: false });
-  if (error) {
-    messagingSchemaReady = false;
-    allMessages = [];
-  } else {
-    messagingSchemaReady = true;
-    allMessages = data || [];
-  }
-  refreshNotifications();
-  renderMailCounts();
-  if ($('page-messages')?.classList.contains('active')) renderMessages();
+function commId(prefix='comm'){ return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2,8)}`; }
+function safeJSON(value, fallback){ try { return JSON.parse(value) || fallback; } catch { return fallback; } }
+function defaultTemplates(){ return [
+  { id:'tpl-welcome', title:'Welcome Email', category:'Client Onboarding', subject:'Welcome to Oak & Pixel Studio', body:'Dear {{company}} Team,\n\nWelcome to Oak & Pixel Studio. We are excited to begin building the digital infrastructure that will support your business with clarity, polish, and long-term operational confidence.\n\nWarm regards,\nOak & Pixel Studio', system:true },
+  { id:'tpl-follow-up', title:'Follow Up', category:'Sales', subject:'Following up on our conversation', body:'Dear {{company}} Team,\n\nI wanted to follow up on our recent conversation and confirm whether you would like us to prepare the next step.\n\nWarm regards,\nOak & Pixel Studio', system:true },
+  { id:'tpl-quotation', title:'Quotation', category:'Commercial', subject:'Quotation from Oak & Pixel Studio', body:'Dear {{company}} Team,\n\nPlease find your quotation from Oak & Pixel Studio attached for review. The quotation outlines the proposed service, pricing, and next steps.\n\nWarm regards,\nOak & Pixel Studio', system:true },
+  { id:'tpl-invoice', title:'Invoice', category:'Finance', subject:'Invoice from Oak & Pixel Studio', body:'Dear {{company}} Team,\n\nPlease find your invoice from Oak & Pixel Studio attached. Payment details are included on the invoice.\n\nWarm regards,\nOak & Pixel Studio', system:true },
+  { id:'tpl-completion', title:'Project Completion', category:'Delivery', subject:'Project completion confirmation', body:'Dear {{company}} Team,\n\nWe are pleased to confirm that the agreed project work has been completed. Please review the final handover notes and let us know if anything needs attention within the agreed review window.\n\nWarm regards,\nOak & Pixel Studio', system:true }
+]; }
+function initialCommState(){ return { messageMeta:{}, drafts:[], contacts:[], templates:defaultTemplates(), tasks:[], settings:{ connectedAccounts:[], signature:'Warm regards,\nNeo Matime\nOak & Pixel Studio\ninfo@oakandpixel.co.za', notifications:{ unread:true, important:true, failed:true }, labels:COMM_LABELS.slice(), storageLimitMb:500 } }; }
+function loadCommState(){
+  const state = { ...initialCommState(), ...safeJSON(localStorage.getItem(COMM_STATE_KEY), {}) };
+  state.messageMeta ||= {}; state.drafts ||= []; state.contacts ||= []; state.templates ||= []; state.tasks ||= []; state.settings ||= {};
+  state.settings.connectedAccounts ||= []; state.settings.notifications ||= { unread:true, important:true, failed:true };
+  state.settings.signature ||= initialCommState().settings.signature;
+  state.settings.labels = Array.from(new Set([...(state.settings.labels || []), ...COMM_LABELS])).filter(Boolean);
+  defaultTemplates().forEach(t => { if (!state.templates.some(x => x.id === t.id)) state.templates.push(t); });
+  return state;
 }
+let commState = loadCommState();
+function saveCommState(){ localStorage.setItem(COMM_STATE_KEY, JSON.stringify(commState)); }
+function metaFor(id){ const key = String(id || ''); if (!commState.messageMeta[key]) commState.messageMeta[key] = {}; return commState.messageMeta[key]; }
+function labels(){ return Array.from(new Set([...(commState.settings.labels || []), ...COMM_LABELS])).filter(Boolean); }
+function stripHTML(html=''){ const div=document.createElement('div'); div.innerHTML=html; return (div.textContent || div.innerText || '').trim(); }
+function nl2br(text=''){ return esc(text).replace(/\n/g,'<br>'); }
+function previewText(body=''){ return stripHTML(String(body || '')).replace(/\s+/g,' ').slice(0,180); }
+function normalizeSubject(subject=''){ return String(subject || '').replace(/^(re|fw|fwd):\s*/i,'').trim().toLowerCase(); }
+function messageClient(m={}){ return m.client_id ? clientById(m.client_id) : null; }
+function messageClientName(m={}){ const c=messageClient(m); return c ? clientDisplayName(c) : (m.sender_name || m.recipient_name || m.recipient_email || 'Unknown contact'); }
+function messageEmail(m={}){ return m.recipient_email || m.to || ''; }
+function messageDate(m={}){ return m.updated_at || m.created_at || m.sent_at || new Date().toISOString(); }
+function isRead(m={}){ const meta=metaFor(m.id); return typeof meta.isRead === 'boolean' ? meta.isRead : (m.direction !== 'inbound' || Boolean(m.is_read)); }
+function messageLabel(m={}){ const meta=metaFor(m.id); if (meta.label) return meta.label; const hay=`${m.subject || ''} ${m.body || ''}`; if (/invoice|payment|paid|quote|quotation/i.test(hay)) return 'Finance'; if (/proposal|scope|sow|project/i.test(hay)) return 'Project'; return m.client_id ? 'Client' : 'General'; }
+function messagePriority(m={}){ return metaFor(m.id).priority || (/(urgent|asap|overdue|important)/i.test(`${m.subject || ''} ${m.body || ''}`) ? 'High' : 'Medium'); }
+function hasAttachments(m={}){ return Array.isArray(m.attachments) && m.attachments.length > 0; }
+function initials(name=''){ const value=String(name || 'Contact').trim(); const parts=value.split(/\s+/).filter(Boolean); return (parts.length>1 ? parts[0][0]+parts[1][0] : value.slice(0,2)).toUpperCase(); }
+function commAvatar(name='', image=''){ return `<div class="comm-avatar">${image ? `<img src="${esc(image)}" alt="${esc(name)}">` : esc(initials(name))}</div>`; }
+function attachmentCategory(att={}){ const name=String(att.name || att.filename || '').toLowerCase(); if (/proposal/.test(name)) return 'Proposals'; if (/contract|agreement|msa|nda|mandate|sow/.test(name)) return 'Contracts'; if (/quote|quotation/.test(name)) return 'Quotations'; if (/invoice/.test(name)) return 'Invoices'; return att.category || 'General'; }
 
-function clientRecipientEmail(client = {}) {
-  return client.company_email || client.email || '';
+async function loadMessages(){
+  const { data, error } = await sb.from('messages').select('*').order('created_at', { ascending:false });
+  if (error) { messagingSchemaReady = false; allMessages = []; } else { messagingSchemaReady = true; allMessages = data || []; }
+  refreshNotifications(); renderMailCounts(); if ($('page-messages')?.classList.contains('active')) renderMessages();
 }
-function folderMessages(folder = mailFolder) {
-  const want = folder === 'sent' ? 'outbound' : 'inbound';
-  return allMessages.filter(m => (m.direction || 'outbound') === want);
-}
-function messageById(id) {
-  return allMessages.find(m => m.id === id);
-}
-function messageClientName(m) {
-  const c = m.client_id ? clientById(m.client_id) : null;
-  return c ? clientDisplayName(c) : (m.recipient_email || 'Unknown');
-}
-
-/* ── Page render ── */
-function renderMessages() {
-  renderMailCounts();
-  document.querySelectorAll('#page-messages .mail-folder').forEach(b =>
-    b.classList.toggle('active', b.dataset.folder === mailFolder));
-  renderMailList();
-  renderReadingPane();
-}
-
-function renderMailCounts() {
-  const inbox = folderMessages('inbox');
-  const sent = folderMessages('sent');
-  const unreadInbox = inbox.filter(m => !m.is_read).length;
-  const setCount = (id, n) => { const el = $(id); if (el) el.textContent = n > 0 ? n : ''; };
-  setCount('mail-inbox-count', unreadInbox || inbox.length);
-  setCount('mail-sent-count', sent.length);
-  const navBadge = $('messages-badge');
-  if (navBadge) {
-    navBadge.textContent = unreadInbox;
-    navBadge.classList.toggle('show', unreadInbox > 0);
-  }
-}
-
-function renderMailList() {
-  const list = $('mail-list');
-  if (!list) return;
-  const rows = folderMessages();
-  const bar = mailFolder === 'inbox' ? mailRefreshBar() : '';
-  if (!rows.length) {
-    list.innerHTML = bar + mailListEmpty();
-    return;
-  }
-  list.innerHTML = bar + rows.map(m => {
-    const who = mailFolder === 'sent'
-      ? `To: ${esc(messageClientName(m))}`
-      : esc(messageClientName(m));
-    const unread = mailFolder === 'inbox' && !m.is_read;
-    const status = m.status && m.status !== 'sent'
-      ? `<div class="mail-li-badges"><span class="msg-status ${esc(m.status)}">${esc(m.status)}</span></div>`
-      : '';
-    return `
-      <button class="mail-list-item${m.id === selectedMessageId ? ' active' : ''}${unread ? ' unread' : ''}" type="button" data-id="${esc(m.id)}">
-        <div class="mail-li-top">
-          <span class="mail-li-from">${who}</span>
-          <span class="mail-li-time">${timeAgo(m.created_at)}</span>
-        </div>
-        <div class="mail-li-subject">${esc(m.subject)}</div>
-        <div class="mail-li-preview">${esc(m.body)}</div>
-        ${status}
-      </button>`;
-  }).join('');
-}
-
-function mailRefreshBar() {
-  return `<div class="mail-list-bar">
-    <span class="mail-list-bar-label">Inbox</span>
-    <button class="mail-refresh-btn" id="mail-refresh" type="button" title="Check for new mail">
-      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-      Refresh
-    </button>
-  </div>`;
-}
-
-function mailListEmpty() {
-  if (mailFolder === 'inbox') {
-    return `<div class="mail-empty">
-      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
-      <div class="mail-empty-title">No mail yet</div>
-      <div class="mail-empty-sub">Once your mailbox is connected, incoming email lands here. Use Refresh to check now.</div>
-      <button class="btn-ghost" id="mail-refresh-empty" type="button" style="margin-top:1rem;cursor:pointer">Check for mail</button>
-    </div>`;
-  }
-  return `<div class="mail-empty">
-    <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
-    <div class="mail-empty-title">No sent messages yet</div>
-    <div class="mail-empty-sub">Compose a message and it will appear here once sent.</div>
-  </div>`;
-}
-
-function renderReadingPane() {
-  const pane = $('mail-reading');
-  if (!pane) return;
-  if (mailComposing) { pane.innerHTML = composeFormHTML(composePrefill); afterComposeRender(); return; }
-  const m = selectedMessageId ? messageById(selectedMessageId) : null;
-  if (!m) {
-    pane.innerHTML = `<div class="mail-empty">
-      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
-      <div class="mail-empty-title">Select a message</div>
-      <div class="mail-empty-sub">Choose a message from the list to read it here, or compose a new one.</div>
-    </div>`;
-    return;
-  }
-  const client = m.client_id ? clientById(m.client_id) : null;
-  const avatar = client ? clientAvatar(client) : `<div class="client-avatar">${esc((m.recipient_email || '?')[0].toUpperCase())}</div>`;
-  const dirLabel = (m.direction || 'outbound') === 'outbound' ? 'To' : 'From';
-  const statusPill = m.status && m.status !== 'sent'
-    ? ` <span class="msg-status ${esc(m.status)}">${esc(m.status)}</span>` : '';
-  pane.innerHTML = `
-    <div class="mail-read-head">
-      <div class="mail-read-subject">${esc(m.subject)}</div>
-      <div class="mail-read-meta">
-        ${avatar}
-        <div class="mail-read-who">
-          <div class="mail-read-who-line">${esc(messageClientName(m))}${statusPill}</div>
-          <div class="mail-read-who-sub">${esc(dirLabel)}: ${esc(m.recipient_email)} · ${fmtDateLong((m.created_at || '').split('T')[0])}</div>
-        </div>
-      </div>
-    </div>
-    <div class="mail-read-body">${esc(m.body)}</div>
-    <div class="mail-read-foot">
-      <button class="btn-add" type="button" id="mail-reply">Reply</button>
-    </div>`;
-}
-
-/* ── Compose ── */
-function composeFormHTML(prefill = {}) {
-  const clients = [...allClients].sort((a, b) => clientDisplayName(a).localeCompare(clientDisplayName(b)));
-  return `<div class="mail-compose">
-    <div class="mail-compose-title">${prefill.subject && prefill.isReply ? 'Reply' : 'New message'}</div>
-    <div class="modal-field full"><label>Client (optional)</label><select id="mail-compose-client" autocomplete="off">
-      <option value="">— None / ad-hoc —</option>
-      ${clients.map(c => `<option value="${esc(c.id)}"${prefill.clientId === c.id ? ' selected' : ''}>${esc(clientDisplayName(c))}</option>`).join('')}
-    </select></div>
-    <div class="modal-field full"><label>To</label><input id="mail-compose-to" type="email" value="${esc(prefill.to || '')}" placeholder="client@email.com" autocomplete="off"></div>
-    <div class="modal-field full"><label>Subject</label><input id="mail-compose-subject" type="text" value="${esc(prefill.subject || '')}" placeholder="Subject line" autocomplete="off"></div>
-    <div class="modal-field full"><label>Message</label><textarea id="mail-compose-body" rows="10" style="resize:vertical" placeholder="Write your message…" autocomplete="off">${esc(prefill.body || '')}</textarea></div>
-    <div class="mail-compose-actions">
-      <button class="btn-add" type="button" id="mail-send">Send</button>
-      <button class="btn-ghost" type="button" id="mail-cancel">Cancel</button>
-      <span class="mail-compose-feedback" id="mail-compose-feedback"></span>
-    </div>
-  </div>`;
-}
-
-function afterComposeRender() {
-  const select = $('mail-compose-client');
-  if (select && typeof enhanceOpsSelects === 'function') enhanceOpsSelects(select);
-  if (select && typeof syncOpsSelect === 'function') syncOpsSelect(select, true);
-  setTimeout(() => { (composePrefill.to ? $('mail-compose-subject') : $('mail-compose-to'))?.focus(); }, 60);
-}
-
-function openCompose(prefill = {}) {
-  composePrefill = prefill;
-  mailComposing = true;
-  selectedMessageId = null;
-  renderMailList();
-  renderReadingPane();
-}
-
-function cancelCompose() {
-  mailComposing = false;
-  renderReadingPane();
-}
-
-function onComposeClientChange() {
-  const id = $('mail-compose-client')?.value || '';
-  const client = id ? clientById(id) : null;
-  const toEl = $('mail-compose-to');
-  if (client && toEl && !toEl.value.trim()) toEl.value = clientRecipientEmail(client);
-}
-
-function setComposeFeedback(text, ok = false) {
-  const el = $('mail-compose-feedback');
-  if (!el) return;
-  el.style.color = ok ? 'var(--emerald)' : 'var(--err)';
-  el.textContent = text;
-}
-
-async function sendComposed() {
-  const btn = $('mail-send');
-  const clientId = $('mail-compose-client')?.value || null;
-  const to = ($('mail-compose-to')?.value || '').trim();
-  const subject = ($('mail-compose-subject')?.value || '').trim();
-  const body = ($('mail-compose-body')?.value || '').trim();
-
-  if (!to)      { setComposeFeedback('Add a recipient email address.'); return; }
-  if (!subject) { setComposeFeedback('Add a subject line.'); return; }
-  if (!body)    { setComposeFeedback('Write a message before sending.'); return; }
-
-  setComposeFeedback('');
-  btnLoad(btn, true, 'Sending…');
-
-  let status = 'sent';
-  let errorText = null;
-  try {
-    const res = await fetch('/api/send-message', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ to, subject, body }),
-    });
-    if (!res.ok) {
-      const payload = await res.json().catch(() => ({}));
-      status = 'failed';
-      errorText = payload.error || `Send failed (${res.status})`;
-    }
-  } catch {
-    status = 'failed';
-    errorText = 'Network error — message not sent.';
-  }
-
-  const { error: insertErr } = await sb.from('messages').insert({
-    client_id: clientId || null,
-    direction: 'outbound',
-    recipient_email: to,
-    subject, body, status, error: errorText,
+function clientRecipientEmail(client={}){ return client.company_email || client.email || ''; }
+function messageById(id){ return allMessages.find(m => String(m.id) === String(id)); }
+function draftById(id){ return commState.drafts.find(d => String(d.id) === String(id)); }
+function allMailItems(){
+  const messages = allMessages.map(m => ({ type:'message', id:String(m.id), data:m, date:messageDate(m) }));
+  const drafts = commState.drafts.map(d => ({ type:'draft', id:`draft:${d.id}`, data:d, date:d.updatedAt || d.createdAt }));
+  return [...messages, ...drafts].sort((a,b) => {
+    const am = a.type === 'message' ? metaFor(a.data.id) : {};
+    const bm = b.type === 'message' ? metaFor(b.data.id) : {};
+    if (Boolean(am.pinned) !== Boolean(bm.pinned)) return am.pinned ? -1 : 1;
+    return new Date(b.date || 0) - new Date(a.date || 0);
   });
-
-  btnLoad(btn, false);
-
-  if (status === 'failed') {
-    setComposeFeedback(errorText || 'Message could not be sent.');
-    return;
-  }
-  if (insertErr) {
-    toast('Message sent, but it could not be saved to history.');
-  } else {
-    toast('Message sent.');
-  }
-  mailComposing = false;
-  await loadMessages();
-  mailFolder = 'sent';
-  selectedMessageId = folderMessages('sent')[0]?.id || null;
-  renderMessages();
 }
-
-function replyToSelected() {
-  const m = selectedMessageId ? messageById(selectedMessageId) : null;
-  if (!m) return;
-  const subject = /^re:/i.test(m.subject || '') ? m.subject : `Re: ${m.subject || ''}`;
-  openCompose({ to: m.recipient_email, subject, clientId: m.client_id || null, isReply: true });
-}
-
-/* ── Folder + message selection ── */
-function selectFolder(folder) {
-  mailFolder = folder;
-  selectedMessageId = null;
-  mailComposing = false;
-  renderMessages();
-}
-
-async function selectMessage(id) {
-  selectedMessageId = id;
-  mailComposing = false;
-  const m = messageById(id);
-  if (m && (m.direction === 'inbound') && !m.is_read) {
-    m.is_read = true;
-    sb.from('messages').update({ is_read: true }).eq('id', id).then(() => {});
-    renderMailCounts();
-  }
-  renderMailList();
-  renderReadingPane();
-}
-
-/* ── Inbox sync (GoDaddy IMAP via /api/sync-inbox) ── */
-async function syncInbox(btn) {
-  const { data: { session } } = await sb.auth.getSession();
-  const token = session?.access_token;
-  if (!token) { toast('Please sign in again to sync.'); return; }
-  if (btn) btnLoad(btn, true, 'Syncing…');
-  let data = {};
-  try {
-    const res = await fetch('/api/sync-inbox', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      toast(data.error || 'Inbox sync failed.');
-    } else if (data.new > 0) {
-      toast(`${data.new} new message${data.new === 1 ? '' : 's'}.`);
-      await loadMessages();
-    } else {
-      toast('Inbox is up to date.');
+function filteredMailItems(folder=mailFolder){
+  const q = mailSearch.toLowerCase();
+  return allMailItems().filter(item => {
+    if (item.type === 'draft') {
+      const d=item.data; const hay=`${d.to||''} ${d.cc||''} ${d.bcc||''} ${d.subject||''} ${stripHTML(d.bodyHtml || d.body || '')}`.toLowerCase();
+      return (folder === 'all' || folder === 'drafts') && (!q || hay.includes(q));
     }
-  } catch {
-    toast('Network error during sync.');
-  }
-  if (btn) btnLoad(btn, false);
+    const m=item.data; const meta=metaFor(m.id); const archived=Boolean(meta.archived); const priority=messagePriority(m);
+    if (folder === 'inbox' && (m.direction || 'outbound') !== 'inbound') return false;
+    if (folder === 'unread' && isRead(m)) return false;
+    if (folder === 'starred' && !meta.starred) return false;
+    if (folder === 'important' && !['High','Urgent'].includes(priority)) return false;
+    if (folder === 'archived' && !archived) return false;
+    if (folder !== 'archived' && archived) return false;
+    if (mailPriorityFilter !== 'all' && priority !== mailPriorityFilter) return false;
+    if (mailLabelFilter !== 'all' && messageLabel(m) !== mailLabelFilter) return false;
+    const hay=`${messageClientName(m)} ${messageEmail(m)} ${m.subject || ''} ${m.body || ''}`.toLowerCase();
+    return !q || hay.includes(q);
+  });
 }
+function folderMessages(folder=mailFolder){ return filteredMailItems(folder).filter(i => i.type === 'message').map(i => i.data); }
+function unreadCount(){ return allMessages.filter(m => (m.direction || 'outbound') === 'inbound' && !metaFor(m.id).archived && !isRead(m)).length; }
+function starredCount(){ return allMessages.filter(m => metaFor(m.id).starred && !metaFor(m.id).archived).length; }
+function importantCount(){ return allMessages.filter(m => ['High','Urgent'].includes(messagePriority(m)) && !metaFor(m.id).archived).length; }
+function archivedCount(){ return allMessages.filter(m => metaFor(m.id).archived).length; }
+function allAttachments(){ const files=[]; allMessages.forEach(m => (Array.isArray(m.attachments) ? m.attachments : []).forEach(att => files.push({ ...att, messageId:m.id, subject:m.subject, clientName:messageClientName(m), date:messageDate(m), category:attachmentCategory(att) }))); return files; }
+function emptyComm(title, copy){ return `<div class="mail-empty"><div class="mail-empty-title">${esc(title)}</div><div class="mail-empty-sub">${esc(copy)}</div></div>`; }
 
-/* ── Notification bell ── */
-function notifSeenAt() {
-  try { return localStorage.getItem(NOTIF_SEEN_KEY) || ''; } catch { return ''; }
+function renderMessages(){
+  renderMailCounts();
+  document.querySelectorAll('#comm-tabs .comm-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.commTab === commActiveTab));
+  const body=$('comm-body'); if (!body) return;
+  if (commActiveTab === 'inbox') renderInbox(body);
+  if (commActiveTab === 'contacts') renderContacts(body);
+  if (commActiveTab === 'attachments') renderAttachments(body);
+  if (commActiveTab === 'templates') renderTemplates(body);
+  if (commActiveTab === 'tasks') renderTasks(body);
+  if (commActiveTab === 'settings') renderSettings(body);
+  enhanceOpsSelects(body);
 }
-function setNotifSeen() {
-  try { localStorage.setItem(NOTIF_SEEN_KEY, new Date().toISOString()); } catch {}
+function renderMailCounts(){
+  const set=(id,n)=>{ const el=$(id); if(el) el.textContent=n>0?n:''; };
+  set('mail-all-count', allMessages.length + commState.drafts.length);
+  set('mail-inbox-count', allMessages.filter(m => (m.direction || 'outbound') === 'inbound' && !metaFor(m.id).archived).length);
+  set('mail-unread-count', unreadCount()); set('mail-starred-count', starredCount()); set('mail-important-count', importantCount()); set('mail-archived-count', archivedCount()); set('mail-drafts-count', commState.drafts.length);
+  const badge=$('messages-badge'); if (badge) { const n=unreadCount(); badge.textContent=n>9?'9+':n; badge.classList.toggle('show', n>0); }
 }
-function unreadNotifications() {
-  const seen = notifSeenAt();
-  return allMessages.filter(m => !seen || m.created_at > seen);
+function kpisHTML(){ const activeTasks=commState.tasks.filter(t => t.status !== 'completed').length; return `<div class="comm-kpis"><div class="comm-kpi"><span>${unreadCount()}</span><small>Unread</small></div><div class="comm-kpi"><span>${importantCount()}</span><small>Important</small></div><div class="comm-kpi"><span>${activeTasks}</span><small>Open Tasks</small></div><div class="comm-kpi"><span>${allAttachments().length}</span><small>Files</small></div></div>`; }
+function folderIcon(folder){ return ({all:'A',inbox:'I',unread:'U',starred:'*',important:'!',archived:'R',drafts:'D'})[folder] || 'M'; }
+function folderButton(folder,label,countId){ return `<button class="mail-folder${mailFolder===folder?' active':''}" type="button" data-folder="${folder}"><span class="mail-folder-icon">${folderIcon(folder)}</span><span class="mail-folder-name">${label}</span><span class="mail-folder-count" id="${countId}"></span></button>`; }
+function renderInbox(body){
+  body.innerHTML = `${kpisHTML()}<div class="mail-shell"><aside class="mail-folders">
+    ${folderButton('all','All Mail','mail-all-count')}${folderButton('inbox','Inbox','mail-inbox-count')}${folderButton('unread','Unread','mail-unread-count')}${folderButton('starred','Starred','mail-starred-count')}${folderButton('important','Important','mail-important-count')}${folderButton('archived','Archived','mail-archived-count')}${folderButton('drafts','Drafts','mail-drafts-count')}
+    <div class="mail-folder-label">Labels</div>${labels().map(l => `<button class="mail-label-chip" type="button" data-mail-label-chip="${esc(l)}"><span></span>${esc(l)}</button>`).join('')}
+  </aside><section class="mail-center"><div class="mail-toolbar"><input class="search-input mail-search" id="mail-search" placeholder="Search communications..." value="${esc(mailSearch)}"><select class="client-filter" id="mail-label-filter"><option value="all">All labels</option>${labels().map(l => `<option value="${esc(l)}"${mailLabelFilter===l?' selected':''}>${esc(l)}</option>`).join('')}</select><select class="client-filter" id="mail-priority-filter"><option value="all">All priorities</option>${COMM_PRIORITIES.map(p => `<option value="${p}"${mailPriorityFilter===p?' selected':''}>${p}</option>`).join('')}</select></div>${bulkHTML()}<div class="mail-list" id="mail-list">${mailListHTML()}</div></section><aside class="mail-reading" id="mail-reading">${readingHTML()}</aside></div>`;
+  renderMailCounts();
 }
+function bulkHTML(){ if (!mailSelection.size) return '<div class="mail-bulk mail-bulk-muted">Select messages to use bulk actions.</div>'; return `<div class="mail-bulk"><span>${mailSelection.size} selected</span><button class="act-btn" type="button" data-mail-bulk="read">Mark Read</button><button class="act-btn" type="button" data-mail-bulk="unread">Mark Unread</button><button class="act-btn" type="button" data-mail-bulk="archive">Archive</button><button class="act-btn" type="button" data-mail-bulk="important">Flag Important</button><button class="act-btn" type="button" data-mail-bulk="clear">Clear</button></div>`; }
+function mailListHTML(){ if (!messagingSchemaReady) return emptyComm('Messages schema unavailable','Apply the messages migration to activate the live inbox.'); const rows=filteredMailItems(); if (!rows.length) return emptyComm(mailFolder==='drafts'?'No drafts saved':'No communications found', mailFolder==='drafts'?'Saved drafts will appear here until sent or deleted.':'Use search, filters, or Refresh Inbox to bring this view up to date.'); return rows.map(item => item.type==='draft' ? draftCard(item.data) : messageCard(item.data)).join(''); }
+function messageCard(m){
+  const meta=metaFor(m.id); const unread=(m.direction||'outbound')==='inbound' && !isRead(m); const selected=mailSelection.has(String(m.id)); const client=messageClient(m); const name=messageClientName(m); const avatar=client?clientAvatar(client):commAvatar(name); const label=messageLabel(m); const priority=messagePriority(m);
+  return `<article class="mail-list-item${String(m.id)===String(selectedMessageId)?' active':''}${unread?' unread':''}" data-id="${esc(m.id)}"><label class="mail-select"><input type="checkbox" data-mail-select="${esc(m.id)}"${selected?' checked':''}><span></span></label><button class="mail-card-main" type="button" data-mail-open="${esc(m.id)}">${avatar}<span class="mail-card-copy"><span class="mail-li-top"><strong class="mail-li-from">${esc(name)}</strong><span class="mail-li-time">${timeAgo(messageDate(m))}</span></span><span class="mail-li-subject">${esc(m.subject || 'No subject')}</span><span class="mail-li-preview">${esc(previewText(m.body))}</span><span class="mail-li-badges"><span class="comm-tag">${esc(label)}</span><span class="priority-dot ${priority.toLowerCase()}">${esc(priority)}</span>${hasAttachments(m)?'<span class="comm-tag muted">Attachment</span>':''}</span></span></button><span class="mail-card-actions"><button class="mail-icon-btn${meta.pinned?' active':''}" type="button" data-mail-pin="${esc(m.id)}" title="Pin">P</button><button class="mail-icon-btn${meta.starred?' active':''}" type="button" data-mail-star="${esc(m.id)}" title="Star">*</button></span></article>`;
+}
+function draftCard(d){ return `<article class="mail-list-item draft${String(selectedMessageId)===`draft:${d.id}`?' active':''}" data-draft-id="${esc(d.id)}"><button class="mail-card-main" type="button" data-draft-open="${esc(d.id)}">${commAvatar(d.to || 'Draft')}<span class="mail-card-copy"><span class="mail-li-top"><strong class="mail-li-from">Draft</strong><span class="mail-li-time">${timeAgo(d.updatedAt || d.createdAt)}</span></span><span class="mail-li-subject">${esc(d.subject || 'No subject')}</span><span class="mail-li-preview">${esc(previewText(d.bodyHtml || d.body))}</span><span class="mail-li-badges"><span class="comm-tag muted">Draft</span></span></span></button><span class="mail-card-actions"><button class="mail-icon-btn danger" type="button" data-draft-delete="${esc(d.id)}" title="Delete draft">X</button></span></article>`; }
+function readingHTML(){
+  if (selectedMessageId && String(selectedMessageId).startsWith('draft:')) { const d=draftById(String(selectedMessageId).replace('draft:','')); return d ? `<div class="mail-read-head"><div class="mail-read-actions"><button class="act-btn" type="button" data-draft-open="${esc(d.id)}">Edit Draft</button><button class="act-btn delete" type="button" data-draft-delete="${esc(d.id)}">Delete</button></div><div class="mail-read-subject">${esc(d.subject || 'Draft message')}</div><div class="mail-read-who-sub">To: ${esc(d.to || 'No recipient')} - saved ${timeAgo(d.updatedAt || d.createdAt)}</div></div><div class="mail-read-body">${d.bodyHtml || nl2br(d.body || '')}</div>` : ''; }
+  const m=selectedMessageId ? messageById(selectedMessageId) : null; if (!m) return emptyComm('Select a conversation','Choose a message to preview context, files, and next actions.');
+  const meta=metaFor(m.id); const client=messageClient(m); const name=messageClientName(m); const avatar=client?clientAvatar(client):commAvatar(name); const label=messageLabel(m); const priority=messagePriority(m); const thread=allMessages.filter(x => String(x.id)!==String(m.id) && (normalizeSubject(x.subject)===normalizeSubject(m.subject) || (m.client_id && x.client_id===m.client_id))).slice(0,6);
+  return `<div class="mail-read-head"><div class="mail-read-actions"><button class="act-btn" type="button" data-mail-reply="${esc(m.id)}">Reply</button><button class="act-btn" type="button" data-mail-task="${esc(m.id)}">Create Task</button><button class="act-btn" type="button" data-mail-archive="${esc(m.id)}">${meta.archived?'Unarchive':'Archive'}</button></div><div class="mail-read-subject">${esc(m.subject || 'No subject')}</div><div class="mail-read-meta">${avatar}<div class="mail-read-who"><div class="mail-read-who-line">${esc(name)}</div><div class="mail-read-who-sub">${esc((m.direction||'outbound')==='outbound'?'To':'From')}: ${esc(messageEmail(m))} - ${fmtDateLong(String(messageDate(m)).split('T')[0])}</div></div></div><div class="mail-read-controls"><label>Label<select data-mail-detail-label="${esc(m.id)}"><option value="">Auto</option>${labels().map(l => `<option value="${esc(l)}"${label===l?' selected':''}>${esc(l)}</option>`).join('')}</select></label><label>Priority<select data-mail-detail-priority="${esc(m.id)}">${COMM_PRIORITIES.map(p => `<option value="${p}"${priority===p?' selected':''}>${p}</option>`).join('')}</select></label><span class="comm-tag">${esc(label)}</span></div></div><div class="mail-read-body">${nl2br(m.body || '')}</div>${attachmentsInline(m.attachments)}<div class="mail-thread"><div class="mail-thread-title">Conversation</div>${thread.length?thread.map(t => `<button class="thread-item" type="button" data-mail-open="${esc(t.id)}"><span>${esc(messageClientName(t))}</span><small>${esc(t.subject || 'No subject')} - ${timeAgo(messageDate(t))}</small></button>`).join(''):'<p class="pipeline-empty">No related messages yet.</p>'}</div>`;
+}
+function attachmentsInline(attachments){ if (!Array.isArray(attachments)||!attachments.length) return ''; return `<div class="mail-attachments"><div class="mail-thread-title">Attachments</div>${attachments.map(att => `<button class="attachment-pill" type="button" data-attachment-preview="${esc(att.path || '')}">${esc(att.name || att.filename || 'Attachment')}</button>`).join('')}</div>`; }
+async function selectMessage(id){ selectedMessageId=String(id); const m=messageById(id); if (m && (m.direction||'outbound')==='inbound' && !isRead(m)) { metaFor(m.id).isRead=true; saveCommState(); sb.from('messages').update({ is_read:true }).eq('id', id).then(()=>{}); } renderMessages(); }
+function selectFolder(folder){ mailFolder=folder; selectedMessageId=null; mailSelection.clear(); renderMessages(); }
+function setMailMeta(id, patch){ Object.assign(metaFor(id), patch); saveCommState(); renderMessages(); }
+function markMessages(ids, read){ ids.forEach(id => { metaFor(id).isRead=read; }); saveCommState(); const dbIds=ids.filter(id => !String(id).startsWith('draft:')); if (dbIds.length) sb.from('messages').update({ is_read:read }).in('id', dbIds).then(()=>{}); renderMessages(); }
+function archiveMessages(ids, archived=true){ ids.forEach(id => { metaFor(id).archived=archived; }); saveCommState(); mailSelection.clear(); renderMessages(); }
+function flagMessages(ids){ ids.forEach(id => { metaFor(id).priority='High'; }); saveCommState(); mailSelection.clear(); renderMessages(); }
 
-function refreshNotifications() {
-  const badge = $('notif-badge');
-  if (badge) {
-    const n = unreadNotifications().length;
-    badge.textContent = n > 9 ? '9+' : String(n);
-    badge.classList.toggle('show', n > 0);
-  }
-  if (!$('notif-menu')?.hasAttribute('hidden')) renderNotifications();
+function openCompose(prefill={}){
+  composeFiles=[]; const clients=[...allClients].sort((a,b)=>clientDisplayName(a).localeCompare(clientDisplayName(b)));
+  showModal(`<div class="modal-hdr"><span class="modal-title">${prefill.isReply?'Reply':'New Email'}</span><button class="modal-close" onclick="closeModal()">x</button></div><div class="modal-body comm-compose-modal"><input type="hidden" id="comm-compose-draft-id" value="${esc(prefill.draftId || '')}"><div class="modal-field full"><label>Client</label><select id="mail-compose-client"><option value="">None / ad-hoc</option>${clients.map(c => `<option value="${esc(c.id)}"${prefill.clientId===c.id?' selected':''}>${esc(clientDisplayName(c))}</option>`).join('')}</select></div><div class="modal-field full"><label>To</label><input id="mail-compose-to" type="email" value="${esc(prefill.to || '')}" placeholder="client@email.com"></div><div class="modal-field"><label>CC</label><input id="mail-compose-cc" value="${esc(prefill.cc || '')}" placeholder="name@email.com"></div><div class="modal-field"><label>BCC</label><input id="mail-compose-bcc" value="${esc(prefill.bcc || '')}" placeholder="name@email.com"></div><div class="modal-field full"><label>Subject</label><input id="mail-compose-subject" value="${esc(prefill.subject || '')}" placeholder="Subject line"></div><div class="modal-field full"><label>Message</label><div class="rich-toolbar"><button type="button" data-mail-format="bold">B</button><button type="button" data-mail-format="italic">I</button><button type="button" data-mail-format="underline">U</button><button type="button" data-mail-format="insertUnorderedList">List</button></div><div class="rich-editor" id="mail-compose-body" contenteditable="true" data-placeholder="Write your message...">${prefill.bodyHtml || nl2br(prefill.body || '')}</div></div><div class="modal-field full"><label>Attachments</label><input id="comm-compose-files" type="file" multiple><div class="compose-file-list" id="comm-compose-file-list"><span class="td-dim">No files selected.</span></div></div><p class="mail-compose-feedback" id="mail-compose-feedback"></p></div><div class="modal-foot"><button class="btn-ghost" type="button" id="comm-save-draft">Save Draft</button><div class="modal-foot-right"><button class="btn-ghost" onclick="closeModal()">Cancel</button><button class="btn-add" type="button" id="comm-compose-send">Send Email</button></div></div>`);
+  $('modal-box').classList.add('wide'); setTimeout(()=>($('mail-compose-to')?.value ? $('mail-compose-subject') : $('mail-compose-to'))?.focus(),80);
 }
-
-function notifIcon(status) {
-  return status === 'failed'
-    ? `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>`
-    : `<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>`;
+function openDraft(id){ const d=draftById(id); if (d) { selectedMessageId=`draft:${id}`; openCompose({ ...d, draftId:id }); } }
+function onComposeClientChange(){ const client=clientById($('mail-compose-client')?.value || ''); const to=$('mail-compose-to'); if (client && to && !to.value.trim()) to.value=clientRecipientEmail(client); }
+function composePayload(){ const bodyEl=$('mail-compose-body'); return { draftId:$('comm-compose-draft-id')?.value || '', clientId:$('mail-compose-client')?.value || null, to:($('mail-compose-to')?.value || '').trim(), cc:($('mail-compose-cc')?.value || '').trim(), bcc:($('mail-compose-bcc')?.value || '').trim(), subject:($('mail-compose-subject')?.value || '').trim(), bodyHtml:bodyEl?.innerHTML || '', body:stripHTML(bodyEl?.innerHTML || '') }; }
+function composeFeedback(text, ok=false){ const el=$('mail-compose-feedback'); if (el) { el.style.color=ok?'var(--emerald-l)':'var(--err)'; el.textContent=text; } }
+function saveComposeDraft(close=true){ const p=composePayload(); if (!p.to && !p.subject && !p.body) { composeFeedback('Add a recipient, subject, or message before saving.'); return; } const now=new Date().toISOString(); const existing=p.draftId?draftById(p.draftId):null; if (existing) Object.assign(existing,p,{updatedAt:now}); else commState.drafts.unshift({ ...p, id:commId('draft'), createdAt:now, updatedAt:now }); saveCommState(); if (close) closeModal(); toast('Draft saved.'); renderMessages(); }
+function deleteDraft(id){ commState.drafts=commState.drafts.filter(d => String(d.id)!==String(id)); saveCommState(); if (selectedMessageId===`draft:${id}`) selectedMessageId=null; renderMessages(); }
+function renderComposeFiles(){ const list=$('comm-compose-file-list'); if (!list) return; list.innerHTML=composeFiles.length?composeFiles.map((f,i)=>`<span class="compose-file-chip">${esc(f.name)} <button type="button" data-compose-file-remove="${i}">x</button></span>`).join(''):'<span class="td-dim">No files selected.</span>'; }
+function safeFileName(name='attachment'){ return String(name).replace(/[^a-z0-9._-]+/gi,'-').replace(/-+/g,'-').slice(0,120); }
+async function uploadComposeAttachments(){ if (!composeFiles.length) return []; const uploaded=[]; for (const file of composeFiles.slice(0,10)) { const path=`${todayStr()}/${commId('att')}-${safeFileName(file.name)}`; const { error } = await sb.storage.from('message-attachments').upload(path, file, { upsert:true }); if (error) throw new Error('Attachment upload failed. Apply migration 020 and confirm the private bucket exists.'); uploaded.push({ name:file.name, filename:file.name, size:file.size, type:file.type, path, category:attachmentCategory({ name:file.name }) }); } return uploaded; }
+async function sendComposed(){
+  const btn=$('comm-compose-send'); const p=composePayload(); if (!p.to) { composeFeedback('Add a recipient email address.'); return; } if (!p.subject) { composeFeedback('Add a subject line.'); return; } if (!p.body) { composeFeedback('Write a message before sending.'); return; }
+  btnLoad(btn,true,'Sending...'); composeFeedback(''); let attachments=[]; try { attachments=await uploadComposeAttachments(); } catch (err) { btnLoad(btn,false); composeFeedback(err.message); return; }
+  let status='sent', errorText=null; try { const res=await fetch('/api/send-message',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ to:p.to, cc:p.cc, bcc:p.bcc, subject:p.subject, body:p.body, attachments }) }); if (!res.ok) { const fail=await res.json().catch(()=>({})); status='failed'; errorText=fail.error || `Send failed (${res.status})`; } } catch { status='failed'; errorText='Network error - message not sent.'; }
+  const row={ client_id:p.clientId || null, direction:'outbound', recipient_email:p.to, subject:p.subject, body:p.body, status, error:errorText };
+  let insert=await sb.from('messages').insert(attachments.length ? { ...row, attachments } : row); if (insert.error && attachments.length && isSchemaError(insert.error)) insert=await sb.from('messages').insert(row);
+  btnLoad(btn,false); if (status==='failed') { composeFeedback(errorText || 'Message could not be sent.'); return; } if (insert.error) toast('Email sent, but it could not be saved to history.'); if (p.draftId) deleteDraft(p.draftId); closeModal(); toast('Email sent.'); await loadMessages(); commActiveTab='inbox'; mailFolder='all'; selectedMessageId=allMessages[0]?.id || null; renderMessages();
 }
+function replyToMessage(id){ const m=messageById(id); if (!m) return; const subject=/^re:/i.test(m.subject || '') ? m.subject : `Re: ${m.subject || ''}`; openCompose({ to:messageEmail(m), subject, clientId:m.client_id || null, body:`\n\nOn ${fmtDateLong(String(messageDate(m)).split('T')[0])}, ${messageClientName(m)} wrote:\n${m.body || ''}`, isReply:true }); }
 
-function renderNotifications() {
-  const menu = $('notif-menu');
-  if (!menu) return;
-  const unread = unreadNotifications().length;
-  const head = `
-    <div class="notif-head">
-      <span class="notif-head-title">Notifications</span>
-      <button class="notif-markread" id="notif-markread" type="button"${unread ? '' : ' disabled'}>Mark all read</button>
-    </div>`;
-  const recent = allMessages.slice(0, 10);
-  if (!recent.length) {
-    menu.innerHTML = head + `
-      <div class="notif-empty">
-        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <div class="notif-empty-title">You're all caught up</div>
-        <div class="notif-empty-sub">Message activity will appear here.</div>
-      </div>`;
-    return;
-  }
-  const items = recent.map(m => {
-    const name = messageClientName(m);
-    const inbound = (m.direction || 'outbound') === 'inbound';
-    const title = inbound ? `New message from ${name}`
-      : (m.status === 'failed' ? `Message failed to ${name}` : `Message sent to ${name}`);
-    const icon = inbound ? 'sent' : m.status;
-    return `
-      <button class="notif-item" type="button" data-id="${esc(m.id)}" data-dir="${esc(m.direction || 'outbound')}">
-        <span class="notif-dot ${esc(icon)}">${notifIcon(icon)}</span>
-        <span class="notif-body">
-          <span class="notif-title">${esc(title)}</span>
-          <span class="notif-sub">${esc(m.subject)}</span>
-          <span class="notif-time">${timeAgo(m.created_at)}</span>
-        </span>
-      </button>`;
-  }).join('');
-  menu.innerHTML = head + `<div class="notif-list">${items}</div>`;
-}
+function communicationContacts(){ const clients=allClients.map(c => ({ id:`client:${c.id}`, source:'client', clientId:c.id, fullName:c.full_name || clientDisplayName(c), company:c.company || '', position:c.position || '', email:c.email || c.company_email || '', phone:c.phone || c.company_phone || '', notes:c.notes || '', image:c.logo_url || '', favourite:Boolean(commState.contacts.find(x => x.clientId===c.id)?.favourite) })); return [...clients, ...commState.contacts.filter(c => !c.clientId)].sort((a,b)=>(b.favourite===true)-(a.favourite===true) || (a.fullName || '').localeCompare(b.fullName || '')); }
+function renderContacts(body){ const q=commContactSearch.toLowerCase(); const rows=communicationContacts().filter(c => !q || `${c.fullName} ${c.company} ${c.email} ${c.phone}`.toLowerCase().includes(q)); body.innerHTML=`<div class="comm-panel-head"><input class="search-input" id="comm-contact-search" placeholder="Search contacts..." value="${esc(commContactSearch)}"><button class="btn-add" type="button" id="comm-contact-new">New Contact</button></div><div class="comm-contact-grid">${rows.length?rows.map(contactCard).join(''):emptyComm('No contacts found','Create a contact or add a client to populate this workspace.')}</div>`; }
+function contactHistory(c){ const email=String(c.email || '').toLowerCase(); return allMessages.filter(m => (email && String(messageEmail(m)).toLowerCase()===email) || (c.clientId && m.client_id===c.clientId)); }
+function contactCard(c){ return `<article class="comm-contact-card"><button class="mail-icon-btn${c.favourite?' active':''}" type="button" data-contact-fav="${esc(c.id)}">*</button>${commAvatar(c.fullName || c.company, c.image)}<div class="comm-contact-name">${esc(c.fullName || c.company || 'Unnamed contact')}</div><div class="comm-contact-meta">${esc(c.position || 'Contact')}${c.company?' - '+esc(c.company):''}</div><div class="comm-contact-line">${esc(c.email || 'No email')}</div><div class="comm-contact-line">${esc(c.phone || 'No phone')}</div><div class="comm-contact-foot"><span>${contactHistory(c).length} interactions</span><button class="act-btn" type="button" data-contact-edit="${esc(c.id)}">Edit</button>${c.source==='client'?'':`<button class="act-btn delete" type="button" data-contact-delete="${esc(c.id)}">Delete</button>`}</div></article>`; }
+function openContactModal(id=''){ const existing=communicationContacts().find(c=>c.id===id) || {}; const localId=id.startsWith('local:')?id.replace('local:',''):id; showModal(`<div class="modal-hdr"><span class="modal-title">${id?'Edit Contact':'New Contact'}</span><button class="modal-close" onclick="closeModal()">x</button></div><div class="modal-body"><input type="hidden" id="comm-contact-id" value="${esc(localId)}"><div class="modal-field full"><label>Full Name</label><input id="comm-contact-name" value="${esc(existing.fullName || '')}"></div><div class="modal-field"><label>Company</label><input id="comm-contact-company" value="${esc(existing.company || '')}"></div><div class="modal-field"><label>Position</label><input id="comm-contact-position" value="${esc(existing.position || '')}"></div><div class="modal-field"><label>Email</label><input id="comm-contact-email" type="email" value="${esc(existing.email || '')}"></div><div class="modal-field"><label>Phone</label><input id="comm-contact-phone" value="${esc(existing.phone || '')}"></div><div class="modal-field full"><label>Notes</label><textarea id="comm-contact-notes">${esc(existing.notes || '')}</textarea></div></div><div class="modal-foot"><button class="btn-ghost" onclick="closeModal()">Cancel</button><button class="btn-add" type="button" id="comm-contact-save">Save Contact</button></div>`); }
+function saveContact(){ const id=$('comm-contact-id')?.value || commId('local'); const payload={ id, source:'local', fullName:$('comm-contact-name')?.value.trim() || '', company:$('comm-contact-company')?.value.trim() || '', position:$('comm-contact-position')?.value.trim() || '', email:$('comm-contact-email')?.value.trim() || '', phone:$('comm-contact-phone')?.value.trim() || '', notes:$('comm-contact-notes')?.value.trim() || '', favourite:Boolean(commState.contacts.find(c=>c.id===id)?.favourite) }; if (!payload.fullName && !payload.company) { toast('Add a contact name or company.'); return; } const i=commState.contacts.findIndex(c=>c.id===id); if (i>=0) commState.contacts[i]=payload; else commState.contacts.unshift(payload); saveCommState(); closeModal(); renderMessages(); }
+function toggleContactFav(id){ if (id.startsWith('client:')) { const clientId=id.replace('client:',''); let row=commState.contacts.find(c=>c.clientId===clientId); if (!row) { row={ id:commId('local'), source:'local', clientId, favourite:true }; commState.contacts.push(row); } else row.favourite=!row.favourite; } else { const row=commState.contacts.find(c=>c.id===id.replace('local:','')); if (row) row.favourite=!row.favourite; } saveCommState(); renderMessages(); }
+function deleteContact(id){ commState.contacts=commState.contacts.filter(c=>c.id!==id.replace('local:','')); saveCommState(); renderMessages(); }
 
-function toggleNotifications(force) {
-  const menu = $('notif-menu');
-  const trigger = $('notif-trigger');
-  if (!menu || !trigger) return;
-  const open = force === undefined ? menu.hasAttribute('hidden') : force;
-  if (open) {
-    renderNotifications();
-    menu.removeAttribute('hidden');
-    trigger.setAttribute('aria-expanded', 'true');
-  } else {
-    menu.setAttribute('hidden', '');
-    trigger.setAttribute('aria-expanded', 'false');
-  }
-}
+function renderAttachments(body){ let files=allAttachments(); const q=commAttachmentSearch.toLowerCase(); if (q) files=files.filter(f => `${f.name || f.filename} ${f.subject} ${f.clientName}`.toLowerCase().includes(q)); if (commAttachmentCategory!=='all') files=files.filter(f=>f.category===commAttachmentCategory); files.sort((a,b)=>commAttachmentSort==='type'?String(a.type||a.name||'').localeCompare(String(b.type||b.name||'')):new Date(b.date||0)-new Date(a.date||0)); body.innerHTML=`<div class="comm-panel-head"><input class="search-input" id="comm-attachment-search" placeholder="Search attachments..." value="${esc(commAttachmentSearch)}"><select class="client-filter" id="comm-attachment-category"><option value="all">All categories</option>${COMM_ATTACHMENT_CATEGORIES.map(c=>`<option value="${c}"${commAttachmentCategory===c?' selected':''}>${c}</option>`).join('')}</select><select class="client-filter" id="comm-attachment-sort"><option value="date"${commAttachmentSort==='date'?' selected':''}>Sort by date</option><option value="type"${commAttachmentSort==='type'?' selected':''}>Sort by type</option></select></div><div class="attachment-grid">${files.length?files.map(attachmentCard).join(''):emptyComm('No attachments yet','Email attachments will be organized here after messages are sent or synced.')}</div>`; }
+function attachmentCard(f){ const name=f.name || f.filename || 'Attachment'; return `<article class="attachment-card"><div class="attachment-preview">${esc(name.split('.').pop() || 'FILE')}</div><div class="attachment-title">${esc(name)}</div><div class="attachment-meta">${esc(f.category)} - ${esc(f.clientName || 'No client')}</div><div class="attachment-meta">${compactDate(String(f.date || '').split('T')[0])}</div><div class="attachment-actions"><button class="act-btn" type="button" data-attachment-preview="${esc(f.path || '')}">Preview</button><button class="act-btn" type="button" data-attachment-download="${esc(f.path || '')}">Download</button></div></article>`; }
+async function signedAttachmentUrl(path){ if (!path) return ''; const { data, error }=await sb.storage.from('message-attachments').createSignedUrl(path, 3600); if (error) { toast('Could not open attachment.'); return ''; } return data?.signedUrl || ''; }
+async function previewAttachment(path){ const url=await signedAttachmentUrl(path); if (!url) return; showModal(`<div class="modal-hdr"><span class="modal-title">Attachment Preview</span><button class="modal-close" onclick="closeModal()">x</button></div><div class="modal-body attachment-preview-modal"><iframe src="${esc(url)}" title="Attachment preview"></iframe></div>`); $('modal-box').classList.add('wide'); }
+async function downloadAttachment(path){ const url=await signedAttachmentUrl(path); if (url) window.open(url,'_blank','noopener'); }
 
-function notifMarkAllRead() {
-  setNotifSeen();
-  refreshNotifications();
-}
+function renderTemplates(body){ const q=commTemplateSearch.toLowerCase(); const rows=commState.templates.filter(t=>!q || `${t.title} ${t.category} ${t.subject}`.toLowerCase().includes(q)); body.innerHTML=`<div class="comm-panel-head"><input class="search-input" id="comm-template-search" placeholder="Search templates..." value="${esc(commTemplateSearch)}"><button class="btn-add" type="button" id="comm-template-new">New Template</button></div><div class="template-grid">${rows.map(templateCard).join('')}</div>`; }
+function templateCard(t){ return `<article class="template-card"><div class="template-kicker">${esc(t.category || 'General')}</div><div class="template-title">${esc(t.title)}</div><div class="template-subject">${esc(t.subject)}</div><p>${esc(previewText(t.body))}</p><div class="template-actions"><button class="act-btn" type="button" data-template-use="${esc(t.id)}">Quick Insert</button><button class="act-btn" type="button" data-template-edit="${esc(t.id)}">Edit</button><button class="act-btn" type="button" data-template-duplicate="${esc(t.id)}">Duplicate</button>${t.system?'':`<button class="act-btn delete" type="button" data-template-delete="${esc(t.id)}">Delete</button>`}</div></article>`; }
+function openTemplateModal(id=''){ const t=commState.templates.find(row=>row.id===id) || {}; showModal(`<div class="modal-hdr"><span class="modal-title">${id?'Edit Template':'New Template'}</span><button class="modal-close" onclick="closeModal()">x</button></div><div class="modal-body"><input type="hidden" id="comm-template-id" value="${esc(id)}"><div class="modal-field"><label>Template Name</label><input id="comm-template-title" value="${esc(t.title || '')}"></div><div class="modal-field"><label>Category</label><input id="comm-template-category" value="${esc(t.category || 'General')}"></div><div class="modal-field full"><label>Subject</label><input id="comm-template-subject" value="${esc(t.subject || '')}"></div><div class="modal-field full"><label>Body</label><textarea id="comm-template-body" rows="9">${esc(t.body || '')}</textarea></div></div><div class="modal-foot"><button class="btn-ghost" onclick="closeModal()">Cancel</button><button class="btn-add" type="button" id="comm-template-save">Save Template</button></div>`); }
+function saveTemplate(){ const id=$('comm-template-id')?.value || commId('tpl'); const payload={ id, title:$('comm-template-title')?.value.trim() || 'Untitled Template', category:$('comm-template-category')?.value.trim() || 'General', subject:$('comm-template-subject')?.value.trim() || '', body:$('comm-template-body')?.value || '', system:Boolean(commState.templates.find(t=>t.id===id)?.system) }; const i=commState.templates.findIndex(t=>t.id===id); if (i>=0) commState.templates[i]=payload; else commState.templates.unshift(payload); saveCommState(); closeModal(); renderMessages(); }
+function duplicateTemplate(id){ const t=commState.templates.find(row=>row.id===id); if (!t) return; commState.templates.unshift({ ...t, id:commId('tpl'), title:`${t.title} Copy`, system:false }); saveCommState(); renderMessages(); }
+function useTemplate(id){ const t=commState.templates.find(row=>row.id===id); if (!t) return; openCompose({ subject:t.subject, body:String(t.body || '').replace(/{{company}}/g,'Client') }); }
+function deleteTemplate(id){ commState.templates=commState.templates.filter(t=>t.id!==id || t.system); saveCommState(); renderMessages(); }
 
-function openMessageFromNotif(id, dir) {
-  switchPage('messages');
-  mailFolder = dir === 'inbound' ? 'inbox' : 'sent';
-  selectedMessageId = id;
-  mailComposing = false;
-  renderMessages();
-}
+function renderTasks(body){ const q=commTaskSearch.toLowerCase(); const tasks=commState.tasks.filter(t=>!q || `${t.title} ${t.notes} ${t.priority}`.toLowerCase().includes(q)); body.innerHTML=`<div class="comm-panel-head"><input class="search-input" id="comm-task-search" placeholder="Search tasks..." value="${esc(commTaskSearch)}"><button class="btn-add" type="button" id="comm-task-new">New Task</button></div><div class="comm-task-board">${COMM_TASK_STATUSES.map(([v,l])=>taskColumn(v,l,tasks.filter(t=>(t.status||'todo')===v))).join('')}</div>`; }
+function taskColumn(status,label,tasks){ return `<section class="comm-task-col" data-task-status="${status}"><div class="comm-task-head"><span>${label}</span><small>${tasks.length}</small></div><div class="comm-task-list">${tasks.length?tasks.map(taskCard).join(''):'<p class="pipeline-empty">No tasks</p>'}</div></section>`; }
+function taskCard(t){ const linked=t.emailId?messageById(t.emailId):null; return `<article class="comm-task-card" draggable="true" data-task-id="${esc(t.id)}"><div class="comm-task-title">${esc(t.title || 'Untitled task')}</div><div class="comm-task-meta">${esc(t.priority || 'Medium')}${t.dueDate?' - Due '+compactDate(t.dueDate):''}</div>${linked?`<div class="comm-task-link">${esc(linked.subject || 'Linked email')}</div>`:''}<div class="template-actions"><button class="act-btn" type="button" data-task-edit="${esc(t.id)}">Edit</button><button class="act-btn delete" type="button" data-task-delete="${esc(t.id)}">Delete</button></div></article>`; }
+function openTaskModal(id='', emailId=''){ const t=commState.tasks.find(row=>row.id===id) || { status:'todo', priority:'Medium', emailId }; const emailOptions=allMessages.slice(0,40).map(m=>`<option value="${esc(m.id)}"${String(t.emailId||'')===String(m.id)?' selected':''}>${esc(m.subject || 'No subject')}</option>`).join(''); showModal(`<div class="modal-hdr"><span class="modal-title">${id?'Edit Task':'New Task'}</span><button class="modal-close" onclick="closeModal()">x</button></div><div class="modal-body"><input type="hidden" id="comm-task-id" value="${esc(id)}"><div class="modal-field full"><label>Task Title</label><input id="comm-task-title" value="${esc(t.title || '')}"></div><div class="modal-field"><label>Status</label><select id="comm-task-status">${COMM_TASK_STATUSES.map(([v,l])=>`<option value="${v}"${(t.status||'todo')===v?' selected':''}>${l}</option>`).join('')}</select></div><div class="modal-field"><label>Priority</label><select id="comm-task-priority">${COMM_PRIORITIES.map(p=>`<option value="${p}"${(t.priority||'Medium')===p?' selected':''}>${p}</option>`).join('')}</select></div><div class="modal-field"><label>Due Date</label><input type="date" id="comm-task-due" value="${esc(t.dueDate || '')}"></div><div class="modal-field"><label>Linked Email</label><select id="comm-task-email"><option value="">None</option>${emailOptions}</select></div><div class="modal-field full"><label>Notes</label><textarea id="comm-task-notes">${esc(t.notes || '')}</textarea></div></div><div class="modal-foot"><button class="btn-ghost" onclick="closeModal()">Cancel</button><button class="btn-add" type="button" id="comm-task-save">Save Task</button></div>`); }
+function saveTask(){ const id=$('comm-task-id')?.value || commId('task'); const payload={ id, title:$('comm-task-title')?.value.trim() || 'Untitled task', status:$('comm-task-status')?.value || 'todo', priority:$('comm-task-priority')?.value || 'Medium', dueDate:$('comm-task-due')?.value || '', emailId:$('comm-task-email')?.value || '', notes:$('comm-task-notes')?.value.trim() || '', updatedAt:new Date().toISOString() }; const i=commState.tasks.findIndex(t=>t.id===id); if (i>=0) commState.tasks[i]=payload; else commState.tasks.unshift(payload); saveCommState(); closeModal(); renderMessages(); }
+function deleteTask(id){ commState.tasks=commState.tasks.filter(t=>t.id!==id); saveCommState(); renderMessages(); }
+function moveTask(id,status){ const t=commState.tasks.find(row=>row.id===id); if (!t) return; t.status=status; t.updatedAt=new Date().toISOString(); saveCommState(); renderMessages(); }
 
-/* ── Wiring (static elements always present) ── */
-$('mail-compose-btn')?.addEventListener('click', () => openCompose());
-$('page-messages')?.querySelector('.mail-folders')?.addEventListener('click', e => {
-  const folderBtn = e.target.closest('.mail-folder');
-  if (folderBtn) selectFolder(folderBtn.dataset.folder);
+function renderSettings(body){ const storage=allAttachments().reduce((sum,f)=>sum+(Number(f.size)||0),0); body.innerHTML=`<div class="settings-grid"><section class="settings-panel"><div class="mini-panel-title">Connected Accounts</div><div class="settings-list">${commState.settings.connectedAccounts.length?commState.settings.connectedAccounts.map(a=>`<div class="settings-row"><span>${esc(a.email)}</span><small>${esc(a.provider || 'Email')}</small></div>`).join(''):'<p class="td-dim">No accounts saved in this browser.</p>'}</div><div class="settings-inline"><input class="f-input" id="comm-account-email" placeholder="name@company.com"><input class="f-input" id="comm-account-provider" placeholder="Provider"><button class="btn-add" type="button" id="comm-account-add">Add</button></div></section><section class="settings-panel"><div class="mini-panel-title">Signature Management</div><textarea class="settings-textarea" id="comm-signature">${esc(commState.settings.signature || '')}</textarea><button class="btn-add" type="button" id="comm-signature-save">Save Signature</button></section><section class="settings-panel"><div class="mini-panel-title">Label Management</div><div class="label-list">${labels().map(l=>`<span class="comm-tag">${esc(l)}${COMM_LABELS.includes(l)?'':` <button type="button" data-label-delete="${esc(l)}">x</button>`}</span>`).join('')}</div><div class="settings-inline"><input class="f-input" id="comm-label-new" placeholder="New label"><button class="btn-add" type="button" id="comm-label-add">Add Label</button></div></section><section class="settings-panel"><div class="mini-panel-title">Storage Management</div><div class="storage-meter"><span style="width:${Math.min(100, storage / (commState.settings.storageLimitMb * 1024 * 1024) * 100)}%"></span></div><p class="td-dim">${(storage/1024/1024).toFixed(1)} MB used of ${commState.settings.storageLimitMb} MB tracked.</p></section><section class="settings-panel"><div class="mini-panel-title">Notification Preferences</div>${Object.entries(commState.settings.notifications || {}).map(([k,v])=>`<label class="settings-check"><input type="checkbox" data-notification-pref="${esc(k)}"${v?' checked':''}> ${esc(k.replace(/_/g,' '))}</label>`).join('')}</section></div>`; }
+function addEmailAccount(){ const email=$('comm-account-email')?.value.trim(); const provider=$('comm-account-provider')?.value.trim(); if (!email) { toast('Add an email address.'); return; } commState.settings.connectedAccounts.push({ id:commId('acct'), email, provider, createdAt:new Date().toISOString() }); saveCommState(); renderMessages(); }
+function saveSignatureSetting(){ commState.settings.signature=$('comm-signature')?.value || ''; saveCommState(); toast('Communication signature saved.'); }
+function addLabel(){ const label=$('comm-label-new')?.value.trim(); if (!label) return; commState.settings.labels=Array.from(new Set([...(commState.settings.labels || []), label])); saveCommState(); renderMessages(); }
+function deleteLabel(label){ commState.settings.labels=(commState.settings.labels || []).filter(l=>l!==label); Object.values(commState.messageMeta).forEach(meta=>{ if (meta.label===label) delete meta.label; }); saveCommState(); renderMessages(); }
+
+async function syncInbox(btn){ const { data:{ session } }=await sb.auth.getSession(); const token=session?.access_token; if (!token) { toast('Please sign in again to sync.'); return; } if (btn) btnLoad(btn,true,'Syncing...'); try { const res=await fetch('/api/sync-inbox',{ method:'POST', headers:{ Authorization:`Bearer ${token}` } }); const data=await res.json().catch(()=>({})); if (!res.ok) toast(data.error || 'Inbox sync failed.'); else if (data.new>0) { toast(`${data.new} new message${data.new===1?'':'s'}.`); await loadMessages(); } else toast('Inbox is up to date.'); } catch { toast('Network error during sync.'); } if (btn) btnLoad(btn,false); }
+function notifSeenAt(){ try { return localStorage.getItem(NOTIF_SEEN_KEY) || ''; } catch { return ''; } }
+function setNotifSeen(){ try { localStorage.setItem(NOTIF_SEEN_KEY, new Date().toISOString()); } catch {} }
+function unreadNotifications(){ const seen=notifSeenAt(); return allMessages.filter(m => !seen || m.created_at > seen); }
+function refreshNotifications(){ const badge=$('notif-badge'); if (badge) { const n=unreadNotifications().length; badge.textContent=n>9?'9+':String(n); badge.classList.toggle('show', n>0); } if (!$('notif-menu')?.hasAttribute('hidden')) renderNotifications(); }
+function notifIcon(status){ return status==='failed' ? `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>` : `<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>`; }
+function renderNotifications(){ const menu=$('notif-menu'); if (!menu) return; const unread=unreadNotifications().length; const head=`<div class="notif-head"><span class="notif-head-title">Notifications</span><button class="notif-markread" id="notif-markread" type="button"${unread?'':' disabled'}>Mark all read</button></div>`; const recent=allMessages.slice(0,10); if (!recent.length) { menu.innerHTML=head+`<div class="notif-empty"><div class="notif-empty-title">You're all caught up</div><div class="notif-empty-sub">Communication activity will appear here.</div></div>`; return; } menu.innerHTML=head+`<div class="notif-list">${recent.map(m=>{ const name=messageClientName(m); const inbound=(m.direction||'outbound')==='inbound'; const title=inbound?`New message from ${name}`:(m.status==='failed'?`Message failed to ${name}`:`Message sent to ${name}`); const icon=inbound?'sent':m.status; return `<button class="notif-item" type="button" data-id="${esc(m.id)}"><span class="notif-dot ${esc(icon)}">${notifIcon(icon)}</span><span class="notif-body"><span class="notif-title">${esc(title)}</span><span class="notif-sub">${esc(m.subject)}</span><span class="notif-time">${timeAgo(m.created_at)}</span></span></button>`; }).join('')}</div>`; }
+function toggleNotifications(force){ const menu=$('notif-menu'); const trigger=$('notif-trigger'); if (!menu || !trigger) return; const open=force===undefined?menu.hasAttribute('hidden'):force; if (open) { renderNotifications(); menu.removeAttribute('hidden'); trigger.setAttribute('aria-expanded','true'); } else { menu.setAttribute('hidden',''); trigger.setAttribute('aria-expanded','false'); } }
+function notifMarkAllRead(){ setNotifSeen(); refreshNotifications(); }
+function openMessageFromNotif(id){ switchPage('messages'); commActiveTab='inbox'; mailFolder='all'; selectedMessageId=id; renderMessages(); }
+
+$('page-messages')?.addEventListener('click', e => {
+  const tab=e.target.closest('[data-comm-tab]'); if (tab) { commActiveTab=tab.dataset.commTab; selectedMessageId=null; mailSelection.clear(); renderMessages(); return; }
+  if (e.target.closest('#mail-compose-btn')) { openCompose(); return; }
+  if (e.target.closest('#comm-refresh-btn')) { syncInbox(e.target.closest('#comm-refresh-btn')); return; }
+  const folder=e.target.closest('[data-folder]'); if (folder) { selectFolder(folder.dataset.folder); return; }
+  const labelChip=e.target.closest('[data-mail-label-chip]'); if (labelChip) { mailLabelFilter=labelChip.dataset.mailLabelChip; renderMessages(); return; }
+  const open=e.target.closest('[data-mail-open]'); if (open) { selectMessage(open.dataset.mailOpen); return; }
+  const draftOpen=e.target.closest('[data-draft-open]'); if (draftOpen) { openDraft(draftOpen.dataset.draftOpen); return; }
+  const draftDelete=e.target.closest('[data-draft-delete]'); if (draftDelete) { deleteDraft(draftDelete.dataset.draftDelete); return; }
+  const star=e.target.closest('[data-mail-star]'); if (star) { const id=star.dataset.mailStar; setMailMeta(id,{ starred:!metaFor(id).starred }); return; }
+  const pin=e.target.closest('[data-mail-pin]'); if (pin) { const id=pin.dataset.mailPin; setMailMeta(id,{ pinned:!metaFor(id).pinned }); return; }
+  const reply=e.target.closest('[data-mail-reply]'); if (reply) { replyToMessage(reply.dataset.mailReply); return; }
+  const archive=e.target.closest('[data-mail-archive]'); if (archive) { const id=archive.dataset.mailArchive; archiveMessages([id], !metaFor(id).archived); return; }
+  const taskMail=e.target.closest('[data-mail-task]'); if (taskMail) { openTaskModal('', taskMail.dataset.mailTask); return; }
+  const bulk=e.target.closest('[data-mail-bulk]'); if (bulk) { const ids=[...mailSelection]; if (bulk.dataset.mailBulk==='read') markMessages(ids,true); if (bulk.dataset.mailBulk==='unread') markMessages(ids,false); if (bulk.dataset.mailBulk==='archive') archiveMessages(ids,true); if (bulk.dataset.mailBulk==='important') flagMessages(ids); if (bulk.dataset.mailBulk==='clear') { mailSelection.clear(); renderMessages(); } return; }
+  if (e.target.closest('#comm-contact-new')) { openContactModal(); return; }
+  const contactEdit=e.target.closest('[data-contact-edit]'); if (contactEdit) { openContactModal(contactEdit.dataset.contactEdit); return; }
+  const contactFav=e.target.closest('[data-contact-fav]'); if (contactFav) { toggleContactFav(contactFav.dataset.contactFav); return; }
+  const contactDelete=e.target.closest('[data-contact-delete]'); if (contactDelete) { deleteContact(contactDelete.dataset.contactDelete); return; }
+  if (e.target.closest('#comm-template-new')) { openTemplateModal(); return; }
+  const templateUse=e.target.closest('[data-template-use]'); if (templateUse) { useTemplate(templateUse.dataset.templateUse); return; }
+  const templateEdit=e.target.closest('[data-template-edit]'); if (templateEdit) { openTemplateModal(templateEdit.dataset.templateEdit); return; }
+  const templateDuplicate=e.target.closest('[data-template-duplicate]'); if (templateDuplicate) { duplicateTemplate(templateDuplicate.dataset.templateDuplicate); return; }
+  const templateDelete=e.target.closest('[data-template-delete]'); if (templateDelete) { deleteTemplate(templateDelete.dataset.templateDelete); return; }
+  if (e.target.closest('#comm-task-new')) { openTaskModal(); return; }
+  const taskEdit=e.target.closest('[data-task-edit]'); if (taskEdit) { openTaskModal(taskEdit.dataset.taskEdit); return; }
+  const taskDelete=e.target.closest('[data-task-delete]'); if (taskDelete) { deleteTask(taskDelete.dataset.taskDelete); return; }
+  const preview=e.target.closest('[data-attachment-preview]'); if (preview) { previewAttachment(preview.dataset.attachmentPreview); return; }
+  const download=e.target.closest('[data-attachment-download]'); if (download) { downloadAttachment(download.dataset.attachmentDownload); return; }
+  if (e.target.closest('#comm-account-add')) { addEmailAccount(); return; }
+  if (e.target.closest('#comm-signature-save')) { saveSignatureSetting(); return; }
+  if (e.target.closest('#comm-label-add')) { addLabel(); return; }
+  const labelDelete=e.target.closest('[data-label-delete]'); if (labelDelete) { deleteLabel(labelDelete.dataset.labelDelete); }
 });
-$('mail-list')?.addEventListener('click', e => {
-  const refresh = e.target.closest('#mail-refresh, #mail-refresh-empty');
-  if (refresh) { syncInbox(refresh); return; }
-  const item = e.target.closest('.mail-list-item');
-  if (item) selectMessage(item.dataset.id);
+$('page-messages')?.addEventListener('change', e => {
+  if (e.target.matches('[data-mail-select]')) { const id=e.target.dataset.mailSelect; if (e.target.checked) mailSelection.add(id); else mailSelection.delete(id); renderMessages(); return; }
+  if (e.target.id==='mail-label-filter') { mailLabelFilter=e.target.value; renderMessages(); return; }
+  if (e.target.id==='mail-priority-filter') { mailPriorityFilter=e.target.value; renderMessages(); return; }
+  if (e.target.matches('[data-mail-detail-label]')) { setMailMeta(e.target.dataset.mailDetailLabel,{ label:e.target.value }); return; }
+  if (e.target.matches('[data-mail-detail-priority]')) { setMailMeta(e.target.dataset.mailDetailPriority,{ priority:e.target.value }); return; }
+  if (e.target.id==='comm-attachment-category') { commAttachmentCategory=e.target.value; renderMessages(); return; }
+  if (e.target.id==='comm-attachment-sort') { commAttachmentSort=e.target.value; renderMessages(); return; }
 });
-$('mail-reading')?.addEventListener('click', e => {
-  if (e.target.closest('#mail-send'))   { sendComposed(); return; }
-  if (e.target.closest('#mail-cancel')) { cancelCompose(); return; }
-  if (e.target.closest('#mail-reply'))  { replyToSelected(); return; }
-});
-$('mail-reading')?.addEventListener('change', e => {
-  if (e.target.id === 'mail-compose-client') onComposeClientChange();
-});
+$('page-messages')?.addEventListener('input', e => { if (e.target.id==='mail-search') { mailSearch=e.target.value; renderMessages(); } if (e.target.id==='comm-contact-search') { commContactSearch=e.target.value; renderMessages(); } if (e.target.id==='comm-attachment-search') { commAttachmentSearch=e.target.value; renderMessages(); } if (e.target.id==='comm-template-search') { commTemplateSearch=e.target.value; renderMessages(); } if (e.target.id==='comm-task-search') { commTaskSearch=e.target.value; renderMessages(); } });
+$('page-messages')?.addEventListener('dragstart', e => { const card=e.target.closest('[data-task-id]'); if (card) e.dataTransfer.setData('text/plain', card.dataset.taskId); });
+$('page-messages')?.addEventListener('dragover', e => { const col=e.target.closest('[data-task-status]'); if (col) e.preventDefault(); });
+$('page-messages')?.addEventListener('drop', e => { const col=e.target.closest('[data-task-status]'); if (!col) return; e.preventDefault(); const id=e.dataTransfer.getData('text/plain'); if (id) moveTask(id, col.dataset.taskStatus); });
 
-$('notif-trigger')?.addEventListener('click', e => { e.stopPropagation(); toggleNotifications(); });
-$('notif-menu')?.addEventListener('click', e => {
-  if (e.target.closest('#notif-markread')) { notifMarkAllRead(); return; }
-  const item = e.target.closest('.notif-item');
-  if (item) {
-    toggleNotifications(false);
-    openMessageFromNotif(item.dataset.id, item.dataset.dir);
-  }
-});
 document.addEventListener('click', e => {
+  const format=e.target.closest('[data-mail-format]'); if (format) { e.preventDefault(); document.execCommand(format.dataset.mailFormat, false); $('mail-compose-body')?.focus(); return; }
+  if (e.target.closest('#comm-compose-send')) { sendComposed(); return; }
+  if (e.target.closest('#comm-save-draft')) { saveComposeDraft(true); return; }
+  if (e.target.closest('#comm-contact-save')) { saveContact(); return; }
+  if (e.target.closest('#comm-template-save')) { saveTemplate(); return; }
+  if (e.target.closest('#comm-task-save')) { saveTask(); return; }
+  const remove=e.target.closest('[data-compose-file-remove]'); if (remove) { composeFiles.splice(Number(remove.dataset.composeFileRemove),1); renderComposeFiles(); return; }
   if (!e.target.closest('#notif-wrap')) toggleNotifications(false);
 });
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') toggleNotifications(false);
-});
+document.addEventListener('change', e => { if (e.target.id==='mail-compose-client') onComposeClientChange(); if (e.target.id==='comm-compose-files') { composeFiles=[...e.target.files]; renderComposeFiles(); } if (e.target.matches('[data-notification-pref]')) { commState.settings.notifications[e.target.dataset.notificationPref]=e.target.checked; saveCommState(); } });
+$('notif-trigger')?.addEventListener('click', e => { e.stopPropagation(); toggleNotifications(); });
+$('notif-menu')?.addEventListener('click', e => { if (e.target.closest('#notif-markread')) { notifMarkAllRead(); return; } const item=e.target.closest('.notif-item'); if (item) { toggleNotifications(false); openMessageFromNotif(item.dataset.id); } });
+document.addEventListener('keydown', e => { if (e.key==='Escape') toggleNotifications(false); });
