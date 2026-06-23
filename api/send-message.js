@@ -12,9 +12,11 @@ module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') { res.status(200).end(); return; }
   if (req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed' }); return; }
 
-  const { to, subject, body, attachments, cc, bcc } = req.body || {};
+  const { to, subject, body, htmlBody, bodyHtml, attachments, cc, bcc } = req.body || {};
 
-  if (!to || !subject || !body) {
+  const suppliedHtml = String(htmlBody || bodyHtml || '').trim();
+
+  if (!to || !subject || (!body && !suppliedHtml)) {
     res.status(400).json({ error: 'Missing required fields: to, subject, body' });
     return;
   }
@@ -61,11 +63,12 @@ module.exports = async (req, res) => {
 
   const esc = v => String(v == null ? '' : v)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const htmlBody = `<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;color:#1a1a18;line-height:1.6">
-    <div style="font-size:18px;font-weight:700;letter-spacing:.02em;padding:0 0 14px;border-bottom:1px solid #e0dfd8;margin-bottom:20px">Oak &amp; Pixel Studio</div>
-    <div style="font-size:15px;white-space:pre-wrap">${esc(body)}</div>
-    <div style="margin-top:28px;padding-top:16px;border-top:1px solid #e0dfd8;font-size:12px;color:#6b6b64">Oak &amp; Pixel Studio &middot; info@oakandpixel.co.za</div>
+  const fallbackHtml = `<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:700px;margin:0 auto;color:#1a1a18;line-height:1.6">
+    <div style="font-size:15px;white-space:pre-wrap">${esc(body || '')}</div>
   </div>`;
+  const finalHtml = suppliedHtml
+    ? (/<!doctype html|<html[\s>]/i.test(suppliedHtml) ? suppliedHtml : `<!DOCTYPE html><html><body style="margin:0;padding:24px;background:#ffffff;">${suppliedHtml}</body></html>`)
+    : `<!DOCTYPE html><html><body style="margin:0;padding:24px;background:#ffffff;">${fallbackHtml}</body></html>`;
 
   let response;
   try {
@@ -81,7 +84,7 @@ module.exports = async (req, res) => {
         ...(ccList.length ? { cc: ccList } : {}),
         ...(bccList.length ? { bcc: bccList } : {}),
         subject,
-        html: htmlBody,
+        html: finalHtml,
         ...(resendAttachments && resendAttachments.length ? { attachments: resendAttachments } : {}),
       }),
     });

@@ -312,6 +312,109 @@ function compactDate(ds) {
   return ds ? fmtDate(ds) : '—';
 }
 
+function opsEmailSignatureHTML() {
+  return `<table data-ops-email-signature="true" role="presentation" cellpadding="0" cellspacing="0" border="0" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:700px;width:100%;background-color:#f3f3f2;border-collapse:collapse;color:#0a0a09;">
+  <tr>
+    <td style="padding:22px 14px 0 14px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+        <tr>
+          <td width="4" valign="top" style="background-color:#1a5c3a;border-radius:2px;font-size:0;line-height:0;">&nbsp;</td>
+          <td width="24" style="font-size:0;line-height:0;">&nbsp;</td>
+          <td width="74" valign="middle" style="padding-right:0;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;border-spacing:3px;">
+              <tr>
+                <td width="22" height="22" style="width:22px;height:22px;background-color:#2a2a27;border-radius:2px;font-size:0;line-height:0;">&nbsp;</td>
+                <td width="22" height="22" style="width:22px;height:22px;background-color:#1a5c3a;border-radius:2px;font-size:0;line-height:0;">&nbsp;</td>
+              </tr>
+              <tr>
+                <td width="22" height="22" style="width:22px;height:22px;background-color:#d4d1cb;border-radius:2px;font-size:0;line-height:0;">&nbsp;</td>
+                <td width="22" height="22" style="width:22px;height:22px;background-color:#0a0a09;border-radius:2px;font-size:0;line-height:0;">&nbsp;</td>
+              </tr>
+            </table>
+          </td>
+          <td valign="middle">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+              <tr>
+                <td style="font-size:19px;font-weight:700;color:#0a0a09;letter-spacing:0;line-height:1.1;padding-bottom:3px;">Neo Matime</td>
+              </tr>
+              <tr>
+                <td style="font-size:13px;color:#96938c;letter-spacing:.10em;text-transform:uppercase;line-height:1.35;padding-bottom:14px;">Founder &amp; Chief Executive Officer</td>
+              </tr>
+              <tr>
+                <td style="padding-bottom:12px;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+                    <tr>
+                      <td style="font-size:13px;font-weight:700;color:#0a0a09;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;">Oak &amp; Pixel</td>
+                      <td width="42" style="padding-left:110px;padding-right:46px;">
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                          <tr><td width="34" height="1" style="background-color:#1a5c3a;font-size:0;line-height:0;">&nbsp;</td></tr>
+                        </table>
+                      </td>
+                      <td style="font-size:13px;color:#96938c;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;">Premium Digital Studio</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+                    <tr>
+                      <td width="12" style="font-size:0;line-height:0;padding:0 8px 7px 0;"><span style="display:block;width:4px;height:13px;background-color:#1a5c3a;border-radius:1px;">&nbsp;</span></td>
+                      <td style="font-size:14px;color:#293536;line-height:1.4;padding-bottom:7px;"><a href="mailto:neo.matime@oakandpixel.co.za" style="color:#293536;text-decoration:none;">neo.matime@oakandpixel.co.za</a></td>
+                    </tr>
+                    <tr>
+                      <td width="12" style="font-size:0;line-height:0;padding:0 8px 7px 0;"><span style="display:block;width:4px;height:13px;background-color:#1a5c3a;border-radius:1px;">&nbsp;</span></td>
+                      <td style="font-size:14px;color:#293536;line-height:1.4;padding-bottom:7px;"><a href="tel:+27750890614" style="color:#293536;text-decoration:none;">+27 (75) 089 0614</a></td>
+                    </tr>
+                    <tr>
+                      <td width="12" style="font-size:0;line-height:0;padding:0 8px 0 0;"><span style="display:block;width:4px;height:13px;background-color:#1a5c3a;border-radius:1px;">&nbsp;</span></td>
+                      <td style="font-size:14px;line-height:1.4;"><a href="https://oakandpixel.co.za" style="color:#005f44;text-decoration:none;">https://oakandpixel.co.za</a></td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-top:20px;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+                    <tr>
+                      <td style="padding-right:22px;"><a href="https://www.linkedin.com/company/oakandpixel" style="font-size:13px;color:#96938c;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;">LinkedIn</a></td>
+                      <td style="font-size:12px;color:#b9b6af;padding-right:22px;">&middot;</td>
+                      <td style="padding-right:22px;"><a href="https://www.instagram.com/oakandpixel_" style="font-size:13px;color:#96938c;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;">Instagram</a></td>
+                      <td style="font-size:12px;color:#b9b6af;padding-right:22px;">&middot;</td>
+                      <td><a href="https://www.oakandpixel.co.za/#work" style="font-size:13px;color:#96938c;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;">Our Work</a></td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:27px 14px 0 14px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+        <tr><td height="1" style="height:1px;background-color:#1a5c3a;font-size:0;line-height:0;">&nbsp;</td></tr>
+      </table>
+    </td>
+  </tr>
+</table>`;
+}
+
+function appendOpsEmailSignature(html = '') {
+  const body = String(html || '').trim();
+  if (body.includes('data-ops-email-signature="true"')) return body;
+  const spacer = body ? '<div style="height:22px;line-height:22px;">&nbsp;</div>' : '';
+  return `${body}${spacer}${opsEmailSignatureHTML()}`;
+}
+
+function textWithoutOpsEmailSignature(html = '') {
+  const div = document.createElement('div');
+  div.innerHTML = String(html || '');
+  div.querySelectorAll('[data-ops-email-signature]').forEach(node => node.remove());
+  return (div.textContent || div.innerText || '').replace(/\u00a0/g, ' ').trim();
+}
 /* ── Toast ── */
 function money(v) {
   const amount = Math.max(0, Number(v) || 0);

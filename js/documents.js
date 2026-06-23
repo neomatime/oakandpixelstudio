@@ -542,7 +542,7 @@ function buildEmailHTML(docType, clientName, docNumber, customMessage, signingLi
   const msgHtml = customMessage ? `<p style="color:#3a3a35;font-size:.95rem;line-height:1.7;margin:0 0 1.25rem">${customMessage.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>')}</p>` : '';
   const sigSection = signingLink ? `<div style="background:#F7F6F3;border:1px solid #E0DFD8;padding:1.25rem;margin:1.5rem 0;text-align:center"><p style="color:#0A0A09;font-size:.85rem;margin:0 0 .9rem;font-family:Georgia,serif">Please sign this document electronically:</p><a href="${signingLink}" style="background:#1A5C3A;color:#fff;text-decoration:none;padding:.7rem 1.75rem;font-family:Georgia,serif;font-size:.9rem;display:inline-block;letter-spacing:.02em">Sign Document</a><p style="color:#aaa;font-size:.72rem;margin:.75rem 0 0;line-height:1.5">Valid for 30 days. If the button does not work: <span style="color:#B8955A">${signingLink}</span></p></div>` : '';
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#F0EFEC;font-family:Georgia,serif">
-<div style="max-width:580px;margin:2rem auto;background:#ffffff;border:1px solid #E0DFD8">
+<div style="max-width:760px;margin:2rem auto;background:#ffffff;border:1px solid #E0DFD8">
   <div style="background:#0A0A09;padding:1.25rem 2rem;display:flex;align-items:center;gap:.75rem">
     <img src="https://www.oakandpixel.co.za/images/oak-pixel-mark-hires-transparent.png" alt="Oak &amp; Pixel Studio" style="width:32px;height:32px;object-fit:contain">
     <span style="color:#1A5C3A;font-size:1.3rem;font-family:Georgia,serif;font-weight:bold">Oak &amp; Pixel</span>
@@ -557,13 +557,10 @@ function buildEmailHTML(docType, clientName, docNumber, customMessage, signingLi
     ${msgHtml}
     ${sigSection}
     <p style="color:#3a3a35;font-size:.95rem;line-height:1.7;margin:0 0 1.75rem">Should you have any questions, please don't hesitate to reach out.</p>
-    <p style="color:#0A0A09;font-size:.93rem;margin:0">Warm regards,</p>
-    <p style="color:#0A0A09;font-size:.93rem;font-weight:bold;margin:.2rem 0 .1rem">Neo Matime</p>
-    <p style="color:#6b6b64;font-size:.8rem;margin:0">Oak &amp; Pixel Studio</p>
-    <a href="mailto:info@oakandpixel.co.za" style="color:#B8955A;font-size:.8rem;text-decoration:none">info@oakandpixel.co.za</a>
+    <div style="margin-top:1.75rem">${opsEmailSignatureHTML()}</div>
   </div>
   <div style="border-top:1px solid #E0DFD8;padding:.7rem 2rem;background:#F9F8F6">
-    <p style="color:#9B9B94;font-size:.7rem;margin:0">Oak &amp; Pixel Studio · Digital presence and business systems for service businesses.</p>
+    <p style="color:#9B9B94;font-size:.7rem;margin:0">Oak &amp; Pixel Studio &middot; Digital presence and business systems for service businesses.</p>
   </div>
 </div></body></html>`;
 }
