@@ -75,11 +75,12 @@ function renderMailList() {
   const list = $('mail-list');
   if (!list) return;
   const rows = folderMessages();
+  const bar = mailFolder === 'inbox' ? mailRefreshBar() : '';
   if (!rows.length) {
-    list.innerHTML = mailListEmpty();
+    list.innerHTML = bar + mailListEmpty();
     return;
   }
-  list.innerHTML = rows.map(m => {
+  list.innerHTML = bar + rows.map(m => {
     const who = mailFolder === 'sent'
       ? `To: ${esc(messageClientName(m))}`
       : esc(messageClientName(m));
@@ -100,12 +101,23 @@ function renderMailList() {
   }).join('');
 }
 
+function mailRefreshBar() {
+  return `<div class="mail-list-bar">
+    <span class="mail-list-bar-label">Inbox</span>
+    <button class="mail-refresh-btn" id="mail-refresh" type="button" title="Check for new mail">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      Refresh
+    </button>
+  </div>`;
+}
+
 function mailListEmpty() {
   if (mailFolder === 'inbox') {
     return `<div class="mail-empty">
       <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
-      <div class="mail-empty-title">Your inbox is ready</div>
-      <div class="mail-empty-sub">Connect a mailbox to start receiving client replies and email here.</div>
+      <div class="mail-empty-title">No mail yet</div>
+      <div class="mail-empty-sub">Once your mailbox is connected, incoming email lands here. Use Refresh to check now.</div>
+      <button class="btn-ghost" id="mail-refresh-empty" type="button" style="margin-top:1rem;cursor:pointer">Check for mail</button>
     </div>`;
   }
   return `<div class="mail-empty">
@@ -289,6 +301,33 @@ async function selectMessage(id) {
   renderReadingPane();
 }
 
+/* ── Inbox sync (GoDaddy IMAP via /api/sync-inbox) ── */
+async function syncInbox(btn) {
+  const { data: { session } } = await sb.auth.getSession();
+  const token = session?.access_token;
+  if (!token) { toast('Please sign in again to sync.'); return; }
+  if (btn) btnLoad(btn, true, 'Syncing…');
+  let data = {};
+  try {
+    const res = await fetch('/api/sync-inbox', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      toast(data.error || 'Inbox sync failed.');
+    } else if (data.new > 0) {
+      toast(`${data.new} new message${data.new === 1 ? '' : 's'}.`);
+      await loadMessages();
+    } else {
+      toast('Inbox is up to date.');
+    }
+  } catch {
+    toast('Network error during sync.');
+  }
+  if (btn) btnLoad(btn, false);
+}
+
 /* ── Notification bell ── */
 function notifSeenAt() {
   try { return localStorage.getItem(NOTIF_SEEN_KEY) || ''; } catch { return ''; }
@@ -390,6 +429,8 @@ $('page-messages')?.querySelector('.mail-folders')?.addEventListener('click', e 
   if (folderBtn) selectFolder(folderBtn.dataset.folder);
 });
 $('mail-list')?.addEventListener('click', e => {
+  const refresh = e.target.closest('#mail-refresh, #mail-refresh-empty');
+  if (refresh) { syncInbox(refresh); return; }
   const item = e.target.closest('.mail-list-item');
   if (item) selectMessage(item.dataset.id);
 });

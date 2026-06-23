@@ -1021,6 +1021,12 @@ select{color-scheme:dark;}
 .mail-folder.active .mail-folder-count{color:var(--emerald-l);}
 /* message list */
 .mail-list{width:340px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;min-height:0;}
+.mail-list-bar{display:flex;align-items:center;justify-content:space-between;padding:.6rem .9rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--card);z-index:1;}
+.mail-list-bar-label{font-family:var(--font-m);font-size:.55rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);}
+.mail-refresh-btn{display:inline-flex;align-items:center;gap:.35rem;background:none;border:1px solid var(--border-hi);color:var(--mist);font-family:var(--font-m);font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;padding:.32rem .6rem;cursor:pointer;transition:all .2s;}
+.mail-refresh-btn:hover{border-color:var(--gold);color:var(--off-white);}
+.mail-refresh-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.8;}
+[data-theme="light"] .mail-list-bar{background:#fff;}
 .mail-list-item{display:block;width:100%;text-align:left;background:none;border:none;border-bottom:1px solid var(--border);padding:.9rem 1.1rem;cursor:pointer;transition:background .15s;}
 .mail-list-item:hover{background:rgba(245,244,241,.04);}
 .mail-list-item.active{background:var(--em-dim);}
