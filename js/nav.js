@@ -92,6 +92,16 @@ function showApp(user) {
     .subscribe();
 }
 
+/* ── Password reset: detect recovery link ── */
+(function () {
+  const hash = new URLSearchParams(window.location.hash.slice(1));
+  if (hash.get('type') === 'recovery') {
+    $('login-signin-view').style.display = 'none';
+    $('login-newpw-view').style.display  = '';
+    history.replaceState(null, '', window.location.pathname);
+  }
+})();
+
 $('login-btn').addEventListener('click', async () => {
   const email = $('login-email').value.trim();
   const pw    = $('login-password').value;
@@ -102,6 +112,56 @@ $('login-btn').addEventListener('click', async () => {
   if (error) { errEl.textContent = error.message; btn.disabled = false; btn.textContent = 'Sign In'; }
 });
 $('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') $('login-btn').click(); });
+
+$('forgot-btn').addEventListener('click', () => {
+  $('login-signin-view').style.display = 'none';
+  $('login-forgot-view').style.display = '';
+  $('reset-email').value = $('login-email').value;
+  $('reset-email').focus();
+});
+$('back-to-login-btn').addEventListener('click', () => {
+  $('login-forgot-view').style.display = 'none';
+  $('login-signin-view').style.display = '';
+});
+$('reset-send-btn').addEventListener('click', async () => {
+  const email = $('reset-email').value.trim();
+  const errEl = $('reset-err'), btn = $('reset-send-btn');
+  errEl.textContent = '';
+  if (!email) { errEl.textContent = 'Please enter your email address.'; return; }
+  btn.disabled = true; btn.textContent = 'Sending…';
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/admin.html',
+  });
+  if (error) {
+    errEl.textContent = error.message;
+    btn.disabled = false; btn.textContent = 'Send Reset Link';
+  } else {
+    errEl.style.color = 'var(--emerald)';
+    errEl.textContent = 'Reset link sent — check your inbox.';
+    btn.disabled = true; btn.textContent = 'Link Sent';
+  }
+});
+$('reset-email').addEventListener('keydown', e => { if (e.key === 'Enter') $('reset-send-btn').click(); });
+
+$('set-pw-btn').addEventListener('click', async () => {
+  const pw  = $('new-password').value;
+  const pw2 = $('confirm-password').value;
+  const errEl = $('newpw-err'), btn = $('set-pw-btn');
+  errEl.style.color = 'var(--err)';
+  errEl.textContent = '';
+  if (pw.length < 8) { errEl.textContent = 'Password must be at least 8 characters.'; return; }
+  if (pw !== pw2)    { errEl.textContent = 'Passwords do not match.'; return; }
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const { error } = await sb.auth.updateUser({ password: pw });
+  if (error) {
+    errEl.textContent = error.message;
+    btn.disabled = false; btn.textContent = 'Set New Password';
+  } else {
+    errEl.style.color = 'var(--emerald)';
+    errEl.textContent = 'Password updated — signing you in…';
+  }
+});
+
 $('logout-btn').addEventListener('click', () => sb.auth.signOut());
 
 /* ── Navigation ── */

@@ -35,12 +35,35 @@
       <div class="login-brand">Oak &amp; Pixel</div>
       <div class="login-kicker">Studio Command</div>
       <div class="login-sub">Admin Portal</div>
-      <label class="f-label">Email Address</label>
-      <input type="email" class="f-input" id="login-email" placeholder="admin@oakandpixel.co.za" autocomplete="email">
-      <label class="f-label">Password</label>
-      <input type="password" class="f-input" id="login-password" placeholder="••••••••" autocomplete="current-password">
-      <button class="btn-login" id="login-btn">Sign In</button>
-      <p class="login-err" id="login-err"></p>
+      <!-- sign-in view -->
+      <div id="login-signin-view">
+        <label class="f-label">Email Address</label>
+        <input type="email" class="f-input" id="login-email" placeholder="admin@oakandpixel.co.za" autocomplete="email">
+        <label class="f-label">Password</label>
+        <input type="password" class="f-input" id="login-password" placeholder="••••••••" autocomplete="current-password">
+        <button class="btn-login" id="login-btn">Sign In</button>
+        <p class="login-err" id="login-err"></p>
+        <button class="login-link-btn" id="forgot-btn" type="button">Forgot password?</button>
+      </div>
+      <!-- forgot password view -->
+      <div id="login-forgot-view" style="display:none;">
+        <p class="login-reset-label">Enter your admin email and we'll send a reset link.</p>
+        <label class="f-label">Email Address</label>
+        <input type="email" class="f-input" id="reset-email" placeholder="admin@oakandpixel.co.za" autocomplete="email">
+        <button class="btn-login" id="reset-send-btn">Send Reset Link</button>
+        <p class="login-err" id="reset-err"></p>
+        <button class="login-link-btn" id="back-to-login-btn" type="button">Back to sign in</button>
+      </div>
+      <!-- set new password view (shown after clicking reset link in email) -->
+      <div id="login-newpw-view" style="display:none;">
+        <p class="login-reset-label">Choose a new password for your account.</p>
+        <label class="f-label">New Password</label>
+        <input type="password" class="f-input" id="new-password" placeholder="New password" autocomplete="new-password">
+        <label class="f-label">Confirm Password</label>
+        <input type="password" class="f-input" id="confirm-password" placeholder="Confirm password" autocomplete="new-password">
+        <button class="btn-login" id="set-pw-btn">Set New Password</button>
+        <p class="login-err" id="newpw-err"></p>
+      </div>
       <p class="login-footnote">Private workspace for bookings, clients, projects, and retainers.</p>
     </div>
   </div>
