@@ -970,6 +970,9 @@ select{color-scheme:dark;}
 [data-theme="light"] .profile-menu-item{color:rgba(26,26,24,.75);}
 [data-theme="light"] .profile-menu-item:hover{background:rgba(26,26,24,.05);}
 .profile-card{max-width:680px;padding:1.75rem 2rem 2rem;}
+.ld-group-label{font-family:var(--font-m);font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(245,244,241,.38);margin-bottom:.3rem;}
+.ld-current-val{font-family:var(--font-b);font-size:.88rem;color:var(--off-white);}
+.ld-msg{font-size:.75rem;min-height:1.2rem;margin-top:.65rem;}
 .profile-head{display:flex;align-items:center;gap:1.25rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border);margin-bottom:1.5rem;}
 .profile-photo-actions{display:flex;gap:.5rem;align-items:center;}
 .profile-photo-actions .btn-ghost{cursor:pointer;}

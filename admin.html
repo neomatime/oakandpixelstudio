@@ -713,6 +713,28 @@
             <button class="btn-add" type="button" id="profile-save">Save Changes</button>
           </div>
         </div>
+
+        <!-- Login Details card -->
+        <div class="card profile-card" style="margin-top:1.25rem;">
+          <div class="ld-group">
+            <div class="ld-group-label">Email Address</div>
+            <div class="ld-current-val" id="ld-current-email">—</div>
+            <div class="profile-form" style="margin-top:.75rem;">
+              <div class="modal-field full"><label>New Email Address</label><input id="ld-new-email" type="email" placeholder="new@email.com" autocomplete="email"></div>
+            </div>
+            <p class="ld-msg" id="ld-email-msg"></p>
+            <div class="profile-foot"><button class="btn-add" type="button" id="ld-save-email">Update Email</button></div>
+          </div>
+          <div class="divider" style="margin:1.5rem 0;"></div>
+          <div class="ld-group">
+            <div class="ld-group-label">Password</div>
+            <div class="profile-form" style="margin-top:.75rem;">
+              <div class="modal-field"><label>New Password</label><input id="ld-new-pw" type="password" placeholder="Min 8 characters" autocomplete="new-password"></div>
+              <div class="modal-field"><label>Confirm Password</label><input id="ld-confirm-pw" type="password" placeholder="Confirm new password" autocomplete="new-password"></div>
+            </div>
+            <div class="profile-foot"><button class="btn-add" type="button" id="ld-save-pw">Update Password</button></div>
+          </div>
+        </div>
       </section>
 
   </main>

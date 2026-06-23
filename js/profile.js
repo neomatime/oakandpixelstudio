@@ -106,6 +106,8 @@ function renderProfilePage() {
   set('pf-phone', adminProfile.phone);
   set('pf-company', adminProfile.company_name || ADMIN_PROFILE_DEFAULTS.company_name);
   set('pf-bio', adminProfile.bio);
+  const emailDisplay = $('ld-current-email');
+  if (emailDisplay) emailDisplay.textContent = adminProfile.email || '—';
 }
 
 async function saveAdminProfile() {
@@ -153,6 +155,36 @@ async function removeAdminAvatar() {
   renderProfilePage();
   toast('Profile photo removed.');
 }
+
+$('ld-save-email')?.addEventListener('click', async () => {
+  const newEmail = ($('ld-new-email')?.value || '').trim();
+  const msgEl = $('ld-email-msg');
+  const btn = $('ld-save-email');
+  if (msgEl) { msgEl.style.color = 'var(--err)'; msgEl.textContent = ''; }
+  if (!newEmail) { if (msgEl) msgEl.textContent = 'Enter a new email address.'; return; }
+  if (newEmail === adminProfile?.email) { if (msgEl) msgEl.textContent = 'That is already your current email.'; return; }
+  btn.disabled = true; btn.textContent = 'Sending…';
+  const { error } = await sb.auth.updateUser({ email: newEmail });
+  btn.disabled = false; btn.textContent = 'Update Email';
+  if (error) { if (msgEl) msgEl.textContent = error.message; return; }
+  if (msgEl) { msgEl.style.color = 'var(--emerald)'; msgEl.textContent = `Confirmation sent to ${newEmail} — click the link in the email to confirm.`; }
+  if ($('ld-new-email')) $('ld-new-email').value = '';
+});
+
+$('ld-save-pw')?.addEventListener('click', async () => {
+  const pw  = $('ld-new-pw')?.value  || '';
+  const pw2 = $('ld-confirm-pw')?.value || '';
+  const btn = $('ld-save-pw');
+  if (pw.length < 8) { toast('Password must be at least 8 characters.'); return; }
+  if (pw !== pw2)    { toast('Passwords do not match.'); return; }
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const { error } = await sb.auth.updateUser({ password: pw });
+  btn.disabled = false; btn.textContent = 'Update Password';
+  if (error) { toast(error.message); return; }
+  if ($('ld-new-pw'))     $('ld-new-pw').value = '';
+  if ($('ld-confirm-pw')) $('ld-confirm-pw').value = '';
+  toast('Password updated.');
+});
 
 $('profile-avatar-file')?.addEventListener('change', e => {
   const file = e.target.files?.[0];
