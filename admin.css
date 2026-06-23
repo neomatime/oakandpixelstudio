@@ -198,6 +198,12 @@ body.sidebar-collapsed .btn-signout::before{
 .page-title{font-family:var(--font-d);font-size:1.5rem;font-weight:400;}
 .page-date{font-family:var(--font-m);font-size:.57rem;letter-spacing:.08em;color:var(--mist);margin-top:.1rem;}
 .page-content{padding:1.75rem 2rem;flex:1;overflow-y:auto;min-height:0;}
+
+/* Hide the chunky default (Windows) scrollbars across the admin — scrolling still works via wheel/trackpad/keys */
+.app *{scrollbar-width:none;-ms-overflow-style:none;}
+.app *::-webkit-scrollbar{width:0;height:0;background:transparent;}
+.modal-box,.modal-box *{scrollbar-width:none;}
+.modal-box::-webkit-scrollbar,.modal-box *::-webkit-scrollbar{width:0;height:0;}
 .page{display:none;}
 .page.active{display:block;}
 
