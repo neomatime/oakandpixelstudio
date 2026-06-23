@@ -85,10 +85,10 @@ function toggleProfileMenu(force) {
 }
 
 document.getElementById('profile-tabs')?.addEventListener('click', e => {
-  const btn = e.target.closest('.filter-tab');
+  const btn = e.target.closest('.seg-tab');
   if (!btn) return;
   const tab = btn.dataset.tab;
-  document.querySelectorAll('#profile-tabs .filter-tab').forEach(b => b.classList.toggle('active', b === btn));
+  document.querySelectorAll('#profile-tabs .seg-tab').forEach(b => b.classList.toggle('active', b === btn));
   document.getElementById('profile-panel-profile').style.display  = tab === 'profile'  ? '' : 'none';
   document.getElementById('profile-panel-security').style.display = tab === 'security' ? '' : 'none';
 });
@@ -108,15 +108,19 @@ function renderProfilePage() {
   if (!adminProfile) return;
   const av = $('profile-avatar');
   if (av) av.innerHTML = adminAvatarInner();
+  // identity hero
+  const text = (id, v) => { const el = $(id); if (el) el.textContent = v; };
+  text('profile-hero-name', adminProfileName());
+  text('profile-hero-role', adminProfileRole());
+  text('profile-hero-email', adminProfile.email || '—');
+  // editable fields
   const set = (id, v) => { const el = $(id); if (el) el.value = v; };
   set('pf-full-name', adminProfile.full_name);
   set('pf-role', adminProfile.role);
-  set('pf-email', adminProfile.email);
   set('pf-phone', adminProfile.phone);
   set('pf-company', adminProfile.company_name || ADMIN_PROFILE_DEFAULTS.company_name);
   set('pf-bio', adminProfile.bio);
-  const emailDisplay = $('ld-current-email');
-  if (emailDisplay) emailDisplay.textContent = adminProfile.email || '—';
+  text('ld-current-email', adminProfile.email || '—');
 }
 
 async function saveAdminProfile() {
