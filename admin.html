@@ -132,6 +132,12 @@
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="4" height="18" rx="1"/><rect x="10" y="3" width="4" height="13" rx="1"/><rect x="17" y="3" width="4" height="9" rx="1"/></svg>
         Pipeline
       </button>
+
+      <button class="nav-item" data-page="messages">
+        <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+        Messages
+        <span class="nav-badge" id="messages-badge"></span>
+      </button>
     </nav>
 
     <nav class="sidebar-nav" style="margin-top:.5rem">
@@ -194,19 +200,12 @@
         <button class="theme-toggle" id="theme-toggle" title="Toggle theme">
           <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"></svg>
         </button>
-        <div class="topbar-icon-wrap">
-          <button class="theme-toggle" id="messaging-btn" type="button" title="Messages" aria-label="Open client messaging">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>
-            </svg>
-          </button>
-        </div>
         <div class="topbar-icon-wrap" id="notif-wrap">
           <button class="theme-toggle" id="notif-trigger" type="button" aria-haspopup="true" aria-expanded="false" title="Notifications" aria-label="Notifications">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
             </svg>
-            <span class="nav-badge" id="notif-badge"></span>
+            <span class="topbar-badge" id="notif-badge"></span>
           </button>
           <div class="notif-menu" id="notif-menu" hidden></div>
         </div>
@@ -775,6 +774,33 @@
         </div>
       </section>
 
+      <!-- ══ MESSAGES PAGE (Outlook-style 3-pane) ══ -->
+      <section class="page" id="page-messages">
+        <div class="mail-shell">
+          <!-- Folder rail -->
+          <aside class="mail-folders">
+            <button class="mail-compose-btn" type="button" id="mail-compose-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              Compose
+            </button>
+            <button class="mail-folder active" type="button" data-folder="inbox">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+              <span class="mail-folder-name">Inbox</span>
+              <span class="mail-folder-count" id="mail-inbox-count"></span>
+            </button>
+            <button class="mail-folder" type="button" data-folder="sent">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
+              <span class="mail-folder-name">Sent</span>
+              <span class="mail-folder-count" id="mail-sent-count"></span>
+            </button>
+          </aside>
+          <!-- Message list -->
+          <div class="mail-list" id="mail-list"></div>
+          <!-- Reading pane / compose -->
+          <div class="mail-reading" id="mail-reading"></div>
+        </div>
+      </section>
+
     </div><!-- /page-content -->
   </main>
 
@@ -787,36 +813,6 @@
   <div id="modal-box" class="modal-box" role="dialog" aria-modal="true"></div>
 </div>
 
-<!-- ══ MESSAGING HUB (right slide-out drawer) ══ -->
-<div id="messaging-overlay" class="drawer-overlay" hidden>
-  <aside class="drawer" id="messaging-drawer" role="dialog" aria-modal="true" aria-label="Client messaging">
-    <div class="drawer-head">
-      <div>
-        <div class="drawer-eyebrow">Client Messaging</div>
-        <div class="drawer-title">Compose</div>
-      </div>
-      <button class="drawer-close" id="messaging-close" type="button" aria-label="Close messaging">
-        <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </button>
-    </div>
-    <div class="drawer-body">
-      <div class="drawer-section-label">To</div>
-      <div class="modal-field full"><label>Client</label><select id="msg-client"></select></div>
-      <div class="modal-field full"><label>Recipient email</label><input id="msg-email" type="email" placeholder="Select a client first"></div>
-      <div class="modal-field full"><label>Subject</label><input id="msg-subject" type="text" placeholder="Subject line"></div>
-      <div class="modal-field full"><label>Message</label><textarea id="msg-body" rows="6" style="resize:vertical" placeholder="Write your message…"></textarea></div>
-      <p class="ld-msg" id="msg-feedback"></p>
-
-      <div class="drawer-divider"></div>
-
-      <div class="msg-history-head"><div class="drawer-section-label" style="margin:0">History</div></div>
-      <div id="msg-history"></div>
-    </div>
-    <div class="drawer-foot">
-      <button class="btn-add" type="button" id="msg-send">Send Message</button>
-    </div>
-  </aside>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>

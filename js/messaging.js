@@ -1,13 +1,17 @@
 'use strict';
 
-/* Client Messaging / Email hub (Backlog #3) + Notification bell (Backlog #5).
-   Lightweight, tracked client communication — not a full inbox. Messages live
-   in the Supabase `messages` table and are sent via /api/send-message (Resend).
-   This module is loaded last; loadMessages() is called from loadAll(). */
+/* Messages — Outlook-style mail page (Backlog #3) + notification bell (#5).
+   Folders: Sent = outbound rows (sent via /api/send-message / Resend), Inbox =
+   inbound rows (populated once a real mail feed is connected). Messages live in
+   the Supabase `messages` table. This module loads last; loadMessages() is
+   called from loadAll(). */
 
 let allMessages = [];
-let messagingClientId = null;
 let messagingSchemaReady = true;
+let mailFolder = 'inbox';
+let selectedMessageId = null;
+let mailComposing = false;
+let composePrefill = {};
 
 const NOTIF_SEEN_KEY = 'ops-notif-seen-at';
 
@@ -18,7 +22,6 @@ async function loadMessages() {
     .select('*')
     .order('created_at', { ascending: false });
   if (error) {
-    // Table not migrated yet — degrade gracefully, hub still composes.
     messagingSchemaReady = false;
     allMessages = [];
   } else {
@@ -26,107 +29,193 @@ async function loadMessages() {
     allMessages = data || [];
   }
   refreshNotifications();
-  if (!$('messaging-overlay')?.hasAttribute('hidden')) renderMessageHistory();
+  renderMailCounts();
+  if ($('page-messages')?.classList.contains('active')) renderMessages();
 }
 
 function clientRecipientEmail(client = {}) {
   return client.company_email || client.email || '';
 }
+function folderMessages(folder = mailFolder) {
+  const want = folder === 'sent' ? 'outbound' : 'inbound';
+  return allMessages.filter(m => (m.direction || 'outbound') === want);
+}
+function messageById(id) {
+  return allMessages.find(m => m.id === id);
+}
+function messageClientName(m) {
+  const c = m.client_id ? clientById(m.client_id) : null;
+  return c ? clientDisplayName(c) : (m.recipient_email || 'Unknown');
+}
 
-/* ── Drawer open / close ── */
-function openMessaging(clientId = null) {
-  const overlay = $('messaging-overlay');
-  if (!overlay) return;
-  renderMsgClientOptions();
-  const select = $('msg-client');
-  if (clientId && clientById(clientId)) {
-    messagingClientId = clientId;
-    if (select) select.value = clientId;
+/* ── Page render ── */
+function renderMessages() {
+  renderMailCounts();
+  document.querySelectorAll('#page-messages .mail-folder').forEach(b =>
+    b.classList.toggle('active', b.dataset.folder === mailFolder));
+  renderMailList();
+  renderReadingPane();
+}
+
+function renderMailCounts() {
+  const inbox = folderMessages('inbox');
+  const sent = folderMessages('sent');
+  const unreadInbox = inbox.filter(m => !m.is_read).length;
+  const setCount = (id, n) => { const el = $(id); if (el) el.textContent = n > 0 ? n : ''; };
+  setCount('mail-inbox-count', unreadInbox || inbox.length);
+  setCount('mail-sent-count', sent.length);
+  const navBadge = $('messages-badge');
+  if (navBadge) {
+    navBadge.textContent = unreadInbox;
+    navBadge.classList.toggle('show', unreadInbox > 0);
   }
-  // Keep the custom select UI in sync with the native <select>.
-  if (typeof enhanceOpsSelects === 'function') enhanceOpsSelects(select);
-  if (typeof syncOpsSelect === 'function') syncOpsSelect(select, true);
-  prefillRecipient();
-  renderMessageHistory();
-  setMsgFeedback('');
-  overlay.removeAttribute('hidden');
-  setTimeout(() => $('msg-subject')?.focus(), 80);
 }
 
-function closeMessaging() {
-  $('messaging-overlay')?.setAttribute('hidden', '');
-}
-
-function renderMsgClientOptions() {
-  const select = $('msg-client');
-  if (!select) return;
-  const sorted = [...allClients].sort((a, b) =>
-    clientDisplayName(a).localeCompare(clientDisplayName(b)));
-  const current = messagingClientId || select.value || '';
-  select.innerHTML = `<option value="">Select a client…</option>` +
-    sorted.map(c => `<option value="${esc(c.id)}">${esc(clientDisplayName(c))}</option>`).join('');
-  if (current && sorted.some(c => c.id === current)) select.value = current;
-}
-
-function onMsgClientChange() {
-  messagingClientId = $('msg-client')?.value || null;
-  prefillRecipient();
-  renderMessageHistory();
-  setMsgFeedback('');
-}
-
-function prefillRecipient() {
-  const emailEl = $('msg-email');
-  if (!emailEl) return;
-  const client = messagingClientId ? clientById(messagingClientId) : null;
-  emailEl.value = client ? clientRecipientEmail(client) : '';
-}
-
-/* ── History ── */
-function renderMessageHistory() {
-  const wrap = $('msg-history');
-  if (!wrap) return;
-  if (!messagingClientId) {
-    wrap.innerHTML = `<div class="msg-empty">Select a client to see message history.</div>`;
-    return;
-  }
-  const rows = allMessages.filter(m => m.client_id === messagingClientId);
+function renderMailList() {
+  const list = $('mail-list');
+  if (!list) return;
+  const rows = folderMessages();
   if (!rows.length) {
-    wrap.innerHTML = `<div class="msg-empty">No messages yet for this client.</div>`;
+    list.innerHTML = mailListEmpty();
     return;
   }
-  wrap.innerHTML = rows.map(m => `
-    <div class="msg-item">
-      <div class="msg-item-top">
-        <span class="msg-subject">${esc(m.subject)}</span>
-        <span class="msg-status ${esc(m.status)}">${esc(m.status)}</span>
-      </div>
-      <div class="msg-preview">${esc(m.body)}</div>
-      <div class="msg-meta">${esc(m.recipient_email)} · ${timeAgo(m.created_at)}</div>
-    </div>`).join('');
+  list.innerHTML = rows.map(m => {
+    const who = mailFolder === 'sent'
+      ? `To: ${esc(messageClientName(m))}`
+      : esc(messageClientName(m));
+    const unread = mailFolder === 'inbox' && !m.is_read;
+    const status = m.status && m.status !== 'sent'
+      ? `<div class="mail-li-badges"><span class="msg-status ${esc(m.status)}">${esc(m.status)}</span></div>`
+      : '';
+    return `
+      <button class="mail-list-item${m.id === selectedMessageId ? ' active' : ''}${unread ? ' unread' : ''}" type="button" data-id="${esc(m.id)}">
+        <div class="mail-li-top">
+          <span class="mail-li-from">${who}</span>
+          <span class="mail-li-time">${timeAgo(m.created_at)}</span>
+        </div>
+        <div class="mail-li-subject">${esc(m.subject)}</div>
+        <div class="mail-li-preview">${esc(m.body)}</div>
+        ${status}
+      </button>`;
+  }).join('');
 }
 
-function setMsgFeedback(text, ok = false) {
-  const el = $('msg-feedback');
+function mailListEmpty() {
+  if (mailFolder === 'inbox') {
+    return `<div class="mail-empty">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+      <div class="mail-empty-title">Your inbox is ready</div>
+      <div class="mail-empty-sub">Connect a mailbox to start receiving client replies and email here.</div>
+    </div>`;
+  }
+  return `<div class="mail-empty">
+    <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
+    <div class="mail-empty-title">No sent messages yet</div>
+    <div class="mail-empty-sub">Compose a message and it will appear here once sent.</div>
+  </div>`;
+}
+
+function renderReadingPane() {
+  const pane = $('mail-reading');
+  if (!pane) return;
+  if (mailComposing) { pane.innerHTML = composeFormHTML(composePrefill); afterComposeRender(); return; }
+  const m = selectedMessageId ? messageById(selectedMessageId) : null;
+  if (!m) {
+    pane.innerHTML = `<div class="mail-empty">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+      <div class="mail-empty-title">Select a message</div>
+      <div class="mail-empty-sub">Choose a message from the list to read it here, or compose a new one.</div>
+    </div>`;
+    return;
+  }
+  const client = m.client_id ? clientById(m.client_id) : null;
+  const avatar = client ? clientAvatar(client) : `<div class="client-avatar">${esc((m.recipient_email || '?')[0].toUpperCase())}</div>`;
+  const dirLabel = (m.direction || 'outbound') === 'outbound' ? 'To' : 'From';
+  const statusPill = m.status && m.status !== 'sent'
+    ? ` <span class="msg-status ${esc(m.status)}">${esc(m.status)}</span>` : '';
+  pane.innerHTML = `
+    <div class="mail-read-head">
+      <div class="mail-read-subject">${esc(m.subject)}</div>
+      <div class="mail-read-meta">
+        ${avatar}
+        <div class="mail-read-who">
+          <div class="mail-read-who-line">${esc(messageClientName(m))}${statusPill}</div>
+          <div class="mail-read-who-sub">${esc(dirLabel)}: ${esc(m.recipient_email)} · ${fmtDateLong((m.created_at || '').split('T')[0])}</div>
+        </div>
+      </div>
+    </div>
+    <div class="mail-read-body">${esc(m.body)}</div>
+    <div class="mail-read-foot">
+      <button class="btn-add" type="button" id="mail-reply">Reply</button>
+    </div>`;
+}
+
+/* ── Compose ── */
+function composeFormHTML(prefill = {}) {
+  const clients = [...allClients].sort((a, b) => clientDisplayName(a).localeCompare(clientDisplayName(b)));
+  return `<div class="mail-compose">
+    <div class="mail-compose-title">${prefill.subject && prefill.isReply ? 'Reply' : 'New message'}</div>
+    <div class="modal-field full"><label>Client (optional)</label><select id="mail-compose-client" autocomplete="off">
+      <option value="">— None / ad-hoc —</option>
+      ${clients.map(c => `<option value="${esc(c.id)}"${prefill.clientId === c.id ? ' selected' : ''}>${esc(clientDisplayName(c))}</option>`).join('')}
+    </select></div>
+    <div class="modal-field full"><label>To</label><input id="mail-compose-to" type="email" value="${esc(prefill.to || '')}" placeholder="client@email.com" autocomplete="off"></div>
+    <div class="modal-field full"><label>Subject</label><input id="mail-compose-subject" type="text" value="${esc(prefill.subject || '')}" placeholder="Subject line" autocomplete="off"></div>
+    <div class="modal-field full"><label>Message</label><textarea id="mail-compose-body" rows="10" style="resize:vertical" placeholder="Write your message…" autocomplete="off">${esc(prefill.body || '')}</textarea></div>
+    <div class="mail-compose-actions">
+      <button class="btn-add" type="button" id="mail-send">Send</button>
+      <button class="btn-ghost" type="button" id="mail-cancel">Cancel</button>
+      <span class="mail-compose-feedback" id="mail-compose-feedback"></span>
+    </div>
+  </div>`;
+}
+
+function afterComposeRender() {
+  const select = $('mail-compose-client');
+  if (select && typeof enhanceOpsSelects === 'function') enhanceOpsSelects(select);
+  if (select && typeof syncOpsSelect === 'function') syncOpsSelect(select, true);
+  setTimeout(() => { (composePrefill.to ? $('mail-compose-subject') : $('mail-compose-to'))?.focus(); }, 60);
+}
+
+function openCompose(prefill = {}) {
+  composePrefill = prefill;
+  mailComposing = true;
+  selectedMessageId = null;
+  renderMailList();
+  renderReadingPane();
+}
+
+function cancelCompose() {
+  mailComposing = false;
+  renderReadingPane();
+}
+
+function onComposeClientChange() {
+  const id = $('mail-compose-client')?.value || '';
+  const client = id ? clientById(id) : null;
+  const toEl = $('mail-compose-to');
+  if (client && toEl && !toEl.value.trim()) toEl.value = clientRecipientEmail(client);
+}
+
+function setComposeFeedback(text, ok = false) {
+  const el = $('mail-compose-feedback');
   if (!el) return;
   el.style.color = ok ? 'var(--emerald)' : 'var(--err)';
   el.textContent = text;
 }
 
-/* ── Send ── */
-async function sendMessage() {
-  const btn = $('msg-send');
-  const clientId = $('msg-client')?.value || '';
-  const to = ($('msg-email')?.value || '').trim();
-  const subject = ($('msg-subject')?.value || '').trim();
-  const body = ($('msg-body')?.value || '').trim();
+async function sendComposed() {
+  const btn = $('mail-send');
+  const clientId = $('mail-compose-client')?.value || null;
+  const to = ($('mail-compose-to')?.value || '').trim();
+  const subject = ($('mail-compose-subject')?.value || '').trim();
+  const body = ($('mail-compose-body')?.value || '').trim();
 
-  if (!clientId)             { setMsgFeedback('Select a client first.'); return; }
-  if (!to)                   { setMsgFeedback('Add a recipient email address.'); return; }
-  if (!subject)              { setMsgFeedback('Add a subject line.'); return; }
-  if (!body)                 { setMsgFeedback('Write a message before sending.'); return; }
+  if (!to)      { setComposeFeedback('Add a recipient email address.'); return; }
+  if (!subject) { setComposeFeedback('Add a subject line.'); return; }
+  if (!body)    { setComposeFeedback('Write a message before sending.'); return; }
 
-  setMsgFeedback('');
+  setComposeFeedback('');
   btnLoad(btn, true, 'Sending…');
 
   let status = 'sent';
@@ -147,38 +236,57 @@ async function sendMessage() {
     errorText = 'Network error — message not sent.';
   }
 
-  // Record the attempt (sent or failed) so it shows in history + notifications.
   const { error: insertErr } = await sb.from('messages').insert({
-    client_id: clientId,
+    client_id: clientId || null,
+    direction: 'outbound',
     recipient_email: to,
-    subject,
-    body,
-    status,
-    error: errorText,
+    subject, body, status, error: errorText,
   });
 
   btnLoad(btn, false);
 
-  if (insertErr && status === 'sent') {
-    // Email went out but we couldn't log it (table missing / RLS).
-    toast('Message sent, but it could not be saved to history.');
-    clearCompose();
+  if (status === 'failed') {
+    setComposeFeedback(errorText || 'Message could not be sent.');
     return;
   }
-  if (status === 'failed') {
-    setMsgFeedback(errorText || 'Message could not be sent.');
+  if (insertErr) {
+    toast('Message sent, but it could not be saved to history.');
   } else {
-    setMsgFeedback(`Sent to ${to}.`, true);
-    clearCompose();
     toast('Message sent.');
   }
+  mailComposing = false;
   await loadMessages();
-  renderMessageHistory();
+  mailFolder = 'sent';
+  selectedMessageId = folderMessages('sent')[0]?.id || null;
+  renderMessages();
 }
 
-function clearCompose() {
-  if ($('msg-subject')) $('msg-subject').value = '';
-  if ($('msg-body')) $('msg-body').value = '';
+function replyToSelected() {
+  const m = selectedMessageId ? messageById(selectedMessageId) : null;
+  if (!m) return;
+  const subject = /^re:/i.test(m.subject || '') ? m.subject : `Re: ${m.subject || ''}`;
+  openCompose({ to: m.recipient_email, subject, clientId: m.client_id || null, isReply: true });
+}
+
+/* ── Folder + message selection ── */
+function selectFolder(folder) {
+  mailFolder = folder;
+  selectedMessageId = null;
+  mailComposing = false;
+  renderMessages();
+}
+
+async function selectMessage(id) {
+  selectedMessageId = id;
+  mailComposing = false;
+  const m = messageById(id);
+  if (m && (m.direction === 'inbound') && !m.is_read) {
+    m.is_read = true;
+    sb.from('messages').update({ is_read: true }).eq('id', id).then(() => {});
+    renderMailCounts();
+  }
+  renderMailList();
+  renderReadingPane();
 }
 
 /* ── Notification bell ── */
@@ -188,7 +296,7 @@ function notifSeenAt() {
 function setNotifSeen() {
   try { localStorage.setItem(NOTIF_SEEN_KEY, new Date().toISOString()); } catch {}
 }
-function unreadMessages() {
+function unreadNotifications() {
   const seen = notifSeenAt();
   return allMessages.filter(m => !seen || m.created_at > seen);
 }
@@ -196,7 +304,7 @@ function unreadMessages() {
 function refreshNotifications() {
   const badge = $('notif-badge');
   if (badge) {
-    const n = unreadMessages().length;
+    const n = unreadNotifications().length;
     badge.textContent = n > 9 ? '9+' : String(n);
     badge.classList.toggle('show', n > 0);
   }
@@ -212,7 +320,7 @@ function notifIcon(status) {
 function renderNotifications() {
   const menu = $('notif-menu');
   if (!menu) return;
-  const unread = unreadMessages().length;
+  const unread = unreadNotifications().length;
   const head = `
     <div class="notif-head">
       <span class="notif-head-title">Notifications</span>
@@ -229,12 +337,14 @@ function renderNotifications() {
     return;
   }
   const items = recent.map(m => {
-    const client = clientById(m.client_id);
-    const name = client ? clientDisplayName(client) : 'a client';
-    const title = m.status === 'failed' ? `Message failed to ${name}` : `Message sent to ${name}`;
+    const name = messageClientName(m);
+    const inbound = (m.direction || 'outbound') === 'inbound';
+    const title = inbound ? `New message from ${name}`
+      : (m.status === 'failed' ? `Message failed to ${name}` : `Message sent to ${name}`);
+    const icon = inbound ? 'sent' : m.status;
     return `
-      <button class="notif-item" type="button" data-client="${esc(m.client_id)}">
-        <span class="notif-dot ${esc(m.status)}">${notifIcon(m.status)}</span>
+      <button class="notif-item" type="button" data-id="${esc(m.id)}" data-dir="${esc(m.direction || 'outbound')}">
+        <span class="notif-dot ${esc(icon)}">${notifIcon(icon)}</span>
         <span class="notif-body">
           <span class="notif-title">${esc(title)}</span>
           <span class="notif-sub">${esc(m.subject)}</span>
@@ -265,14 +375,32 @@ function notifMarkAllRead() {
   refreshNotifications();
 }
 
-/* ── Wiring ── */
-$('messaging-btn')?.addEventListener('click', () => openMessaging());
-$('messaging-close')?.addEventListener('click', closeMessaging);
-$('messaging-overlay')?.addEventListener('click', e => {
-  if (e.target === $('messaging-overlay')) closeMessaging();
+function openMessageFromNotif(id, dir) {
+  switchPage('messages');
+  mailFolder = dir === 'inbound' ? 'inbox' : 'sent';
+  selectedMessageId = id;
+  mailComposing = false;
+  renderMessages();
+}
+
+/* ── Wiring (static elements always present) ── */
+$('mail-compose-btn')?.addEventListener('click', () => openCompose());
+$('page-messages')?.querySelector('.mail-folders')?.addEventListener('click', e => {
+  const folderBtn = e.target.closest('.mail-folder');
+  if (folderBtn) selectFolder(folderBtn.dataset.folder);
 });
-$('msg-client')?.addEventListener('change', onMsgClientChange);
-$('msg-send')?.addEventListener('click', sendMessage);
+$('mail-list')?.addEventListener('click', e => {
+  const item = e.target.closest('.mail-list-item');
+  if (item) selectMessage(item.dataset.id);
+});
+$('mail-reading')?.addEventListener('click', e => {
+  if (e.target.closest('#mail-send'))   { sendComposed(); return; }
+  if (e.target.closest('#mail-cancel')) { cancelCompose(); return; }
+  if (e.target.closest('#mail-reply'))  { replyToSelected(); return; }
+});
+$('mail-reading')?.addEventListener('change', e => {
+  if (e.target.id === 'mail-compose-client') onComposeClientChange();
+});
 
 $('notif-trigger')?.addEventListener('click', e => { e.stopPropagation(); toggleNotifications(); });
 $('notif-menu')?.addEventListener('click', e => {
@@ -280,14 +408,12 @@ $('notif-menu')?.addEventListener('click', e => {
   const item = e.target.closest('.notif-item');
   if (item) {
     toggleNotifications(false);
-    openMessaging(item.dataset.client || null);
+    openMessageFromNotif(item.dataset.id, item.dataset.dir);
   }
 });
 document.addEventListener('click', e => {
   if (!e.target.closest('#notif-wrap')) toggleNotifications(false);
 });
 document.addEventListener('keydown', e => {
-  if (e.key !== 'Escape') return;
-  toggleNotifications(false);
-  if (!$('messaging-overlay')?.hasAttribute('hidden')) closeMessaging();
+  if (e.key === 'Escape') toggleNotifications(false);
 });

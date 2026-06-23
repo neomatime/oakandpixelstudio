@@ -165,7 +165,7 @@ $('set-pw-btn').addEventListener('click', async () => {
 $('logout-btn').addEventListener('click', () => sb.auth.signOut());
 
 /* ── Navigation ── */
-const PAGE_TITLES = { overview:'Overview', bookings:'Bookings', availability:'Availability', projects:'Projects', services:'Services', 'service-detail':'Service Details', applications:'Applications', clients:'Clients', 'client-profile':'Client Profile', pipeline:'Pipeline', quotes:'Quotes', invoices:'Invoices', retainers:'Retainers', documents:'Documents', 'proposal-editor':'Proposal', 'sow-editor':'Scope of Work', reports:'Reports', profile:'My Profile' };
+const PAGE_TITLES = { overview:'Overview', bookings:'Bookings', availability:'Availability', projects:'Projects', services:'Services', 'service-detail':'Service Details', applications:'Applications', clients:'Clients', 'client-profile':'Client Profile', pipeline:'Pipeline', quotes:'Quotes', invoices:'Invoices', retainers:'Retainers', documents:'Documents', 'proposal-editor':'Proposal', 'sow-editor':'Scope of Work', reports:'Reports', messages:'Messages', profile:'My Profile' };
 const BREADCRUMB_PARENTS = {
   'service-detail': [{ label:'Services', page:'services' }],
   'client-profile': [{ label:'Clients', page:'clients' }],
@@ -227,6 +227,7 @@ function switchPage(name) {
   if (name === 'pipeline') renderPipelinePage();
   if (name === 'applications') renderApplications();
   if (name === 'reports') renderReports();
+  if (name === 'messages') renderMessages();
   if (name === 'profile') renderProfilePage();
   enhanceOpsSelects($('page-' + name) || document);
 }
