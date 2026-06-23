@@ -971,6 +971,76 @@ select{color-scheme:dark;}
 [data-theme="light"] .profile-menu-name{color:#1a1a18;}
 [data-theme="light"] .profile-menu-item{color:rgba(26,26,24,.75);}
 [data-theme="light"] .profile-menu-item:hover{background:rgba(26,26,24,.05);}
+
+/* ── TOPBAR ICON BUTTONS (bell + messages) ─────────── */
+.topbar-icon-wrap{position:relative;display:inline-flex;}
+.nav-badge{position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;padding:0 4px;background:var(--err);color:#fff;border-radius:9px;font-family:var(--font-m);font-size:.52rem;font-weight:600;display:none;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.3);}
+.nav-badge.show{display:flex;}
+
+/* ── NOTIFICATION DROPDOWN ─────────────────────────── */
+.notif-menu{position:absolute;right:0;top:calc(100% + .5rem);width:340px;max-width:88vw;background:var(--card);border:1px solid var(--border-hi);box-shadow:0 12px 32px rgba(0,0,0,.4);z-index:60;}
+.notif-menu[hidden]{display:none;}
+.notif-head{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1rem;border-bottom:1px solid var(--border);}
+.notif-head-title{font-family:var(--font-m);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);}
+.notif-markread{background:none;border:none;font-family:var(--font-m);font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);cursor:pointer;transition:opacity .2s;}
+.notif-markread:hover{opacity:.7;}
+.notif-markread:disabled{color:var(--mist);opacity:.5;cursor:default;}
+.notif-list{max-height:380px;overflow-y:auto;}
+.notif-item{display:flex;gap:.7rem;align-items:flex-start;width:100%;text-align:left;background:none;border:none;border-bottom:1px solid var(--border);padding:.8rem 1rem;cursor:pointer;transition:background .15s;}
+.notif-item:last-child{border-bottom:none;}
+.notif-item:hover{background:rgba(245,244,241,.04);}
+.notif-dot{width:24px;height:24px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:.1rem;}
+.notif-dot svg{width:12px;height:12px;stroke-width:2;fill:none;}
+.notif-dot.sent{background:var(--em-dim);}
+.notif-dot.sent svg{stroke:var(--emerald-l);}
+.notif-dot.failed{background:rgba(193,74,74,.16);}
+.notif-dot.failed svg{stroke:var(--err);}
+.notif-body{min-width:0;flex:1;}
+.notif-title{font-size:.8rem;color:var(--off-white);line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.notif-sub{font-size:.72rem;color:var(--mist);margin-top:.15rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.notif-time{font-family:var(--font-m);font-size:.55rem;color:var(--mist);margin-top:.25rem;letter-spacing:.04em;}
+.notif-empty{padding:2.4rem 1rem;text-align:center;}
+.notif-empty svg{width:30px;height:30px;stroke:var(--border-hi);fill:none;stroke-width:1.4;margin-bottom:.6rem;}
+.notif-empty-title{font-size:.85rem;color:var(--mist);}
+.notif-empty-sub{font-size:.72rem;color:var(--border-hi);margin-top:.25rem;}
+
+/* ── RIGHT SLIDE-OUT DRAWER (messaging hub) ────────── */
+.drawer-overlay{position:fixed;inset:0;background:rgba(10,10,9,.55);z-index:210;display:flex;justify-content:flex-end;}
+.drawer-overlay[hidden]{display:none;}
+.drawer{width:min(460px,100%);height:100%;background:var(--card);border-left:1px solid var(--border-hi);display:flex;flex-direction:column;box-shadow:-22px 0 64px rgba(0,0,0,.42);animation:drawer-in .26s cubic-bezier(.2,.8,.2,1) both;}
+@keyframes drawer-in{from{transform:translateX(100%);}to{transform:translateX(0);}}
+.drawer-head{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:1.35rem 1.5rem 1.15rem;border-bottom:1px solid var(--border);border-top:2px solid var(--gold);}
+.drawer-eyebrow{font-family:var(--font-m);font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.35rem;}
+.drawer-title{font-family:var(--font-d);font-size:1.5rem;font-weight:500;line-height:1;color:var(--off-white);}
+.drawer-close{width:32px;height:32px;flex-shrink:0;background:none;border:1px solid var(--border-hi);display:flex;align-items:center;justify-content:center;color:var(--mist);cursor:pointer;transition:all .2s;}
+.drawer-close:hover{border-color:var(--gold);color:var(--off-white);}
+.drawer-close svg{width:14px;height:14px;stroke:currentColor;stroke-width:1.6;fill:none;}
+.drawer-body{flex:1;overflow-y:auto;min-height:0;padding:1.5rem;}
+.drawer-section-label{font-family:var(--font-m);font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mist);margin:0 0 .85rem;}
+.drawer-divider{height:1px;background:var(--border);margin:1.6rem 0;}
+
+/* ── MESSAGE HISTORY LIST ──────────────────────────── */
+.msg-history-head{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 .85rem;}
+.msg-item{padding:.85rem 0;border-bottom:1px solid var(--border);}
+.msg-item:last-child{border-bottom:none;}
+.msg-item-top{display:flex;align-items:center;gap:.6rem;justify-content:space-between;}
+.msg-subject{font-size:.85rem;color:var(--off-white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.msg-preview{font-size:.76rem;color:var(--mist);margin-top:.3rem;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.msg-meta{font-family:var(--font-m);font-size:.56rem;letter-spacing:.04em;color:var(--border-hi);margin-top:.4rem;}
+.msg-status{font-family:var(--font-m);font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;padding:.2rem .45rem;flex-shrink:0;border:1px solid;}
+.msg-status.sent{color:var(--emerald-l);border-color:var(--em-mid);background:var(--em-dim);}
+.msg-status.failed{color:var(--err);border-color:rgba(193,74,74,.35);background:rgba(193,74,74,.12);}
+.msg-status.draft{color:var(--mist);border-color:var(--border-hi);}
+.msg-empty{padding:1.5rem 0;text-align:center;font-size:.78rem;color:var(--mist);}
+.drawer-foot{flex-shrink:0;padding:1rem 1.5rem;border-top:1px solid var(--border);}
+.drawer-foot .btn-add{width:100%;}
+
+[data-theme="light"] .notif-menu{background:#fff;border-color:rgba(26,26,24,.1);box-shadow:0 12px 32px rgba(0,0,0,.12);}
+[data-theme="light"] .notif-item:hover{background:rgba(26,26,24,.03);}
+[data-theme="light"] .notif-title{color:#1a1a18;}
+[data-theme="light"] .drawer{background:#fff;}
+[data-theme="light"] .drawer-title,[data-theme="light"] .msg-subject{color:#1a1a18;}
+[data-theme="light"] .drawer-close{border-color:rgba(26,26,24,.12);}
 /* ── ACCOUNT / PROFILE PAGE ─────────────────── */
 /* Profile page: hero+tabs stay pinned, panels scroll */
 #page-profile.active{display:flex;flex-direction:column;height:100%;}

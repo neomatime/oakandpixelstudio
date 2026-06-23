@@ -6,7 +6,7 @@
 /* ── Load all data ── */
 async function loadAll() {
   startLoad();
-  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadClients(), loadProjects(), loadRecentActivity(), loadRetainerOverview(), loadQuotes(), loadInvoices(), loadRetainers(), loadProposalEcosystem(), loadSigningRequests(), loadMandates(), loadApplications()]);
+  await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadClients(), loadProjects(), loadRecentActivity(), loadRetainerOverview(), loadQuotes(), loadInvoices(), loadRetainers(), loadProposalEcosystem(), loadSigningRequests(), loadMandates(), loadApplications(), loadMessages()]);
   await runLifecycleEngine();
   endLoad();
 }
