@@ -38,18 +38,47 @@ function defaultTemplates(){ return [
   { id:'tpl-invoice', title:'Invoice', category:'Finance', subject:'Invoice from Oak & Pixel Studio', body:'Dear {{company}} Team,\n\nPlease find your invoice from Oak & Pixel Studio attached. Payment details are included on the invoice.\n\nWarm regards,\nOak & Pixel Studio', system:true },
   { id:'tpl-completion', title:'Project Completion', category:'Delivery', subject:'Project completion confirmation', body:'Dear {{company}} Team,\n\nWe are pleased to confirm that the agreed project work has been completed. Please review the final handover notes and let us know if anything needs attention within the agreed review window.\n\nWarm regards,\nOak & Pixel Studio', system:true }
 ]; }
-function initialCommState(){ return { messageMeta:{}, drafts:[], contacts:[], templates:defaultTemplates(), tasks:[], settings:{ connectedAccounts:[], signature:'Warm regards,\nNeo Matime\nOak & Pixel Studio\ninfo@oakandpixel.co.za', notifications:{ unread:true, important:true, failed:true }, labels:COMM_LABELS.slice(), storageLimitMb:500 } }; }
-function loadCommState(){
-  const state = { ...initialCommState(), ...safeJSON(localStorage.getItem(COMM_STATE_KEY), {}) };
-  state.messageMeta ||= {}; state.drafts ||= []; state.contacts ||= []; state.templates ||= []; state.tasks ||= []; state.settings ||= {};
+function initialCommState(){ return { messageMeta:{}, contacts:[], templates:defaultTemplates(), settings:{ connectedAccounts:[], signature:'Warm regards,\nNeo Matime\nOak & Pixel Studio\ninfo@oakandpixel.co.za', notifications:{ unread:true, important:true, failed:true }, labels:COMM_LABELS.slice(), storageLimitMb:500 } }; }
+function normalizeCommState(raw){
+  const state = { ...initialCommState(), ...(raw || {}) };
+  delete state.drafts; delete state.tasks;  // now relational (message_drafts / comm_tasks)
+  state.messageMeta ||= {}; state.contacts ||= []; state.templates ||= []; state.settings ||= {};
   state.settings.connectedAccounts ||= []; state.settings.notifications ||= { unread:true, important:true, failed:true };
   state.settings.signature ||= initialCommState().settings.signature;
   state.settings.labels = Array.from(new Set([...(state.settings.labels || []), ...COMM_LABELS])).filter(Boolean);
   defaultTemplates().forEach(t => { if (!state.templates.some(x => x.id === t.id)) state.templates.push(t); });
   return state;
 }
+function loadCommState(){ return normalizeCommState(safeJSON(localStorage.getItem(COMM_STATE_KEY), {})); }
 let commState = loadCommState();
-function saveCommState(){ localStorage.setItem(COMM_STATE_KEY, JSON.stringify(commState)); }
+let _commPushTimer = null;
+function saveCommState(){
+  try { localStorage.setItem(COMM_STATE_KEY, JSON.stringify(commState)); } catch {}
+  clearTimeout(_commPushTimer);
+  _commPushTimer = setTimeout(() => { sb.from('comm_state').upsert({ id:'default', state:commState, updated_at:new Date().toISOString() }).then(()=>{}); }, 500);
+}
+async function pullCommState(){
+  const { data, error } = await sb.from('comm_state').select('state').eq('id','default').maybeSingle();
+  if (error) return;  // unauthenticated or table missing → keep the local copy
+  if (data && data.state && Object.keys(data.state).length){
+    commState = normalizeCommState(data.state);
+    try { localStorage.setItem(COMM_STATE_KEY, JSON.stringify(commState)); } catch {}
+  } else {
+    await sb.from('comm_state').upsert({ id:'default', state:commState, updated_at:new Date().toISOString() });  // one-time seed from localStorage
+  }
+}
+const COMM_MIGRATED_KEY = 'ops-comm-drafts-tasks-migrated-v1';
+async function migrateLocalDraftsTasks(){
+  try {
+    if (localStorage.getItem(COMM_MIGRATED_KEY)) return;
+    const local = safeJSON(localStorage.getItem(COMM_STATE_KEY), null);
+    const ld = local && Array.isArray(local.drafts) ? local.drafts : [];
+    const lt = local && Array.isArray(local.tasks) ? local.tasks : [];
+    if (ld.length && !allDrafts.length){ await sb.from('message_drafts').insert(ld.map(d => ({ client_id:d.clientId||null, to_email:d.to||'', cc:d.cc||'', bcc:d.bcc||'', subject:d.subject||'', body:d.body||'', body_html:d.bodyHtml||'' }))); await loadDrafts(); }
+    if (lt.length && !allTasks.length){ await sb.from('comm_tasks').insert(lt.map(t => ({ title:t.title||'Untitled task', status:t.status||'todo', priority:t.priority||'Medium', due_date:t.dueDate||null, email_id:t.emailId||null, notes:t.notes||'' }))); await loadTasks(); }
+    localStorage.setItem(COMM_MIGRATED_KEY, '1');
+  } catch {}
+}
 function metaFor(id){ const key = String(id || ''); if (!commState.messageMeta[key]) commState.messageMeta[key] = {}; return commState.messageMeta[key]; }
 function labels(){ return Array.from(new Set([...(commState.settings.labels || []), ...COMM_LABELS])).filter(Boolean); }
 function stripHTML(html=''){ const div=document.createElement('div'); div.innerHTML=html; return (div.textContent || div.innerText || '').trim(); }
@@ -72,6 +101,8 @@ async function loadMessages(){
   const { data, error } = await sb.from('messages').select('*').order('created_at', { ascending:false });
   if (error) { messagingSchemaReady = false; allMessages = []; } else { messagingSchemaReady = true; allMessages = data || []; }
   await Promise.all([loadDrafts(), loadTasks()]);
+  await migrateLocalDraftsTasks();
+  await pullCommState();
   refreshNotifications(); renderMailCounts(); if ($('page-messages')?.classList.contains('active')) renderMessages();
 }
 function normalizeDraft(row){ return { id:row.id, clientId:row.client_id||null, to:row.to_email||'', cc:row.cc||'', bcc:row.bcc||'', subject:row.subject||'', body:row.body||'', bodyHtml:row.body_html||'', createdAt:row.created_at, updatedAt:row.updated_at }; }
