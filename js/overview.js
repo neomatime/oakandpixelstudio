@@ -8,9 +8,84 @@ async function loadAll() {
   startLoad();
   await Promise.all([loadStats(), loadBookings(), loadSlots(), loadServices(), loadClients(), loadProjects(), loadRecentActivity(), loadRetainerOverview(), loadQuotes(), loadInvoices(), loadRetainers(), loadProposalEcosystem(), loadSigningRequests(), loadMandates(), loadApplications(), loadMessages()]);
   await runLifecycleEngine();
+  renderCommandHealth();
   endLoad();
 }
 
+function healthReady(value) {
+  return Boolean(value);
+}
+
+function healthChecks() {
+  const messagesReady = typeof messagingSchemaReady === 'undefined' || messagingSchemaReady;
+  return [
+    {
+      label: 'Core CRM',
+      ok: healthReady(Array.isArray(allClients) && Array.isArray(allBookings)),
+      detail: `${allClients.length} client${allClients.length === 1 ? '' : 's'} and ${allBookings.length} booking${allBookings.length === 1 ? '' : 's'} available.`
+    },
+    {
+      label: 'Services & Pricing',
+      ok: healthReady(Array.isArray(allServices) && allServices.length),
+      detail: allServices.length ? `${allServices.length} service${allServices.length === 1 ? '' : 's'} feeding admin and website pricing.` : 'Add at least one active service.'
+    },
+    {
+      label: 'Finance Engine',
+      ok: healthReady(financeSchemaReady && retainerSchemaReady),
+      detail: financeSchemaReady && retainerSchemaReady ? 'Quotes, invoices, retainers, and MRR are connected.' : 'Apply the finance/retainer migrations.'
+    },
+    {
+      label: 'Documents & Agreements',
+      ok: healthReady(proposalSchemaReady && mandateSchemaReady),
+      detail: proposalSchemaReady && mandateSchemaReady ? 'Templates, SOWs, proposals, agreements, and mandates are available.' : 'Document or mandate schema needs attention.'
+    },
+    {
+      label: 'Client Assets',
+      ok: healthReady(clientProfileSchemaReady && onboardingAssetSchemaReady),
+      detail: clientProfileSchemaReady && onboardingAssetSchemaReady ? 'Profiles, logos, asset requests, and repositories are ready.' : 'Client profile or asset repository migration is missing.'
+    },
+    {
+      label: 'Communications',
+      ok: healthReady(messagesReady),
+      detail: messagesReady ? 'Inbox, drafts, tasks, templates, and signature layer are ready.' : 'Apply the Communications migrations.'
+    }
+  ];
+}
+
+function renderCommandHealth() {
+  const root = $('command-health');
+  if (!root) return;
+  const checks = healthChecks();
+  const ready = checks.filter(item => item.ok).length;
+  const score = checks.length ? Math.min(9, 7 + (ready / checks.length) * 2).toFixed(1) : '7.0';
+  root.innerHTML = `
+    <div class="health-score">
+      <div>
+        <span>${score}</span>
+        <small>/ 10</small>
+      </div>
+      <p>${ready === checks.length ? 'Command Center is operating at premium readiness.' : `${checks.length - ready} area${checks.length - ready === 1 ? '' : 's'} need attention before this feels like a 9.`}</p>
+    </div>
+    <div class="health-list">
+      ${checks.map(item => `
+        <div class="health-item ${item.ok ? 'ready' : 'attention'}">
+          <span class="health-dot"></span>
+          <div>
+            <strong>${esc(item.label)}</strong>
+            <small>${esc(item.detail)}</small>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+document.addEventListener('click', e => {
+  if (e.target.closest('#health-refresh')) {
+    renderCommandHealth();
+    toast('Command health refreshed.');
+  }
+});
 /* ── Stats ── */
 async function loadStats() {
   ['stat-total','stat-pending','stat-confirmed','stat-slots'].forEach(id => {

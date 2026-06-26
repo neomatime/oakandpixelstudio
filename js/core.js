@@ -1418,11 +1418,33 @@ function schemaNotice(text) {
   return `<div class="mini-panel" style="grid-column:1/-1"><div class="mini-panel-body td-dim">${text}</div></div>`;
 }
 
-function toast(msg) {
+function toastKind(message, explicitType = '') {
+  if (explicitType) return explicitType;
+  const text = String(message || '').toLowerCase();
+  if (/error|failed|could not|cannot|unavailable|declined|overdue|network/.test(text)) return 'error';
+  if (/migration|schema|bucket|permissions|sign in again|select|required|missing/.test(text)) return 'warning';
+  if (/saved|updated|created|generated|sent|converted|uploaded|added|removed|deleted|recorded|up to date|linked/.test(text)) return 'success';
+  return 'info';
+}
+
+function toast(msg, type = '') {
   const el = $('toast');
-  el.textContent = msg;
+  if (!el) return;
+  const kind = toastKind(msg, type);
+  const labels = { success: 'Complete', warning: 'Attention', error: 'Needs Review', info: 'Command Center' };
+  const marks = { success: 'OK', warning: '!', error: '!', info: 'i' };
+  clearTimeout(toast._timer);
+  el.className = `toast toast-${kind}`;
+  el.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+  el.innerHTML = `
+    <span class="toast-mark" aria-hidden="true">${marks[kind] || 'i'}</span>
+    <span class="toast-copy">
+      <span class="toast-kicker">${labels[kind] || labels.info}</span>
+      <span class="toast-message">${esc(msg)}</span>
+    </span>
+  `;
   el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2800);
+  toast._timer = setTimeout(() => el.classList.remove('show'), kind === 'error' ? 4200 : 3200);
 }
 
 function emptyState(title, sub = '') {

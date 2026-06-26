@@ -13,7 +13,7 @@
 <meta name="theme-color" content="#1a1a18">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-<link rel="stylesheet" href="admin.css">
+<link rel="stylesheet" href="admin.css?v=20260626-command-health">
 </head>
 <body>
 
@@ -274,6 +274,15 @@
             <div class="card" style="margin-bottom:0">
               <div class="card-header"><span class="card-title">Last 7 Days</span></div>
               <div class="chart-wrap"><canvas id="chart-trend"></canvas></div>
+            </div>
+            <div class="card ops-health-card" style="margin-bottom:0">
+              <div class="card-header">
+                <span class="card-title">Command Health</span>
+                <button class="act-btn" id="health-refresh" type="button">Refresh</button>
+              </div>
+              <div id="command-health" class="command-health">
+                <p class="loading-row">Checking workspace...</p>
+              </div>
             </div>
           </div>
         </div>
@@ -819,9 +828,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="sow-blueprints.js"></script>
-<script src="js/core.js"></script>
-<script src="js/nav.js"></script>
-<script src="js/overview.js"></script>
+<script src="js/core.js?v=20260626-command-health"></script>
+<script src="js/nav.js?v=20260626-command-health"></script>
+<script src="js/overview.js?v=20260626-command-health"></script>
 <script src="js/bookings.js"></script>
 <script src="js/applications.js"></script>
 <script src="js/clients.js?v=20260623-logo-fallback"></script>

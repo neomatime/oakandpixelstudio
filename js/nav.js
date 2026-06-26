@@ -5,6 +5,7 @@ function initTheme() {
 }
 function applyTheme(mode) {
   document.documentElement.setAttribute('data-theme', mode);
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', mode === 'dark' ? '#0A0A09' : '#F5F4F1');
   const icon = mode === 'dark'
     ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
     : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
@@ -54,6 +55,7 @@ async function init() {
   initTheme();
   initSidebar();
   initOpsSelectSystem();
+  initOpsDialogSystem();
   buildTimePills();
   flatpickr.l10ns.default.firstDayOfWeek = 1;
   const _todayMidnight = new Date();
@@ -220,6 +222,7 @@ function switchPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
   $('page-title').textContent = PAGE_TITLES[name] || name;
   renderBreadcrumbs(name);
+  if (name === 'overview' && typeof renderCommandHealth === 'function') renderCommandHealth();
   if (name === 'quotes') renderQuotesTable();
   if (name === 'invoices') renderInvoicesTable();
   if (name === 'retainers') renderRetainersTable();
@@ -300,6 +303,37 @@ function syncOpsSelect(select, rebuild = false) {
   });
 }
 
+function opsSelectFocusableOptions(select) {
+  const ctx = select?._opsSelect;
+  return ctx ? [...ctx.menu.querySelectorAll('.ops-select-option:not(:disabled)')] : [];
+}
+
+function positionOpsSelectMenu(select) {
+  const ctx = select?._opsSelect;
+  if (!ctx) return;
+  const rect = ctx.wrap.getBoundingClientRect();
+  const below = window.innerHeight - rect.bottom;
+  const above = rect.top;
+  ctx.menu.classList.toggle('open-up', below < 280 && above > below);
+}
+
+function focusOpsSelectOption(select, direction = 'selected') {
+  const ctx = select?._opsSelect;
+  const options = opsSelectFocusableOptions(select);
+  if (!ctx || !options.length) return;
+  const activeIndex = options.indexOf(document.activeElement);
+  const selectedIndex = Math.max(0, options.findIndex(btn => btn.dataset.value === select.value));
+  let nextIndex = selectedIndex;
+  if (direction === 'next') nextIndex = activeIndex >= 0 ? Math.min(options.length - 1, activeIndex + 1) : selectedIndex;
+  if (direction === 'prev') nextIndex = activeIndex >= 0 ? Math.max(0, activeIndex - 1) : selectedIndex;
+  if (direction === 'first') nextIndex = 0;
+  if (direction === 'last') nextIndex = options.length - 1;
+  options.forEach(btn => btn.classList.remove('focused'));
+  const next = options[nextIndex] || options[0];
+  next.classList.add('focused');
+  next.focus({ preventScroll: true });
+  next.scrollIntoView({ block: 'nearest' });
+}
 function openOpsSelect(select) {
   const ctx = select?._opsSelect;
   if (!ctx || ctx.button.disabled) return;
@@ -310,8 +344,8 @@ function openOpsSelect(select) {
   ctx.button.setAttribute('aria-expanded', String(willOpen));
   if (willOpen) {
     requestAnimationFrame(() => {
-      const selected = ctx.menu.querySelector('.ops-select-option.selected');
-      if (selected) selected.scrollIntoView({ block: 'nearest' });
+      positionOpsSelectMenu(select);
+      focusOpsSelectOption(select, 'selected');
     });
   }
 }
@@ -320,6 +354,7 @@ function enhanceOpsSelect(select) {
   if (!select || select.dataset.opsSelect === 'true' || select.closest('.ops-select-menu')) return;
   const wrap = document.createElement('div');
   wrap.className = opsSelectClasses(select);
+  wrap._opsSelectHost = select;
   const id = `ops-select-${Math.random().toString(36).slice(2)}`;
   wrap.innerHTML = `
     <button class="ops-select-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="${id}">
@@ -361,10 +396,31 @@ function initOpsSelectSystem() {
   });
   document.addEventListener('keydown', e => {
     const openWrap = document.querySelector('.ops-select-wrap.open');
+    const triggerWrap = e.target.closest?.('.ops-select-wrap');
+    const triggerSelect = triggerWrap?._opsSelectHost;
+    if (!openWrap && triggerSelect && e.target.closest?.('.ops-select-trigger') && ['ArrowDown','ArrowUp','Enter',' '].includes(e.key)) {
+      e.preventDefault();
+      openOpsSelect(triggerSelect);
+      return;
+    }
     if (!openWrap) return;
-    if (e.key === 'Escape') {
+    const select = openWrap._opsSelectHost;
+    if (!select) return;
+    if (e.key === 'Escape' || e.key === 'Tab') {
       closeAllOpsSelects();
-      openWrap.querySelector('.ops-select-trigger')?.focus();
+      if (e.key === 'Escape') openWrap.querySelector('.ops-select-trigger')?.focus();
+      return;
+    }
+    if (e.key === 'ArrowDown') { e.preventDefault(); focusOpsSelectOption(select, 'next'); return; }
+    if (e.key === 'ArrowUp') { e.preventDefault(); focusOpsSelectOption(select, 'prev'); return; }
+    if (e.key === 'Home') { e.preventDefault(); focusOpsSelectOption(select, 'first'); return; }
+    if (e.key === 'End') { e.preventDefault(); focusOpsSelectOption(select, 'last'); return; }
+    if (e.key === 'Enter' || e.key === ' ') {
+      const option = document.activeElement?.closest?.('.ops-select-option');
+      if (option && openWrap.contains(option)) {
+        e.preventDefault();
+        option.click();
+      }
     }
   });
   opsSelectObserver = new MutationObserver(mutations => {
@@ -381,6 +437,34 @@ function initOpsSelectSystem() {
 }
 
 /* ── Modal ── */
+function initOpsDialogSystem() {
+  if (window.__opsDialogSystemReady) return;
+  window.__opsDialogSystemReady = true;
+  window.__opsNativeAlert = window.alert.bind(window);
+  window.alert = message => opsAlert({ message: String(message || '') });
+  window.opsNotice = message => opsAlert({ message: String(message || '') });
+}
+
+function opsAlert({ title = 'Notice', message = '', confirmText = 'OK' } = {}) {
+  showModal(`
+    <div class="confirm-body">
+      <div class="confirm-mark">
+        <svg viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M7 16h10"/></svg>
+      </div>
+      <div>
+        <div class="confirm-kicker">Oak &amp; Pixel Command</div>
+        <div class="confirm-title">${esc(title)}</div>
+        <p class="confirm-copy">${esc(message)}</p>
+      </div>
+    </div>
+    <div class="confirm-actions">
+      <button class="btn-add" id="alert-ok">${esc(confirmText)}</button>
+    </div>
+  `);
+  $('modal-box').classList.remove('wide');
+  $('modal-box').classList.add('confirm');
+  $('alert-ok')?.addEventListener('click', closeModal, { once:true });
+}
 function showModal(html) {
   $('modal-box').innerHTML = html;
   $('modal-overlay').style.display = 'flex';
