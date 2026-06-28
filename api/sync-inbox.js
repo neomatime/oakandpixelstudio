@@ -68,6 +68,7 @@ module.exports = async (req, res) => {
               fromName: fromAddr ? fromAddr.name : '',
               subject: mail.subject || '(no subject)',
               body: (mail.text || '').trim() || stripHtml(mail.html) || '(no text content)',
+              html: mail.html || '',
               date: mail.date ? mail.date.toISOString() : new Date().toISOString(),
             });
           } catch (e) { /* skip unparseable message */ }
@@ -97,6 +98,19 @@ module.exports = async (req, res) => {
     if (r.ok) (await r.json()).forEach(row => row.external_id && existing.add(row.external_id));
   } catch { /* if dedup read fails, fall through — unique index would still not exist, so accept dup risk */ }
 
+  // Backfill HTML onto already-imported emails stored before body_html existed.
+  // Only touches rows where body_html IS NULL — never changes read state.
+  const toBackfill = parsed.filter(p => existing.has(p.messageId) && p.html);
+  await Promise.all(toBackfill.map(async (p) => {
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/messages?external_id=eq.${encodeURIComponent(p.messageId)}&body_html=is.null`, {
+        method: 'PATCH',
+        headers: { ...sbHeaders, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+        body: JSON.stringify({ body_html: p.html }),
+      });
+    } catch { /* best-effort backfill */ }
+  }));
+
   const fresh = parsed.filter(p => !existing.has(p.messageId));
   if (!fresh.length) { res.status(200).json({ ok: true, new: 0 }); return; }
 
@@ -108,6 +122,7 @@ module.exports = async (req, res) => {
     recipient_email: p.from,
     subject: p.subject,
     body: p.body,
+    body_html: p.html || null,
     status: 'sent',
     is_read: false,
     external_id: p.messageId,

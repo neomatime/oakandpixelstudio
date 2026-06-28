@@ -1198,6 +1198,15 @@ select{color-scheme:dark;}
 .mail-read-controls label{display:flex;align-items:center;gap:.35rem;font-family:var(--font-m);font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mist);}
 .mail-read-controls select{min-width:130px;background:rgba(245,244,241,.04);border:1px solid var(--border-hi);color:var(--off-white);font-family:var(--font-b);font-size:.75rem;padding:.35rem .5rem;}
 .mail-read-body{flex:0 0 auto;padding:1.35rem;font-size:.9rem;line-height:1.72;color:var(--off-white);overflow-wrap:anywhere;}
+/* HTML email body — rendered in a sandboxed iframe so images + formatting show */
+.mail-html-body{display:block;width:100%;flex:0 0 auto;border:none;background:#fff;min-height:180px;}
+/* collapsible folder rail (more reading space) */
+.mail-folders-toggle{align-self:flex-end;width:24px;height:24px;flex-shrink:0;background:none;border:1px solid var(--border-hi);color:var(--mist);font-family:var(--font-m);font-size:.72rem;line-height:1;cursor:pointer;margin-bottom:.45rem;transition:border-color .2s,color .2s;}
+.mail-folders-toggle:hover{border-color:var(--gold);color:var(--off-white);}
+.mail-shell.folders-collapsed .mail-folder-name,.mail-shell.folders-collapsed .mail-folder-count,.mail-shell.folders-collapsed .mail-folder-label,.mail-shell.folders-collapsed .mail-label-chip{display:none;}
+.mail-shell.folders-collapsed .mail-folder{justify-content:center;}
+.mail-shell.folders-collapsed .mail-folders-toggle{align-self:center;}
+@media(min-width:1001px){.mail-shell.folders-collapsed{grid-template-columns:52px minmax(320px,.9fr) minmax(400px,1.55fr);}}
 .mail-thread,.mail-attachments{border-top:1px solid var(--border);padding:1rem 1.35rem;display:grid;gap:.45rem;}
 .mail-thread-title{font-family:var(--font-m);font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:.2rem;}
 .thread-item{background:rgba(245,244,241,.025);border:1px solid var(--border);color:var(--off-white);padding:.55rem .65rem;text-align:left;display:flex;flex-direction:column;gap:.12rem;}
