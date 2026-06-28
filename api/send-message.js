@@ -63,12 +63,13 @@ module.exports = async (req, res) => {
 
   const esc = v => String(v == null ? '' : v)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const fallbackHtml = `<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:700px;margin:0 auto;color:#1a1a18;line-height:1.6">
-    <div style="font-size:15px;white-space:pre-wrap">${esc(body || '')}</div>
-  </div>`;
-  const finalHtml = suppliedHtml
-    ? (/<!doctype html|<html[\s>]/i.test(suppliedHtml) ? suppliedHtml : `<!DOCTYPE html><html><body style="margin:0;padding:24px;background:#ffffff;">${suppliedHtml}</body></html>`)
-    : `<!DOCTYPE html><html><body style="margin:0;padding:24px;background:#ffffff;">${fallbackHtml}</body></html>`;
+  const fallbackHtml = `<div style="font-size:15px;white-space:pre-wrap">${esc(body || '')}</div>`;
+  // If suppliedHtml is already a full document, extract its body to avoid double-wrapping
+  const extractBody = html => { const m = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i); return m ? m[1] : html; };
+  const bodyContent = suppliedHtml
+    ? (/<!doctype html|<html[\s>]/i.test(suppliedHtml) ? extractBody(suppliedHtml) : suppliedHtml)
+    : fallbackHtml;
+  const finalHtml = buildOpsEmail(bodyContent);
 
   let response;
   try {
@@ -101,3 +102,23 @@ module.exports = async (req, res) => {
 
   res.status(200).json({ ok: true });
 };
+
+function buildOpsEmail(contentHtml) {
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#F0EFEC;font-family:Georgia,serif">
+<div style="max-width:620px;margin:2rem auto;background:#ffffff;border:1px solid #E0DFD8">
+  <div style="background:#0A0A09;padding:1.25rem 2rem;display:flex;align-items:center;gap:.75rem">
+    <img src="https://www.oakandpixel.co.za/images/oak-pixel-mark-hires-transparent.png" alt="Oak &amp; Pixel Studio" style="width:32px;height:32px;object-fit:contain">
+    <span style="color:#1A5C3A;font-size:1.3rem;font-family:Georgia,serif;font-weight:bold">Oak &amp; Pixel</span>
+    <span style="color:rgba(245,244,241,.25);font-size:1.1rem;margin:0 .1rem">|</span>
+    <span style="color:rgba(245,244,241,.45);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;font-family:monospace">Studio</span>
+  </div>
+  <div style="padding:2rem 2rem 1.5rem;color:#1a1a18;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.7">
+    ${contentHtml}
+  </div>
+  <div style="background:#F7F6F3;border-top:1px solid #E0DFD8;padding:1rem 2rem">
+    <p style="margin:0;color:#999;font-size:.75rem">Oak &amp; Pixel Studio &nbsp;·&nbsp; <a href="https://www.oakandpixel.co.za" style="color:#B8955A;text-decoration:none">oakandpixel.co.za</a> &nbsp;·&nbsp; <a href="mailto:info@oakandpixel.co.za" style="color:#B8955A;text-decoration:none">info@oakandpixel.co.za</a></p>
+  </div>
+</div>
+</body></html>`;
+}
