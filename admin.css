@@ -1129,8 +1129,10 @@ select{color-scheme:dark;}
 .comm-eyebrow{font-family:var(--font-m);font-size:.52rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:.25rem;}
 .comm-title{font-family:var(--font-d);font-size:1.65rem;font-weight:400;line-height:1;color:var(--off-white);}
 .comm-subtitle{font-size:.78rem;color:var(--mist);line-height:1.5;max-width:620px;margin-top:.4rem;}
-.comm-hero-actions{display:flex;gap:.55rem;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
-.comm-tabs{display:flex;gap:.25rem;align-items:center;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;}
+.comm-hero-actions{display:flex;gap:.55rem;align-items:center;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0;}
+.comm-tabbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;}
+.comm-tabbar .comm-hero-actions{padding:.35rem 0;}
+.comm-tabs{display:flex;gap:.25rem;align-items:center;flex-shrink:1;min-width:0;overflow-x:auto;}
 .comm-tab{background:none;border:none;color:var(--mist);font-family:var(--font-m);font-size:.58rem;letter-spacing:.13em;text-transform:uppercase;padding:.72rem .9rem;position:relative;white-space:nowrap;transition:color .18s,background .18s;}
 .comm-tab:hover{color:var(--off-white);background:rgba(245,244,241,.035);}
 .comm-tab.active{color:var(--off-white);}

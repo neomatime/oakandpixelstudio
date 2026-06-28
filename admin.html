@@ -786,26 +786,20 @@
       <!-- ══ COMMUNICATIONS HUB ══ -->
       <section class="page" id="page-messages">
         <div class="comm-page">
-          <div class="comm-hero">
-            <div class="comm-hero-copy">
-              <div class="comm-eyebrow">Business Operating System</div>
-              <h2 class="comm-title">Communications</h2>
-              <p class="comm-subtitle">Centralized client communication, reusable responses, files, and action items in one focused workspace.</p>
-            </div>
+          <div class="comm-tabbar">
+            <nav class="comm-tabs" id="comm-tabs" aria-label="Communications sections">
+              <button class="comm-tab active" type="button" data-comm-tab="inbox">Inbox</button>
+              <button class="comm-tab" type="button" data-comm-tab="contacts">Contacts</button>
+              <button class="comm-tab" type="button" data-comm-tab="attachments">Attachments</button>
+              <button class="comm-tab" type="button" data-comm-tab="templates">Templates</button>
+              <button class="comm-tab" type="button" data-comm-tab="tasks">Tasks</button>
+              <button class="comm-tab" type="button" data-comm-tab="settings">Settings</button>
+            </nav>
             <div class="comm-hero-actions">
               <button class="btn-ghost" type="button" id="comm-refresh-btn">Refresh Inbox</button>
               <button class="btn-add" type="button" id="mail-compose-btn">New Email</button>
             </div>
           </div>
-
-          <nav class="comm-tabs" id="comm-tabs" aria-label="Communications sections">
-            <button class="comm-tab active" type="button" data-comm-tab="inbox">Inbox</button>
-            <button class="comm-tab" type="button" data-comm-tab="contacts">Contacts</button>
-            <button class="comm-tab" type="button" data-comm-tab="attachments">Attachments</button>
-            <button class="comm-tab" type="button" data-comm-tab="templates">Templates</button>
-            <button class="comm-tab" type="button" data-comm-tab="tasks">Tasks</button>
-            <button class="comm-tab" type="button" data-comm-tab="settings">Settings</button>
-          </nav>
 
           <div class="comm-body" id="comm-body"></div>
         </div>

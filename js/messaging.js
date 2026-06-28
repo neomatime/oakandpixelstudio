@@ -173,7 +173,7 @@ function kpisHTML(){ const activeTasks=allTasks.filter(t => t.status !== 'comple
 function folderIcon(folder){ return ({all:'A',inbox:'I',unread:'U',starred:'*',important:'!',archived:'R',drafts:'D'})[folder] || 'M'; }
 function folderButton(folder,label,countId){ return `<button class="mail-folder${mailFolder===folder?' active':''}" type="button" data-folder="${folder}"><span class="mail-folder-icon">${folderIcon(folder)}</span><span class="mail-folder-name">${label}</span><span class="mail-folder-count" id="${countId}"></span></button>`; }
 function renderInbox(body){
-  body.innerHTML = `${kpisHTML()}<div class="mail-shell${commState.settings.foldersCollapsed?' folders-collapsed':''}"><aside class="mail-folders">
+  body.innerHTML = `<div class="mail-shell${commState.settings.foldersCollapsed?' folders-collapsed':''}"><aside class="mail-folders">
     <button class="mail-folders-toggle" type="button" data-folders-toggle title="${commState.settings.foldersCollapsed?'Expand folders':'Collapse folders'}" aria-label="Toggle folder panel">${commState.settings.foldersCollapsed?'&raquo;':'&laquo;'}</button>
     ${folderButton('all','All Mail','mail-all-count')}${folderButton('inbox','Inbox','mail-inbox-count')}${folderButton('unread','Unread','mail-unread-count')}${folderButton('starred','Starred','mail-starred-count')}${folderButton('important','Important','mail-important-count')}${folderButton('archived','Archived','mail-archived-count')}${folderButton('drafts','Drafts','mail-drafts-count')}
     <div class="mail-folder-label">Labels</div>${labels().map(l => `<button class="mail-label-chip" type="button" data-mail-label-chip="${esc(l)}"><span></span>${esc(l)}</button>`).join('')}
