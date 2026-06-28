@@ -14,7 +14,7 @@
 const { ImapFlow } = require('imapflow');
 const { simpleParser } = require('mailparser');
 
-const FETCH_RECENT = 25;   // how many of the newest INBOX messages to scan per run
+const FETCH_RECENT = 40;   // how many of the newest INBOX messages to scan per run
 const DEDUP_LOOKBACK = 200; // recent inbound external_ids to compare against
 
 module.exports = async (req, res) => {
@@ -88,31 +88,36 @@ module.exports = async (req, res) => {
 
   if (!parsed.length) { res.status(200).json({ ok: true, new: 0 }); return; }
 
-  // ── Dedup against already-imported external_ids ──
-  let existing = new Set();
+  // ── Look up already-imported inbound rows (for dedup + HTML backfill) ──
+  const existingByExtId = {};  // external_id -> { id, hasHtml }
   try {
     const r = await fetch(
-      `${SUPABASE_URL}/rest/v1/messages?direction=eq.inbound&select=external_id&order=created_at.desc&limit=${DEDUP_LOOKBACK}`,
+      `${SUPABASE_URL}/rest/v1/messages?direction=eq.inbound&select=id,external_id,body_html&order=created_at.desc&limit=${DEDUP_LOOKBACK}`,
       { headers: sbHeaders }
     );
-    if (r.ok) (await r.json()).forEach(row => row.external_id && existing.add(row.external_id));
-  } catch { /* if dedup read fails, fall through — unique index would still not exist, so accept dup risk */ }
+    if (r.ok) (await r.json()).forEach(row => {
+      if (row.external_id) existingByExtId[row.external_id] = { id: row.id, hasHtml: Boolean(row.body_html && String(row.body_html).length) };
+    });
+  } catch { /* dedup read failed — proceed, accepting some dup risk */ }
 
-  // Backfill HTML onto already-imported emails stored before body_html existed.
-  // Only touches rows where body_html IS NULL — never changes read state.
-  const toBackfill = parsed.filter(p => existing.has(p.messageId) && p.html);
+  // Backfill HTML onto already-imported emails missing it. Match by row id
+  // (uuid) so special chars in Message-IDs can't break the filter; only sets
+  // body_html — read/star/archive state is never touched.
+  let backfilled = 0;
+  const toBackfill = parsed.filter(p => existingByExtId[p.messageId] && !existingByExtId[p.messageId].hasHtml && p.html);
   await Promise.all(toBackfill.map(async (p) => {
     try {
-      await fetch(`${SUPABASE_URL}/rest/v1/messages?external_id=eq.${encodeURIComponent(p.messageId)}&body_html=is.null`, {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/messages?id=eq.${existingByExtId[p.messageId].id}`, {
         method: 'PATCH',
         headers: { ...sbHeaders, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
         body: JSON.stringify({ body_html: p.html }),
       });
-    } catch { /* best-effort backfill */ }
+      if (r.ok) backfilled++;
+    } catch { /* best-effort */ }
   }));
 
-  const fresh = parsed.filter(p => !existing.has(p.messageId));
-  if (!fresh.length) { res.status(200).json({ ok: true, new: 0 }); return; }
+  const fresh = parsed.filter(p => !existingByExtId[p.messageId]);
+  if (!fresh.length) { res.status(200).json({ ok: true, new: 0, backfilled }); return; }
 
   // ── Map senders to clients, then insert ──
   const emailToClient = await mapClients(fresh.map(p => p.from), SUPABASE_URL, sbHeaders);
@@ -143,7 +148,7 @@ module.exports = async (req, res) => {
     res.status(502).json({ error: 'Could not save inbound mail' }); return;
   }
 
-  res.status(200).json({ ok: true, new: rows.length });
+  res.status(200).json({ ok: true, new: rows.length, backfilled });
 };
 
 async function verifyCaller(req, supabaseUrl, serviceKey) {
