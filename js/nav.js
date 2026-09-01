@@ -68,10 +68,14 @@ async function init() {
 
   const { data: { session } } = await sb.auth.getSession();
   if (session) showApp(session.user);
+  else showLogin();
 
-  sb.auth.onAuthStateChange((_e, session) => {
-    if (session) showApp(session.user);
-    else showLogin();
+  // Only react to explicit sign-in / sign-out — not token refreshes or
+  // the INITIAL_SESSION event, which can fire with null during restoration
+  // and would incorrectly boot the user to the login screen.
+  sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN')  showApp(session.user);
+    if (event === 'SIGNED_OUT') showLogin();
   });
 }
 
