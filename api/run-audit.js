@@ -56,8 +56,8 @@ module.exports = async (req, res) => {
     });
     clearTimeout(tid);
     const raw = await r.text();
-    siteHtml = raw.slice(0, 22000); // ~22k chars covers most page structure
-    if (raw.length > 22000) fetchNote = ' (HTML truncated)';
+    siteHtml = raw.slice(0, 18000); // 18k chars covers page structure; leaves room for AI response
+    if (raw.length > 18000) fetchNote = ' (HTML truncated)';
   } catch (e) {
     siteHtml = `[Website fetch failed: ${e.message}]`;
     fetchNote = ' (site unreachable)';
@@ -77,7 +77,7 @@ module.exports = async (req, res) => {
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2000,
+        max_tokens: 4096,
         messages: [{ role: 'user', content: buildPrompt(website_url, siteHtml) }],
       }),
     });
@@ -86,16 +86,28 @@ module.exports = async (req, res) => {
     const raw = (aiData.content?.[0]?.text || '').trim();
     // Strip markdown fences if the model added them
     const jsonText = raw.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '');
-    const parsed = JSON.parse(jsonText);
 
-    if (parsed.scores && typeof parsed.scores === 'object') {
-      CATEGORIES.forEach(c => {
-        if (c in parsed.scores) scores[c] = Number(parsed.scores[c]) || 0;
-      });
+    let parsed = null;
+    try {
+      parsed = JSON.parse(jsonText);
+    } catch {
+      // JSON truncated — try to salvage the scores object alone
+      const scoresMatch = jsonText.match(/"scores"\s*:\s*\{([^}]+)\}/);
+      if (scoresMatch) {
+        try { parsed = { scores: JSON.parse(`{${scoresMatch[1]}}`), findings: [] }; } catch {}
+      }
     }
-    if (Array.isArray(parsed.findings)) findings = parsed.findings.slice(0, 8);
+
+    if (parsed) {
+      if (parsed.scores && typeof parsed.scores === 'object') {
+        CATEGORIES.forEach(c => {
+          if (c in parsed.scores) scores[c] = Number(parsed.scores[c]) || 0;
+        });
+      }
+      if (Array.isArray(parsed.findings)) findings = parsed.findings.slice(0, 8);
+    }
   } catch (e) {
-    fetchNote += ` (AI parse error: ${e.message})`;
+    fetchNote += ` (AI error: ${e.message})`;
   }
 
   // Clamp scores and compute overall
