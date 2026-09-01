@@ -124,7 +124,7 @@
 
       <button class="nav-item" data-page="clients">
         <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M16 3.13a4 4 0 010 7.75"/><polyline points="17 21 19 23 23 19"/></svg>
-        Clients
+        Accounts
         <span class="nav-badge" id="clients-badge"></span>
       </button>
 
@@ -424,20 +424,33 @@
         </div>
       </section>
 
-      <!-- ── CLIENTS ── -->
+      <!-- ── ACCOUNTS ── -->
       <section class="page" id="page-clients">
         <div class="card">
+          <div class="accounts-intro">
+            <div><div class="accounts-eyebrow">Command Center / Accounts</div><h2>Accounts</h2><p>Manage prospects, clients and partners throughout the OPS lifecycle.</p></div>
+            <div class="filter-tabs account-view-tabs" id="account-view-tabs">
+              <button class="filter-tab active" data-account-view="all">All</button>
+              <button class="filter-tab" data-account-view="leads">Leads</button>
+              <button class="filter-tab" data-account-view="progress">In Progress</button>
+              <button class="filter-tab" data-account-view="active">Active Clients</button>
+              <button class="filter-tab" data-account-view="partners">Partners</button>
+            </div>
+          </div>
           <div class="section-toolbar">
             <div class="toolbar-left">
-              <input type="text" class="search-input" id="client-search" placeholder="Search by name or email...">
+              <input type="text" class="search-input" id="client-search" placeholder="Search accounts…">
+              <select class="client-filter" id="account-stage-filter"><option value="all">All stages</option></select>
               <select class="client-filter" id="client-plan-filter">
                 <option value="all">All plans</option>
                 <option value="Signature">Signature</option>
                 <option value="Growth">Growth</option>
                 <option value="Premium">Premium</option>
               </select>
+              <select class="client-filter" id="account-score-filter"><option value="all">All opportunity scores</option><option value="High">High</option><option value="Qualified">Qualified</option><option value="Review">Review</option><option value="Low">Low</option></select>
+              <select class="client-filter" id="account-source-filter"><option value="all">All sources</option></select>
             </div>
-            <button class="btn-add" id="add-client-btn">Add Client</button>
+            <button class="btn-add" id="add-client-btn">+ Add Account</button>
           </div>
           <div id="clients-table"><p class="loading-row">Loading…</p></div>
         </div>
@@ -828,6 +841,7 @@
 <script src="js/bookings.js"></script>
 <script src="js/applications.js"></script>
 <script src="js/clients.js?v=20260623-logo-fallback"></script>
+<script src="js/accounts-commercial.js?v=20260901-phase1"></script>
 <script src="js/projects.js"></script>
 <script src="js/services.js"></script>
 <script src="js/documents.js"></script>
