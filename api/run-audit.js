@@ -121,20 +121,23 @@ module.exports = async (req, res) => {
   }
 
   const now = new Date().toISOString();
+  const track = async promise => { const err = await promise; if (err) dbErrors.push(err); };
 
   // A failed scoring pass must not be recorded as a completed audit — writing
-  // zeros would look like a real result.
+  // zeros would look like a real result. Roll the audit back to In Progress
+  // ('Failed' is not one of the statuses the table's CHECK constraint allows)
+  // so it reads as started-but-unfinished and can be re-run.
   if (aiError) {
-    await sbPatch(SB_URL, SB_KEY, 'website_audits', `id=eq.${audit_id}`, {
-      status: 'Failed', completed_at: now,
-    });
-    await sbPost(SB_URL, SB_KEY, 'account_activities', {
+    await track(sbPatch(SB_URL, SB_KEY, 'website_audits', `id=eq.${audit_id}`, {
+      status: 'In Progress', overall_score: null, completed_at: null,
+    }));
+    await track(sbPost(SB_URL, SB_KEY, 'account_activities', {
       account_id,
       activity_type: 'audit_failed',
       title: 'Website audit failed',
       detail: `${aiError}${fetchNote}`,
-    });
-    res.status(502).json({ error: aiError });
+    }));
+    res.status(502).json({ error: aiError, ...(dbErrors.length ? { dbErrors } : {}) });
     return;
   }
 
@@ -147,8 +150,6 @@ module.exports = async (req, res) => {
   const values = TIER_VALUES[tier];
 
   // ── 3. Write to Supabase ───────────────────────────────────────────────────
-
-  const track = async promise => { const err = await promise; if (err) dbErrors.push(err); };
 
   // Clear prior scores + findings for this audit so a re-run replaces them
   await Promise.all([
