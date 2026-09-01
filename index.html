@@ -313,7 +313,8 @@ section{position:relative}
 .founder-card.reveal.visible{transform:translateY(var(--founder-lift));}
 .founder-media{
   min-height:min(640px,calc(100svh - 140px));
-  background:#C8C2B8;position:relative;overflow:hidden;
+  background:linear-gradient(145deg,#D4CEC4 0%,#C6BFB5 100%);position:relative;overflow:hidden;
+  display:grid;place-items:center;padding:2.25rem;
 }
 .founder-media::before{display:none;}
 .founder-media::after{
@@ -323,7 +324,10 @@ section{position:relative}
   padding:.58rem .78rem;backdrop-filter:blur(12px);
 }
 .founder-media img{
-  width:100%;height:100%;object-fit:cover;object-position:center top;display:block;
+  width:min(74%,320px);height:auto;
+  object-fit:cover;object-position:center top;display:block;
+  border:1px solid rgba(255,255,255,.28);
+  box-shadow:0 22px 55px rgba(26,26,24,.16);
   filter:saturate(.82) contrast(1.06);
   transform:translate3d(var(--portrait-x),var(--portrait-y),0) scale(1.02);
   transition:transform 1s var(--ease-expo),filter .8s ease;
@@ -1371,7 +1375,8 @@ footer{
   /* About */
   .about-grid { grid-template-columns: 1fr; gap: 4rem; }
   .founder-card { grid-template-columns: 1fr; }
-  .founder-media { min-height: 440px; border-right:0; border-bottom:1px solid rgba(26,26,24,.07); }
+  .founder-media { min-height: 440px; border-right:0; border-bottom:1px solid rgba(26,26,24,.07); padding:1.75rem; }
+  .founder-media img { width:min(46%,280px);height:auto; }
   .founder-copy { padding: 2.8rem 2.5rem; }
   .founder-copy::before { top:2.5rem; right:2.5rem; }
   .founder-statement { max-width: 620px; }
@@ -1429,7 +1434,8 @@ footer{
   .about-grid   { grid-template-columns: 1fr; gap: 3rem; }
   .about-stats  { grid-template-columns: 1fr 1fr; }
   .about-headline { font-size: clamp(2rem, 7vw, 3rem); }
-  .founder-media { min-height: 330px; }
+  .founder-media { min-height: 330px;padding:1.25rem; }
+  .founder-media img { width:min(62%,220px);height:auto; }
   .founder-media::after { left:1.25rem; bottom:1.25rem; padding:.52rem .72rem; }
   .founder-copy { padding: 2.15rem 1.45rem 2.5rem; }
   .founder-eyebrow { margin-bottom:.6rem; }
@@ -1497,6 +1503,7 @@ footer{
   .about-stats { grid-template-columns: 1fr 1fr; }
   .stat-num    { font-size: 3rem; }
   .founder-media { min-height: 295px; }
+  .founder-media img { width:min(62%,195px);height:auto; }
   .founder-copy { padding: 1.85rem 1.2rem; }
   .founder-role { line-height:1.6; }
   .founder-meta-value { font-size:.98rem; }
