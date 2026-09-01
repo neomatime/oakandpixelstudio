@@ -24,6 +24,7 @@
     { "path": "/api/sync-inbox", "schedule": "0 6 * * *" }
   ],
   "functions": {
-    "api/sync-inbox.js": { "maxDuration": 30 }
+    "api/sync-inbox.js": { "maxDuration": 30 },
+    "api/run-audit.js":  { "maxDuration": 45 }
   }
 }
