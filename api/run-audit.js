@@ -39,10 +39,7 @@ module.exports = async (req, res) => {
     return;
   }
 
-  // Mark job as Running
-  await sbPatch(SB_URL, SB_KEY, 'audit_jobs', `audit_id=eq.${audit_id}`, {
-    status: 'Running', started_at: new Date().toISOString(),
-  });
+  const dbErrors = [];
 
   // ── 1. Fetch website HTML ──────────────────────────────────────────────────
   let siteHtml = '';
@@ -67,6 +64,8 @@ module.exports = async (req, res) => {
   let scores = Object.fromEntries(CATEGORIES.map(c => [c, 0]));
   let findings = [];
 
+  let aiError = null;
+
   try {
     const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -76,38 +75,67 @@ module.exports = async (req, res) => {
         'content-type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 4096,
+        model: 'claude-opus-5',
+        max_tokens: 8000,
+        // Thinking is on by default on Opus 5; medium effort keeps the run
+        // inside the serverless time limit.
+        output_config: { effort: 'medium' },
         messages: [{ role: 'user', content: buildPrompt(website_url, siteHtml) }],
       }),
     });
 
     const aiData = await aiRes.json();
-    const raw = (aiData.content?.[0]?.text || '').trim();
+
+    if (!aiRes.ok) {
+      // Surface the real API error instead of failing silently with zero scores.
+      throw new Error(aiData?.error?.message || `Anthropic HTTP ${aiRes.status}`);
+    }
+
+    // Find the text block by type — content[0] is a thinking block when
+    // thinking is enabled, and reading it yields undefined.
+    const textBlock = (aiData.content || []).find(b => b.type === 'text');
+    const raw = (textBlock?.text || '').trim();
+    if (!raw) throw new Error(`No text block in response (stop_reason: ${aiData.stop_reason})`);
+
     // Strip markdown fences if the model added them
     const jsonText = raw.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '');
 
-    let parsed = null;
+    let parsed;
     try {
       parsed = JSON.parse(jsonText);
     } catch {
-      // JSON truncated — try to salvage the scores object alone
-      const scoresMatch = jsonText.match(/"scores"\s*:\s*\{([^}]+)\}/);
-      if (scoresMatch) {
-        try { parsed = { scores: JSON.parse(`{${scoresMatch[1]}}`), findings: [] }; } catch {}
-      }
+      // Output hit max_tokens mid-JSON — salvage the scores object alone
+      const m = jsonText.match(/"scores"\s*:\s*\{([^}]+)\}/);
+      if (!m) throw new Error(`Unparseable response: ${jsonText.slice(0, 200)}`);
+      parsed = { scores: JSON.parse(`{${m[1]}}`), findings: [] };
     }
 
-    if (parsed) {
-      if (parsed.scores && typeof parsed.scores === 'object') {
-        CATEGORIES.forEach(c => {
-          if (c in parsed.scores) scores[c] = Number(parsed.scores[c]) || 0;
-        });
-      }
-      if (Array.isArray(parsed.findings)) findings = parsed.findings.slice(0, 8);
+    if (parsed.scores && typeof parsed.scores === 'object') {
+      CATEGORIES.forEach(c => {
+        if (c in parsed.scores) scores[c] = Number(parsed.scores[c]) || 0;
+      });
     }
+    if (Array.isArray(parsed.findings)) findings = parsed.findings.slice(0, 8);
   } catch (e) {
-    fetchNote += ` (AI error: ${e.message})`;
+    aiError = e.message;
+  }
+
+  const now = new Date().toISOString();
+
+  // A failed scoring pass must not be recorded as a completed audit — writing
+  // zeros would look like a real result.
+  if (aiError) {
+    await sbPatch(SB_URL, SB_KEY, 'website_audits', `id=eq.${audit_id}`, {
+      status: 'Failed', completed_at: now,
+    });
+    await sbPost(SB_URL, SB_KEY, 'account_activities', {
+      account_id,
+      activity_type: 'audit_failed',
+      title: 'Website audit failed',
+      detail: `${aiError}${fetchNote}`,
+    });
+    res.status(502).json({ error: aiError });
+    return;
   }
 
   // Clamp scores and compute overall
@@ -117,27 +145,26 @@ module.exports = async (req, res) => {
   // Tier recommendation (mirrors recommendOpsTier in accounts-commercial.js)
   const { tier, confidence, rationale } = recommendTier(scores);
   const values = TIER_VALUES[tier];
-  const now = new Date().toISOString();
 
   // ── 3. Write to Supabase ───────────────────────────────────────────────────
 
-  // Delete stale scores + findings for this audit run (clean re-run)
+  const track = async promise => { const err = await promise; if (err) dbErrors.push(err); };
+
+  // Clear prior scores + findings for this audit so a re-run replaces them
   await Promise.all([
-    sbDelete(SB_URL, SB_KEY, 'audit_category_scores', `audit_id=eq.${audit_id}`),
-    sbDelete(SB_URL, SB_KEY, 'audit_findings', `audit_id=eq.${audit_id}`),
+    track(sbDelete(SB_URL, SB_KEY, 'audit_category_scores', `audit_id=eq.${audit_id}`)),
+    track(sbDelete(SB_URL, SB_KEY, 'audit_findings', `audit_id=eq.${audit_id}`)),
   ]);
 
-  // Insert fresh category scores
-  await sbPost(SB_URL, SB_KEY, 'audit_category_scores',
+  await track(sbPost(SB_URL, SB_KEY, 'audit_category_scores',
     CATEGORIES.map(c => ({ audit_id, category: c, score: scores[c] })),
-  );
+  ));
 
-  // Insert findings
   if (findings.length) {
     const validCategory = c => CATEGORIES.includes(c) ? c : CATEGORIES[0];
-    await sbPost(SB_URL, SB_KEY, 'audit_findings',
+    await track(sbPost(SB_URL, SB_KEY, 'audit_findings',
       findings.map((f, i) => ({
-        audit_id, account_id,
+        audit_id,
         category: validCategory(f.category),
         ops_capability: tier,
         finding:         String(f.finding         || '').slice(0, 500),
@@ -146,21 +173,18 @@ module.exports = async (req, res) => {
         recommendation:  String(f.recommendation  || '').slice(0, 500),
         sort_order: i,
       })),
-    );
+    ));
   }
 
-  // Update audit record
-  await sbPatch(SB_URL, SB_KEY, 'website_audits', `id=eq.${audit_id}`, {
+  await track(sbPatch(SB_URL, SB_KEY, 'website_audits', `id=eq.${audit_id}`, {
     overall_score: overall, status: 'Completed', completed_at: now,
-  });
+  }));
 
-  // Service recommendation record
-  await sbPost(SB_URL, SB_KEY, 'service_recommendations', {
+  await track(sbPost(SB_URL, SB_KEY, 'service_recommendations', {
     account_id, audit_id, recommended_tier: tier, confidence, rationale,
-  });
+  }));
 
-  // Update the account
-  await sbPatch(SB_URL, SB_KEY, 'clients', `id=eq.${account_id}`, {
+  await track(sbPatch(SB_URL, SB_KEY, 'clients', `id=eq.${account_id}`, {
     recommended_service_tier: tier,
     recommendation_confidence: confidence,
     recommendation_rationale: rationale,
@@ -168,23 +192,20 @@ module.exports = async (req, res) => {
     estimated_setup_value: values.setup,
     estimated_monthly_value: values.monthly,
     last_website_check: now,
-  });
+  }));
 
-  // Activity log
-  await sbPost(SB_URL, SB_KEY, 'account_activities', {
+  await track(sbPost(SB_URL, SB_KEY, 'account_activities', {
     account_id,
     activity_type: 'audit_completed',
     title: 'Website audit completed by OPS Discovery Engine',
     detail: `Overall score: ${overall} / 100 · Recommended: ${tier}${fetchNote}`,
-  });
+  }));
 
-  // Mark job complete
-  await sbPatch(SB_URL, SB_KEY, 'audit_jobs', `audit_id=eq.${audit_id}`, {
-    status: 'Completed', completed_at: now,
-    output: { overall, tier, confidence, scores },
+  res.status(200).json({
+    ok: true, overall, tier, confidence, scores,
+    findingCount: findings.length,
+    ...(dbErrors.length ? { dbErrors } : {}),
   });
-
-  res.status(200).json({ ok: true, overall, tier, confidence, scores, findingCount: findings.length });
 };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -268,27 +289,42 @@ function recommendTier(scores) {
   };
 }
 
+// Each helper resolves to null on success, or an error string on failure.
+// Never swallow the response — a rejected write (bad column, RLS, constraint)
+// is otherwise invisible and looks like a silent no-op.
+async function sbWrite(url, table, init) {
+  let r;
+  try {
+    r = await fetch(url, init);
+  } catch (e) {
+    return `${table}: ${e.message}`;
+  }
+  if (r.ok) return null;
+  const body = await r.text().catch(() => '');
+  return `${table}: HTTP ${r.status} ${body.slice(0, 300)}`;
+}
+
 async function sbPost(baseUrl, key, table, body) {
-  return fetch(`${baseUrl}/rest/v1/${table}`, {
+  return sbWrite(`${baseUrl}/rest/v1/${table}`, table, {
     method: 'POST',
     headers: sbHeaders(key, 'return=minimal'),
     body: JSON.stringify(body),
-  }).catch(() => null);
+  });
 }
 
 async function sbPatch(baseUrl, key, table, filter, body) {
-  return fetch(`${baseUrl}/rest/v1/${table}?${filter}`, {
+  return sbWrite(`${baseUrl}/rest/v1/${table}?${filter}`, table, {
     method: 'PATCH',
     headers: sbHeaders(key, 'return=minimal'),
     body: JSON.stringify(body),
-  }).catch(() => null);
+  });
 }
 
 async function sbDelete(baseUrl, key, table, filter) {
-  return fetch(`${baseUrl}/rest/v1/${table}?${filter}`, {
+  return sbWrite(`${baseUrl}/rest/v1/${table}?${filter}`, table, {
     method: 'DELETE',
     headers: sbHeaders(key, 'return=minimal'),
-  }).catch(() => null);
+  });
 }
 
 function sbHeaders(key, prefer) {

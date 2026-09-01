@@ -25,6 +25,6 @@
   ],
   "functions": {
     "api/sync-inbox.js": { "maxDuration": 30 },
-    "api/run-audit.js":  { "maxDuration": 45 }
+    "api/run-audit.js":  { "maxDuration": 60 }
   }
 }
