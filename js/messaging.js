@@ -202,8 +202,34 @@ function mailBodyHTML(m){
   }
   return `<div class="mail-read-body">${nl2br(m.body || '')}</div>`;
 }
+function safeMailLinkUrl(raw=''){
+  const value=String(raw || '').trim();
+  if (!value || value.startsWith('#')) return '';
+  try {
+    const url=new URL(value, window.location.href);
+    return ['https:','http:','mailto:','tel:'].includes(url.protocol) ? url.href : '';
+  } catch { return ''; }
+}
+function wireMailFrameLinks(frame){
+  try {
+    if (!frame || frame.dataset.mailLinksWired==='true') return;
+    const doc=frame.contentDocument;
+    if (!doc) return;
+    frame.dataset.mailLinksWired='true';
+    doc.addEventListener('click', event => {
+      const link=event.target && event.target.closest ? event.target.closest('a[href]') : null;
+      if (!link) return;
+      event.preventDefault();
+      const url=safeMailLinkUrl(link.href || link.getAttribute('href'));
+      if (!url) return;
+      const opened=window.open(url, '_blank', 'noopener,noreferrer');
+      if (opened) opened.opener=null;
+    });
+  } catch (e) {}
+}
 function sizeMailFrame(frame){
   try {
+    wireMailFrameLinks(frame);
     const apply = () => { const b = frame.contentDocument && frame.contentDocument.body; if (b && b.scrollHeight) frame.style.height = Math.min(b.scrollHeight + 24, 6000) + 'px'; };
     apply(); setTimeout(apply, 400); setTimeout(apply, 1200);
   } catch (e) {}

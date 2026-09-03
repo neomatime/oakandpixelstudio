@@ -33,3 +33,33 @@ test('/admin.html renders the login screen', async ({ page }) => {
   await expect(page.locator('#login-btn')).toBeVisible();
   await expect(page.locator('#login-email')).toBeVisible();
 });
+
+test('email preview opens safe links and blocks unsafe schemes', async ({ page }) => {
+  await page.goto('/admin.html', { waitUntil: 'load' });
+  await page.evaluate(() => {
+    window.__openedMailLinks = [];
+    window.open = (...args) => {
+      window.__openedMailLinks.push(args);
+      return null;
+    };
+    document.body.innerHTML = mailBodyHTML({
+      body_html: '<a id="safe-mail-link" href="https://example.com/invite?token=test">Accept invitation</a><a id="unsafe-js-link" href="javascript:void(0)">Unsafe JS</a><a id="unsafe-data-link" href="data:text/html,bad">Unsafe data</a>'
+    });
+  });
+
+  const frame = page.locator('iframe.mail-html-body');
+  await expect(frame).toBeVisible();
+  await expect(frame).toHaveAttribute('data-mail-links-wired', 'true');
+  const frameBody = page.frameLocator('iframe.mail-html-body');
+  await frameBody.locator('#safe-mail-link').click();
+  await frameBody.locator('#unsafe-js-link').click();
+  await frameBody.locator('#unsafe-data-link').click();
+
+  const opened = await page.evaluate(() => window.__openedMailLinks);
+  expect(opened).toHaveLength(1);
+  expect(opened[0]).toEqual([
+    'https://example.com/invite?token=test',
+    '_blank',
+    'noopener,noreferrer'
+  ]);
+});
