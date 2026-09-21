@@ -34,6 +34,25 @@ test('/admin.html renders the login screen', async ({ page }) => {
   await expect(page.locator('#login-email')).toBeVisible();
 });
 
+test('email composer recognises copy around or inside the signature', async ({ page }) => {
+  await page.goto('/admin.html', { waitUntil: 'load' });
+  const result = await page.evaluate(() => {
+    const signature = opsEmailSignatureHTML();
+    const outside = textWithoutOpsEmailSignature(`<p>Please review the recommendations.</p>${signature}`);
+    const signatureOnly = textWithoutOpsEmailSignature(signature);
+    const nested = document.createElement('div');
+    nested.innerHTML = signature;
+    nested.querySelector('[data-ops-email-signature] td').appendChild(
+      Object.assign(document.createElement('p'), { textContent: 'Please review the attached recommendations.' })
+    );
+    const inside = textWithoutOpsEmailSignature(nested.innerHTML);
+    return { outside, signatureOnly, inside };
+  });
+  expect(result.outside).toContain('Please review the recommendations.');
+  expect(result.inside).toContain('Please review the attached recommendations.');
+  expect(result.signatureOnly).toBe('');
+});
+
 test('email preview opens safe links and blocks unsafe schemes', async ({ page }) => {
   await page.goto('/admin.html', { waitUntil: 'load' });
   await page.evaluate(() => {

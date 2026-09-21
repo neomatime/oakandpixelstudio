@@ -409,11 +409,38 @@ function appendOpsEmailSignature(html = '') {
   return `${body}${spacer}${opsEmailSignatureHTML()}`;
 }
 
+function normalizeEmailText(value = '') {
+  return String(value || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
 function textWithoutOpsEmailSignature(html = '') {
   const div = document.createElement('div');
   div.innerHTML = String(html || '');
-  div.querySelectorAll('[data-ops-email-signature]').forEach(node => node.remove());
-  return (div.textContent || div.innerText || '').replace(/\u00a0/g, ' ').trim();
+  const signatureNodes = [...div.querySelectorAll('[data-ops-email-signature]')];
+  signatureNodes.forEach(node => node.remove());
+  const outsideSignature = normalizeEmailText(div.textContent || div.innerText || '');
+  if (outsideSignature || !signatureNodes.length) return outsideSignature;
+
+  // Contenteditable can occasionally place typed copy inside the signature's
+  // outer table. Keep text nodes that do not belong to the signature template.
+  const signature = document.createElement('div');
+  signature.innerHTML = opsEmailSignatureHTML();
+  const templateParts = new Map();
+  const templateNodes = document.createTreeWalker(signature, NodeFilter.SHOW_TEXT);
+  while (templateNodes.nextNode()) {
+    const part = normalizeEmailText(templateNodes.currentNode.textContent);
+    if (part) templateParts.set(part, (templateParts.get(part) || 0) + 1);
+  }
+  const extraParts = [];
+  const messageNodes = document.createTreeWalker(signatureNodes[0], NodeFilter.SHOW_TEXT);
+  while (messageNodes.nextNode()) {
+    const part = normalizeEmailText(messageNodes.currentNode.textContent);
+    if (!part) continue;
+    const remaining = templateParts.get(part) || 0;
+    if (remaining) templateParts.set(part, remaining - 1);
+    else extraParts.push(part);
+  }
+  return normalizeEmailText(extraParts.join(' '));
 }
 /* ── Toast ── */
 function money(v) {
