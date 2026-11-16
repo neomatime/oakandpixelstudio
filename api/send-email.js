@@ -1,12 +1,17 @@
 // Vercel serverless function — sends a document as a PDF attachment via Resend.
 // Required env var: RESEND_API_KEY (set in Vercel project settings)
 
+const { verifyCaller } = require('./_auth');
+
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') { res.status(200).end(); return; }
   if (req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed' }); return; }
+
+  const caller = await verifyCaller(req, process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+  if (!caller) { res.status(401).json({ error: 'Unauthorized' }); return; }
 
   const { to, subject, htmlBody, pdfBase64, pdfFilename } = req.body || {};
 

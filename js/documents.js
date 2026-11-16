@@ -604,7 +604,7 @@ async function _dispatchEmail({ templateHTML, filename, docType, clientName, doc
   try {
     res = await fetch('/api/send-email', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: await opsAuthHeaders(),
       body: JSON.stringify({
         to, subject,
         htmlBody: buildEmailHTML(docType, clientName, docNumber, message, signingLink),
@@ -674,7 +674,7 @@ async function requestSignatureForDoc(docType, docId, agreementKind) {
   try {
     const res = await fetch('/api/request-signature', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: await opsAuthHeaders(),
       body: JSON.stringify({
         doc_type:               docType,
         doc_number:             docNumber,
@@ -711,7 +711,7 @@ async function sendProposalEmail(proposalId) {
         const opsSignature = getStoredOpsSignature();
         const r = await fetch('/api/request-signature', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: await opsAuthHeaders(),
           body: JSON.stringify({
             doc_type: 'Proposal', doc_number: proposal.proposal_number,
             client_id: proposal.client_id, client_email: finalTo,
@@ -752,7 +752,7 @@ async function sendSOWEmail(scopeId) {
         const opsSignature = getStoredOpsSignature();
         const r = await fetch('/api/request-signature', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: await opsAuthHeaders(),
           body: JSON.stringify({
             doc_type: 'SOW', doc_number: scope.scope_number,
             client_id: client.id, client_email: finalTo,

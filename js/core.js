@@ -2,6 +2,14 @@
 const SB_URL = 'https://wdbsmcxzhmdkfjoftulm.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkYnNtY3h6aG1ka2Zqb2Z0dWxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDEwMTQsImV4cCI6MjA5NzM3NzAxNH0.xo9x29q_QVmDl81soUI3OMDzJBKmqEme-I6v5IZmeN0';
 const sb = supabase.createClient(SB_URL, SB_KEY);
+
+// JSON + Bearer headers for admin-only /api calls (server verifies the Supabase JWT).
+async function opsAuthHeaders() {
+  const { data: { session } } = await sb.auth.getSession();
+  const headers = { 'Content-Type': 'application/json' };
+  if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
+  return headers;
+}
 const $ = id => document.getElementById(id);
 
 let currentFilter = 'all';

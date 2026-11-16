@@ -1,10 +1,14 @@
 const crypto = require('crypto');
+const { verifyCaller } = require('./_auth');
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') { res.status(200).end(); return; }
   if (req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed' }); return; }
+
+  const caller = await verifyCaller(req, process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+  if (!caller) { res.status(401).json({ error: 'Unauthorized' }); return; }
 
   const {
     doc_type, doc_number, client_id, client_email, client_company,
