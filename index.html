@@ -535,6 +535,8 @@ section{position:relative}
 .process-num{position:absolute;left:2rem;top:1rem;z-index:2;font-family:var(--font-display);font-size:7rem;font-weight:300;line-height:1;color:rgba(255,255,255,.16)}
 .work-item:nth-child(1) .process-num{font-size:14rem;top:2.5rem}
 .work-item:nth-child(2) .process-num{color:rgba(10,10,9,.1)}
+.process-art{position:absolute;inset:0;width:100%;height:100%}
+.work-item:nth-child(4){grid-column:1/-1}
 .work-desc{font-size:.92rem;line-height:1.7;color:var(--slate);max-width:34rem;margin-top:.25rem}
 .partner-strip{margin-top:4rem;padding-top:2.5rem;border-top:1px solid var(--silk);display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap}
 .partner-label{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mist)}
@@ -1418,7 +1420,7 @@ footer{
             "itemOffered": {
               "@type": "Service",
               "name": "Signature Plan",
-              "description": "Custom-designed website up to 5 pages, mobile responsive, contact and lead forms, basic SEO, hosting and domain management, 2 monthly content updates, and email support. Pricing is R8,500 setup plus R1,500 per month."
+              "description": "Custom-designed website up to 5 pages, mobile responsive, contact and lead forms, basic SEO, hosting and domain management, 2 monthly content updates, and email support. Pricing is R12,500 setup plus R1,800 per month."
             }
           },
           {
@@ -1426,7 +1428,7 @@ footer{
             "itemOffered": {
               "@type": "Service",
               "name": "Growth Plan",
-              "description": "Everything in Signature, plus up to 10 pages, landing pages, online booking, blog or CMS, payment gateway or CRM integration, monthly SEO reporting, 5 monthly content updates, and priority support. Pricing is R18,500 setup plus R2,800 per month."
+              "description": "Everything in Signature, plus up to 10 pages, landing pages, online booking, blog or CMS, payment gateway or CRM integration, monthly SEO reporting, 5 monthly content updates, and priority support. Pricing is R25,000 setup plus R3,200 per month."
             }
           },
           {
@@ -1434,7 +1436,7 @@ footer{
             "itemOffered": {
               "@type": "Service",
               "name": "Premium Plan",
-              "description": "Everything in Growth, plus bespoke design, advanced animations, e-commerce or advanced integrations, custom features, unlimited content updates, monthly optimisation reviews, and a dedicated account lead. Pricing is from R35,000 setup plus R5,500 per month."
+              "description": "Everything in Growth, plus bespoke design, advanced animations, e-commerce or advanced integrations, custom features, unlimited content updates, monthly optimisation reviews, and a dedicated account lead. Pricing is from R55,000 setup plus R6,500 per month."
             }
           },
           {
@@ -1793,8 +1795,8 @@ footer{
         <h3 class="pricing-name">Signature</h3>
         <p class="pricing-fit"><strong>A professional website, done properly.</strong> A custom-designed site that presents your business well and turns visitors into enquiries.</p>
         <div class="pricing-price">
-          <div class="pricing-setup" data-price-field="setup">R8,500</div>
-          <div class="pricing-month" data-price-field="monthly">setup + R1,500/month</div>
+          <div class="pricing-setup" data-price-field="setup">R12,500</div>
+          <div class="pricing-month" data-price-field="monthly">setup + R1,800/month</div>
         </div>
         <ul class="pricing-list">
           <li>Custom-designed website up to 5 pages</li>
@@ -1810,8 +1812,8 @@ footer{
         <h3 class="pricing-name">Growth</h3>
         <p class="pricing-fit"><strong>Turn your website into a lead engine.</strong> A larger site with booking, payments and the SEO groundwork to bring in new customers.</p>
         <div class="pricing-price">
-          <div class="pricing-setup" data-price-field="setup">R18,500</div>
-          <div class="pricing-month" data-price-field="monthly">setup + R2,800/month</div>
+          <div class="pricing-setup" data-price-field="setup">R25,000</div>
+          <div class="pricing-month" data-price-field="monthly">setup + R3,200/month</div>
         </div>
         <ul class="pricing-list">
           <li>Everything in Signature</li>
@@ -1828,8 +1830,8 @@ footer{
         <h3 class="pricing-name">Premium</h3>
         <p class="pricing-fit"><strong>A website built around your business.</strong> A fully bespoke site with custom features, e-commerce or integrations, shaped around how your organisation operates.</p>
         <div class="pricing-price">
-          <div class="pricing-setup" data-price-field="setup">R35,000+</div>
-          <div class="pricing-month" data-price-field="monthly">setup + R5,500/month</div>
+          <div class="pricing-setup" data-price-field="setup">R55,000+</div>
+          <div class="pricing-month" data-price-field="monthly">setup + R6,500/month</div>
         </div>
         <ul class="pricing-list">
           <li>Everything in Growth</li>
@@ -1862,12 +1864,35 @@ footer{
         <div class="work-img">
           <div class="work-img-inner">
             <span class="process-num">01</span>
-            <!-- Refined geometric overlay -->
-            <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:.3" viewBox="0 0 600 700" fill="none">
-              <circle cx="300" cy="350" r="180" stroke="rgba(45,122,82,0.4)" stroke-width=".8"/>
-              <circle cx="300" cy="350" r="100" stroke="rgba(45,122,82,0.3)" stroke-width=".6"/>
-              <line x1="300" y1="0" x2="300" y2="700" stroke="rgba(255,255,255,0.06)" stroke-width=".5"/>
-              <line x1="0" y1="350" x2="600" y2="350" stroke="rgba(255,255,255,0.06)" stroke-width=".5"/>
+            <svg class="process-art" viewBox="190 190 520 600" preserveAspectRatio="xMidYMid meet" fill="none" aria-hidden="true">
+            <g transform="translate(70 170)">
+              <g stroke="rgba(255,255,255,.3)" stroke-width="1.2">
+                <rect x="180" y="150" width="300" height="400" rx="4" fill="rgba(255,255,255,.035)"/>
+                <line x1="180" y1="202" x2="480" y2="202"/>
+              </g>
+              <text x="202" y="182" fill="rgba(255,255,255,.55)" font-family="DM Mono, monospace" font-size="12" letter-spacing="3">PROJECT BRIEF</text>
+              <g stroke="#3D9966" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M204 252l8 8 14-16"/><path d="M204 312l8 8 14-16"/><path d="M204 372l8 8 14-16"/>
+              </g>
+              <g stroke="rgba(255,255,255,.32)" stroke-width="1.6" stroke-linecap="round">
+                <line x1="248" y1="250" x2="430" y2="250"/><line x1="248" y1="268" x2="384" y2="268"/>
+                <line x1="248" y1="310" x2="440" y2="310"/><line x1="248" y1="328" x2="360" y2="328"/>
+                <line x1="248" y1="370" x2="420" y2="370"/><line x1="248" y1="388" x2="392" y2="388"/>
+                <line x1="204" y1="440" x2="456" y2="440"/><line x1="204" y1="460" x2="410" y2="460"/><line x1="204" y1="480" x2="436" y2="480"/>
+              </g>
+              <rect x="204" y="506" width="86" height="24" rx="12" stroke="rgba(184,149,90,.85)"/>
+              <text x="222" y="522" fill="rgba(184,149,90,.95)" font-family="DM Mono, monospace" font-size="11" letter-spacing="2">BUDGET</text>
+              <g font-family="DM Mono, monospace" font-size="11" letter-spacing="2" fill="rgba(255,255,255,.8)">
+                <rect x="390" y="88" width="92" height="28" rx="14" stroke="rgba(61,153,102,.95)" fill="rgba(45,122,82,.2)"/><text x="410" y="106">GOALS</text>
+                <rect x="450" y="62" width="112" height="28" rx="14" stroke="rgba(61,153,102,.95)" fill="rgba(45,122,82,.2)" transform="translate(0 78)"/><text x="470" y="158">AUDIENCE</text>
+                <rect x="500" y="62" width="82" height="28" rx="14" stroke="rgba(61,153,102,.95)" fill="rgba(45,122,82,.2)" transform="translate(0 150)"/><text x="520" y="230">PAGES</text>
+              </g>
+              <g stroke="rgba(61,153,102,.6)" stroke-width="1.2" stroke-dasharray="4 5">
+                <path d="M390 102C340 102 330 130 330 150"/><path d="M450 154C420 154 410 160 480 190"/><path d="M500 226C490 230 486 232 480 236"/>
+              </g>
+              <circle cx="420" cy="470" r="62" stroke="#B8955A" stroke-width="2.6" fill="rgba(184,149,90,.07)"/>
+              <line x1="465" y1="515" x2="520" y2="570" stroke="#B8955A" stroke-width="6" stroke-linecap="round"/>
+            </g>
             </svg>
           </div>
         </div>
@@ -1882,9 +1907,29 @@ footer{
         <div class="work-img">
           <div class="work-img-inner">
             <span class="process-num">02</span>
-            <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:.4" viewBox="0 0 600 340" fill="none">
-              <rect x="160" y="80" width="280" height="180" stroke="rgba(10,10,9,0.15)" stroke-width=".8" fill="none"/>
-              <rect x="200" y="110" width="200" height="120" stroke="rgba(10,10,9,0.1)" stroke-width=".6" fill="none"/>
+            <svg class="process-art" viewBox="0 0 700 340" preserveAspectRatio="xMidYMid meet" fill="none" aria-hidden="true">
+            <g stroke="rgba(10,10,9,.36)" stroke-width="1.3">
+              <rect x="200" y="46" width="340" height="250" rx="4" fill="rgba(255,255,255,.55)"/>
+              <line x1="200" y1="76" x2="540" y2="76"/>
+              <circle cx="216" cy="61" r="3.5"/><circle cx="230" cy="61" r="3.5"/><circle cx="244" cy="61" r="3.5"/>
+              <rect x="220" y="96" width="190" height="112" fill="rgba(26,92,58,.1)"/>
+              <line x1="220" y1="96" x2="410" y2="208"/><line x1="410" y1="96" x2="220" y2="208"/>
+              <rect x="220" y="226" width="90" height="48"/><rect x="322" y="226" width="90" height="48"/><rect x="424" y="226" width="96" height="48"/>
+            </g>
+            <g stroke="rgba(10,10,9,.34)" stroke-width="2" stroke-linecap="round">
+              <line x1="428" y1="104" x2="520" y2="104"/><line x1="428" y1="122" x2="500" y2="122"/><line x1="428" y1="140" x2="512" y2="140"/>
+            </g>
+            <rect x="428" y="166" width="70" height="24" rx="2" stroke="#1A5C3A" stroke-width="1.5" fill="rgba(26,92,58,.18)"/>
+            <g stroke="rgba(10,10,9,.3)" stroke-width="1.2">
+              <circle cx="598" cy="84" r="15" fill="#1A5C3A"/><circle cx="598" cy="128" r="15" fill="#B8955A"/>
+              <circle cx="598" cy="172" r="15" fill="#0A0A09"/><circle cx="598" cy="216" r="15" fill="#EDE9E3"/>
+            </g>
+            <g stroke="rgba(10,10,9,.5)" stroke-width="1.3">
+              <path d="M110 292C150 270 140 190 196 168" stroke-dasharray="5 4"/>
+              <rect x="106" y="288" width="8" height="8" fill="#F5F4F1"/><rect x="192" y="164" width="8" height="8" fill="#F5F4F1"/>
+              <line x1="150" y1="262" x2="170" y2="236"/><circle cx="150" cy="262" r="3" fill="#F5F4F1"/><circle cx="170" cy="236" r="3" fill="#F5F4F1"/>
+            </g>
+            <path d="M486 246l0 26 7-6 5 12 5-2-5-12 9 0z" fill="#0A0A09" transform="translate(0 4)"/>
             </svg>
           </div>
         </div>
@@ -1899,9 +1944,32 @@ footer{
         <div class="work-img">
           <div class="work-img-inner">
             <span class="process-num">03</span>
-            <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:.4" viewBox="0 0 600 340" fill="none">
-              <path d="M100 170 L300 60 L500 170 L300 280Z" stroke="rgba(255,255,255,0.12)" stroke-width=".8" fill="none"/>
-              <circle cx="300" cy="170" r="60" stroke="rgba(255,255,255,0.1)" stroke-width=".6" fill="none"/>
+            <svg class="process-art" viewBox="0 0 700 340" preserveAspectRatio="xMidYMid meet" fill="none" aria-hidden="true">
+            <g stroke="rgba(255,255,255,.34)" stroke-width="1.3">
+              <rect x="170" y="52" width="224" height="244" rx="4" fill="rgba(0,0,0,.22)"/>
+              <line x1="170" y1="82" x2="394" y2="82"/>
+              <circle cx="186" cy="67" r="3.5"/><circle cx="200" cy="67" r="3.5"/><circle cx="214" cy="67" r="3.5"/>
+            </g>
+            <g stroke-width="5" stroke-linecap="round">
+              <line x1="190" y1="108" x2="250" y2="108" stroke="#B8955A"/><line x1="260" y1="108" x2="340" y2="108" stroke="rgba(255,255,255,.55)"/>
+              <line x1="206" y1="132" x2="290" y2="132" stroke="#7FD1A2"/><line x1="300" y1="132" x2="356" y2="132" stroke="rgba(255,255,255,.4)"/>
+              <line x1="206" y1="156" x2="262" y2="156" stroke="rgba(255,255,255,.55)"/><line x1="272" y1="156" x2="350" y2="156" stroke="#B8955A"/>
+              <line x1="222" y1="180" x2="320" y2="180" stroke="rgba(255,255,255,.4)"/>
+              <line x1="206" y1="204" x2="276" y2="204" stroke="#7FD1A2"/><line x1="286" y1="204" x2="336" y2="204" stroke="rgba(255,255,255,.55)"/>
+              <line x1="190" y1="228" x2="244" y2="228" stroke="rgba(255,255,255,.55)"/><line x1="254" y1="228" x2="320" y2="228" stroke="#B8955A"/>
+              <line x1="190" y1="252" x2="226" y2="252" stroke="rgba(255,255,255,.4)"/>
+            </g>
+            <path d="M408 170l12 0m-6 -7l7 7-7 7" stroke="rgba(255,255,255,.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <g stroke="rgba(255,255,255,.4)" stroke-width="1.3">
+              <rect x="436" y="72" width="140" height="190" rx="4" fill="rgba(255,255,255,.05)"/>
+              <line x1="436" y1="96" x2="576" y2="96"/>
+              <rect x="448" y="108" width="116" height="52" fill="rgba(127,209,162,.12)"/>
+              <rect x="448" y="172" width="54" height="40"/><rect x="510" y="172" width="54" height="40"/>
+              <rect x="448" y="224" width="116" height="14"/>
+              <rect x="598" y="118" width="54" height="108" rx="9" fill="rgba(255,255,255,.05)"/>
+              <rect x="608" y="134" width="34" height="34" fill="rgba(127,209,162,.14)"/><line x1="608" y1="182" x2="642" y2="182"/><line x1="608" y1="194" x2="632" y2="194"/>
+            </g>
+            <text x="436" y="286" fill="rgba(255,255,255,.6)" font-family="DM Mono, monospace" font-size="10" letter-spacing="3">RESPONSIVE</text>
             </svg>
           </div>
         </div>
@@ -1916,10 +1984,26 @@ footer{
         <div class="work-img">
           <div class="work-img-inner">
             <span class="process-num">04</span>
-            <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:.35" viewBox="0 0 600 340" fill="none">
-              <circle cx="200" cy="170" r="80" stroke="rgba(255,255,255,0.08)" stroke-width=".8" fill="none"/>
-              <circle cx="400" cy="170" r="80" stroke="rgba(255,255,255,0.08)" stroke-width=".8" fill="none"/>
-              <path d="M200 90 L400 90 L400 250 L200 250Z" stroke="rgba(255,255,255,0.06)" stroke-width=".5" fill="none"/>
+            <svg class="process-art" viewBox="0 0 700 340" preserveAspectRatio="xMidYMid meet" fill="none" aria-hidden="true">
+            <g stroke="rgba(255,255,255,.3)" stroke-width="1.3">
+              <rect x="170" y="52" width="236" height="244" rx="4" fill="rgba(255,255,255,.03)"/>
+              <line x1="170" y1="82" x2="406" y2="82"/>
+              <circle cx="186" cy="67" r="3.5"/><circle cx="200" cy="67" r="3.5"/><circle cx="214" cy="67" r="3.5"/>
+            </g>
+            <rect x="336" y="58" width="60" height="18" rx="9" fill="rgba(61,153,102,.2)" stroke="#3D9966"/>
+            <circle cx="348" cy="67" r="3" fill="#7FD1A2"/>
+            <text x="356" y="71" fill="#7FD1A2" font-family="DM Mono, monospace" font-size="9" letter-spacing="2">LIVE</text>
+            <g stroke="rgba(255,255,255,.18)" stroke-width="1"><line x1="190" y1="140" x2="386" y2="140"/><line x1="190" y1="190" x2="386" y2="190"/><line x1="190" y1="240" x2="386" y2="240"/></g>
+            <path d="M190 268C220 262 236 240 262 232S310 214 332 182S366 134 386 112L386 276L190 276Z" fill="rgba(61,153,102,.16)"/>
+            <path d="M190 268C220 262 236 240 262 232S310 214 332 182S366 134 386 112" stroke="#7FD1A2" stroke-width="2.2" stroke-linecap="round"/>
+            <circle cx="386" cy="112" r="4.5" fill="#7FD1A2"/>
+            <text x="190" y="110" fill="rgba(255,255,255,.55)" font-family="DM Mono, monospace" font-size="10" letter-spacing="2">UPTIME 99.9%</text>
+            <g font-family="DM Mono, monospace" font-size="11" letter-spacing="2" fill="rgba(255,255,255,.75)">
+              <circle cx="452" cy="98" r="13" stroke="#3D9966" stroke-width="1.5"/><path d="M446 98l4.5 4.5 8-9" stroke="#7FD1A2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="480" y="102">HOSTED</text>
+              <circle cx="452" cy="156" r="13" stroke="#3D9966" stroke-width="1.5"/><path d="M446 156l4.5 4.5 8-9" stroke="#7FD1A2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="480" y="160">SECURED</text>
+              <circle cx="452" cy="214" r="13" stroke="#3D9966" stroke-width="1.5"/><path d="M446 214l4.5 4.5 8-9" stroke="#7FD1A2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="480" y="218">UPDATED</text>
+              <circle cx="452" cy="272" r="13" stroke="#B8955A" stroke-width="1.5"/><path d="M446 272l4.5 4.5 8-9" stroke="#B8955A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="480" y="276" fill="rgba(184,149,90,.95)">SUPPORTED</text>
+            </g>
             </svg>
           </div>
         </div>
@@ -3066,13 +3150,13 @@ if(false)(function(){
   function voiceFallback(t){
     t = t.toLowerCase();
     if(t.match(/signature|basic|small/))
-      return 'The Signature Plan is a professional custom website for small businesses. It costs eight thousand five hundred rand once off, plus one thousand five hundred rand per month for hosting and support. It includes up to five pages, mobile responsive design, basic SEO, lead capture, and two content updates per month.';
+      return 'The Signature Plan is a professional custom website for small businesses. It costs twelve thousand five hundred rand once off, plus one thousand eight hundred rand per month for hosting and support. It includes up to five pages, mobile responsive design, basic SEO, lead capture, and two content updates per month.';
     if(t.match(/growth|lead|generat/))
-      return 'The Growth Plan is for businesses that want their website to generate leads. Setup is eighteen thousand five hundred rand, plus two thousand eight hundred rand per month. It includes everything in Signature, plus up to ten pages, landing pages, online booking, a blog, payment or CRM integration, and priority support.';
+      return 'The Growth Plan is for businesses that want their website to generate leads. Setup is twenty-five thousand rand, plus three thousand two hundred rand per month. It includes everything in Signature, plus up to ten pages, landing pages, online booking, a blog, payment or CRM integration, and priority support.';
     if(t.match(/private|premium|portal|enterprise/))
-      return 'The Premium Plan is a fully bespoke website. Setup starts from thirty-five thousand rand, plus five thousand five hundred rand per month. It includes everything in Growth, plus custom design, advanced animations, e-commerce or portal features, advanced integrations, unlimited content updates, and a dedicated account lead.';
+      return 'The Premium Plan is a fully bespoke website. Setup starts from fifty-five thousand rand, plus six thousand five hundred rand per month. It includes everything in Growth, plus custom design, advanced animations, e-commerce or portal features, advanced integrations, unlimited content updates, and a dedicated account lead.';
     if(t.match(/plan|price|cost|package|how much/))
-      return 'Oak and Pixel offers three website plans. Signature at eight thousand five hundred rand once off and one thousand five hundred a month. Growth at eighteen thousand five hundred rand once off and two thousand eight hundred a month. Premium from thirty-five thousand rand once off and five thousand five hundred a month. Which would you like to hear more about?';
+      return 'Oak and Pixel offers three website plans. Signature at twelve thousand five hundred rand once off and one thousand eight hundred a month. Growth at twenty-five thousand rand once off and three thousand two hundred a month. Premium from fifty-five thousand rand once off and six thousand five hundred a month. Which would you like to hear more about?';
     if(t.match(/privacy|data|cookie/))
       return 'Oak and Pixel takes your privacy seriously. We only collect what is necessary and never sell your data. You can request access or deletion at any time by emailing info at oakandpixel dot co dot za.';
     if(t.match(/contact|email|phone|reach|speak|talk|consult/))

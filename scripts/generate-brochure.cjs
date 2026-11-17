@@ -374,11 +374,11 @@ function buildPlans() {
           children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: 'Monthly', font: 'Courier New', size: 14, color: C.mist, characterSpacing: 30 })] })],
         }),
       ]}),
-      planRow('Signature',  'R8,500', 'R1,500'),
+      planRow('Signature',  'R12,500', 'R1,800'),
       featureRow('Up to 5 pages · Mobile-ready · Basic SEO · Hosting, domain, 2 updates/mo'),
-      planRow('Growth',     'R18,500', 'R2,800'),
+      planRow('Growth',     'R25,000', 'R3,200'),
       featureRow('Everything in Signature · Up to 10 pages · Booking · Blog · CRM / Payments'),
-      planRow('Premium',    'From R35,000', 'R5,500'),
+      planRow('Premium',    'From R55,000', 'R6,500'),
       featureRow('Everything in Growth · Bespoke design · E-commerce / portal · Advanced integrations'),
       // Closing rule row
       new TableRow({ children: [
