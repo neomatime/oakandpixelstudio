@@ -531,6 +531,11 @@ section{position:relative}
   transition:background .2s,color .2s;
 }
 .work-overlay-btn:hover{background:var(--emerald-l);color:var(--white)}
+.work-item{cursor:default}
+.process-num{position:absolute;left:2rem;top:1rem;z-index:2;font-family:var(--font-display);font-size:7rem;font-weight:300;line-height:1;color:rgba(255,255,255,.16)}
+.work-item:nth-child(1) .process-num{font-size:14rem;top:2.5rem}
+.work-item:nth-child(2) .process-num{color:rgba(10,10,9,.1)}
+.work-desc{font-size:.92rem;line-height:1.7;color:var(--slate);max-width:34rem;margin-top:.25rem}
 .partner-strip{margin-top:4rem;padding-top:2.5rem;border-top:1px solid var(--silk);display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap}
 .partner-label{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mist)}
 .partner-logos{display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap}
@@ -1495,7 +1500,7 @@ footer{
     <a href="#about">Studio</a>
     <a href="#services">Services</a>
     <a href="#pricing">Pricing</a>
-    <a href="#work">Work</a>
+    <a href="#work">Process</a>
     <a href="#standards">Standards</a>
     <a href="brochure.html">Brochure</a>
   </div>
@@ -1532,7 +1537,7 @@ footer{
     <a href="#about"        class="mob-link">Studio</a>
     <a href="#services"     class="mob-link">Services</a>
     <a href="#pricing"      class="mob-link">Pricing</a>
-    <a href="#work"         class="mob-link">Work</a>
+    <a href="#work"         class="mob-link">Process</a>
     <a href="#standards"    class="mob-link">Standards</a>
     <a href="brochure.html" class="mob-link">Brochure</a>
   </div>
@@ -1846,16 +1851,17 @@ footer{
   <div class="container">
     <div class="work-header">
       <div>
-        <div class="label reveal">Selected Work</div>
-        <h2 class="work-headline reveal reveal-delay-1">Selected websites</h2>
+        <div class="label reveal">Our Process</div>
+        <h2 class="work-headline reveal reveal-delay-1">From brief to launch</h2>
       </div>
-      <a href="#contact" class="work-more reveal reveal-delay-2">Discuss a Project</a>
+      <a href="#contact" class="work-more reveal reveal-delay-2">Start a Project</a>
     </div>
     <div class="work-grid">
       <!-- Feature -->
       <div class="work-item reveal">
         <div class="work-img">
           <div class="work-img-inner">
+            <span class="process-num">01</span>
             <!-- Refined geometric overlay -->
             <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:.3" viewBox="0 0 600 700" fill="none">
               <circle cx="300" cy="350" r="180" stroke="rgba(45,122,82,0.4)" stroke-width=".8"/>
@@ -1866,19 +1872,16 @@ footer{
           </div>
         </div>
         <div class="work-meta">
-          <div class="work-tag">Web Design · Development</div>
-          <div class="work-title">Meridian Capital Group</div>
-          <div class="work-year">2024</div>
-        </div>
-        <div class="work-overlay">
-          <div class="work-overlay-text">Finance Website</div>
-          <a href="#contact" class="work-overlay-btn">Discuss Similar Work</a>
+          <div class="work-tag">Step 01 · Discover</div>
+          <div class="work-title">Discover</div>
+          <p class="work-desc">We learn your business, your customers and your goals, then agree the pages, features and plan that fit.</p>
         </div>
       </div>
       <!-- Item 2 -->
       <div class="work-item reveal reveal-delay-1">
         <div class="work-img">
           <div class="work-img-inner">
+            <span class="process-num">02</span>
             <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:.4" viewBox="0 0 600 340" fill="none">
               <rect x="160" y="80" width="280" height="180" stroke="rgba(10,10,9,0.15)" stroke-width=".8" fill="none"/>
               <rect x="200" y="110" width="200" height="120" stroke="rgba(10,10,9,0.1)" stroke-width=".6" fill="none"/>
@@ -1886,19 +1889,16 @@ footer{
           </div>
         </div>
         <div class="work-meta">
-          <div class="work-tag">Web Design · UI/UX</div>
-          <div class="work-title">Atelier Novem</div>
-          <div class="work-year">2024</div>
-        </div>
-        <div class="work-overlay">
-          <div class="work-overlay-text">Luxury E-Commerce</div>
-          <a href="#contact" class="work-overlay-btn">Discuss Similar Work</a>
+          <div class="work-tag">Step 02 · Design</div>
+          <div class="work-title">Design</div>
+          <p class="work-desc">A custom layout in your brand, shared for feedback before a line of code is written.</p>
         </div>
       </div>
       <!-- Item 3 -->
       <div class="work-item reveal reveal-delay-2">
         <div class="work-img">
           <div class="work-img-inner">
+            <span class="process-num">03</span>
             <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:.4" viewBox="0 0 600 340" fill="none">
               <path d="M100 170 L300 60 L500 170 L300 280Z" stroke="rgba(255,255,255,0.12)" stroke-width=".8" fill="none"/>
               <circle cx="300" cy="170" r="60" stroke="rgba(255,255,255,0.1)" stroke-width=".6" fill="none"/>
@@ -1906,19 +1906,16 @@ footer{
           </div>
         </div>
         <div class="work-meta">
-          <div class="work-tag">Brand Experience</div>
-          <div class="work-title">Verdant Protocol</div>
-          <div class="work-year">2023</div>
-        </div>
-        <div class="work-overlay">
-          <div class="work-overlay-text">Brand Website</div>
-          <a href="#contact" class="work-overlay-btn">Discuss Similar Work</a>
+          <div class="work-tag">Step 03 · Build</div>
+          <div class="work-title">Build</div>
+          <p class="work-desc">A fast, mobile-ready website with SEO basics, forms, booking and any integrations you need.</p>
         </div>
       </div>
       <!-- Item 4 -->
       <div class="work-item reveal reveal-delay-3">
         <div class="work-img">
           <div class="work-img-inner">
+            <span class="process-num">04</span>
             <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:.35" viewBox="0 0 600 340" fill="none">
               <circle cx="200" cy="170" r="80" stroke="rgba(255,255,255,0.08)" stroke-width=".8" fill="none"/>
               <circle cx="400" cy="170" r="80" stroke="rgba(255,255,255,0.08)" stroke-width=".8" fill="none"/>
@@ -1927,13 +1924,9 @@ footer{
           </div>
         </div>
         <div class="work-meta">
-          <div class="work-tag">Web Design · Integrations</div>
-          <div class="work-title">Obsidian Systems</div>
-          <div class="work-year">2023</div>
-        </div>
-        <div class="work-overlay">
-          <div class="work-overlay-text">Corporate Website</div>
-          <a href="#contact" class="work-overlay-btn">Discuss Similar Work</a>
+          <div class="work-tag">Step 04 · Launch & Care</div>
+          <div class="work-title">Launch & care</div>
+          <p class="work-desc">We go live, then host, secure, update and improve your website every month.</p>
         </div>
       </div>
     </div>
