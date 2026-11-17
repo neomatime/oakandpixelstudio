@@ -1,6 +1,6 @@
 # Oak & Pixel
 
-> Oak & Pixel Studio is a boutique premium digital studio in Randburg, Gauteng, South Africa. The studio builds refined websites, booking experiences, client portals, integrations, and ongoing digital presence management for trust-driven businesses.
+> Oak & Pixel Studio is a web design agency in Randburg, Gauteng, South Africa. The studio designs, builds, hosts, and maintains refined websites for service-based and trust-driven businesses.
 
 ## Key Links
 
@@ -12,10 +12,10 @@
 
 ## Services
 
-- Signature Plan: Premium website up to 5 pages, booking integration, lead capture, domain and hosting management, maintenance, 2 content updates/month, and email support. R25,000 setup + R4,499/month.
-- Growth Plan: Everything in Signature plus up to 10 pages, landing pages, client onboarding journeys, document collection, CRM integration, payment integration, 5 content updates/month, and priority support. R40,000 setup + R6,999/month.
-- Premium Plan: Everything in Growth plus bespoke digital experiences, advanced animations, tailored journeys, client portal implementation, advanced integrations, monthly optimization reviews, and a dedicated account lead. R65,000 setup + R12,499/month.
-- Digital Experience Scope: Focused scoping conversation to match the right OPS plan to the client journey, website requirements, integrations, and support needs.
+- Signature Plan: Custom-designed website up to 5 pages, mobile responsive, contact and lead forms, basic SEO, hosting and domain management, 2 content updates/month, and email support. R8,500 setup + R1,500/month.
+- Growth Plan: Everything in Signature plus up to 10 pages, landing pages, online booking, blog or CMS, payment gateway or CRM integration, monthly SEO report, 5 content updates/month, and priority support. R18,500 setup + R2,800/month.
+- Premium Plan: Everything in Growth plus bespoke design, advanced animations, e-commerce or client portal functionality, advanced integrations, unlimited content updates, monthly optimisation reviews, and a dedicated account lead. From R35,000 setup + R5,500/month.
+- Website Scoping Call: Free conversation to match the right website plan to the business, page requirements, integrations, and support needs.
 
 ## Contact
 

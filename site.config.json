@@ -3,7 +3,7 @@
     "name": "Oak & Pixel",
     "legalName": "Oak & Pixel Studio",
     "baseUrl": "https://www.oakandpixel.co.za",
-    "description": "Oak & Pixel Studio is a boutique premium digital studio in Randburg building refined websites, booking experiences, client portals, integrations, and ongoing digital presence management.",
+    "description": "Oak & Pixel Studio is a web design agency in Randburg that designs, builds, hosts, and maintains refined websites for service-based businesses.",
     "email": "info@oakandpixel.co.za",
     "phoneDisplay": "+27 (75) 089 0614",
     "phoneE164": "+27750890614",
@@ -23,7 +23,7 @@
     {
       "file": "index.html",
       "url": "https://www.oakandpixel.co.za/",
-      "title": "Oak & Pixel - Digital Infrastructure, Designed with Distinction",
+      "title": "Oak & Pixel - Web Design Agency in Randburg, South Africa",
       "priority": "1.0"
     },
     {
@@ -48,19 +48,19 @@
   "services": [
     {
       "name": "Signature Plan",
-      "summary": "A professional digital foundation with a premium website up to 5 pages, booking integration, lead capture, domain and hosting management, website maintenance, 2 monthly content updates, and email support. Pricing is R25,000 setup plus R4,499/month."
+      "summary": "A professional custom website up to 5 pages, mobile responsive, with contact and lead forms, basic SEO, hosting and domain management, 2 monthly content updates, and email support. Pricing is R8,500 setup plus R1,500/month."
     },
     {
       "name": "Growth Plan",
-      "summary": "The core OPS offering for growing businesses, with everything in Signature plus up to 10 pages, landing pages, onboarding journeys, document collection, CRM integration, payment integration, 5 monthly content updates, and priority support. Pricing is R40,000 setup plus R6,999/month."
+      "summary": "A larger website built to generate leads, with everything in Signature plus up to 10 pages, landing pages, online booking, blog or CMS, payment or CRM integration, a monthly SEO report, 5 monthly content updates, and priority support. Pricing is R18,500 setup plus R2,800/month."
     },
     {
       "name": "Premium Plan",
-      "summary": "A highly tailored digital ecosystem with everything in Growth plus bespoke digital experiences, interactive sections, advanced animations, client portal implementation, advanced integrations, monthly optimization reviews, and a dedicated account lead. Pricing is R65,000 setup plus R12,499/month."
+      "summary": "A fully bespoke website with everything in Growth plus custom design, advanced animations, e-commerce or client portal functionality, advanced integrations, unlimited content updates, monthly optimisation reviews, and a dedicated account lead. Pricing is from R35,000 setup plus R5,500/month."
     },
     {
-      "name": "Digital Experience Scope",
-      "summary": "A focused scoping conversation for matching the right OPS plan to the client journey, website requirements, integrations, and support needs."
+      "name": "Website Scoping Call",
+      "summary": "A free conversation to match the right website plan to your business, page requirements, integrations, and support needs."
     }
   ],
   "validation": {
