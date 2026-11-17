@@ -5,7 +5,7 @@ import { promisify } from 'node:util';
 
 const run = promisify(execFile);
 const root = process.cwd();
-const dirs = ['.', 'js', 'api'];
+const dirs = ['.'];
 
 async function jsFiles() {
   const out = [];
