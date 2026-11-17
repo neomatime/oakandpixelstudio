@@ -232,7 +232,7 @@ function buildAbout() {
           shading: { fill: C.silk, type: ShadingType.CLEAR },
           margins: { top: 100, bottom: 100, left: 100, right: 60 },
           children: [
-            new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: '7', font: 'Georgia', size: 40, color: C.black })] }),
+            new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: '10', font: 'Georgia', size: 40, color: C.black })] }),
             new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'CLIENT SLOTS', font: 'Courier New', size: 12, color: C.mist, characterSpacing: 20 })] }),
           ],
         }),
